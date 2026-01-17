@@ -95,15 +95,24 @@ export function generatePlans(
     const newCombinations: Course[][] = [];
 
     // Safety break if combinations explode
-    if (combinations.length > 5000) {
-      // optimization: prune combinations early?
-      // For MVP just truncating is safer to avoid freezing UI
-      break;
-    }
-
-    for (const combo of combinations) {
-      for (const option of options) {
-        newCombinations.push([...combo, option]);
+    if (combinations.length * options.length > 20000) {
+      // If we can't add another course without exploding, just stop and keep what we have
+      // but warn the user. Actually, better to just limit the search space per course.
+      console.warn("Combinations space too large, limiting options for", key);
+      const limitedOptions = options.slice(
+        0,
+        Math.floor(20000 / combinations.length),
+      );
+      for (const combo of combinations) {
+        for (const option of limitedOptions) {
+          newCombinations.push([...combo, option]);
+        }
+      }
+    } else {
+      for (const combo of combinations) {
+        for (const option of options) {
+          newCombinations.push([...combo, option]);
+        }
       }
     }
     combinations = newCombinations;
