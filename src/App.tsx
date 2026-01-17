@@ -1,5 +1,5 @@
 import { SignInButton, SignOutButton, useUser } from "@clerk/clerk-react";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,15 +16,19 @@ import { useEffect } from "react";
 
 function App() {
   const { isSignedIn, user } = useUser();
-  const userData = useQuery(api.users.getCurrentUser);
+  const { isAuthenticated } = useConvexAuth();
+  const userData = useQuery(
+    api.users.getCurrentUser,
+    isAuthenticated ? {} : "skip",
+  );
   const ensureUser = useMutation(api.users.ensureUser);
 
   // Sync user to Convex
   useEffect(() => {
-    if (isSignedIn) {
-      ensureUser();
+    if (isAuthenticated) {
+      ensureUser().catch((err) => console.error("Sync user error:", err));
     }
-  }, [isSignedIn, ensureUser]);
+  }, [isAuthenticated, ensureUser]);
 
   if (!isSignedIn) {
     return (
