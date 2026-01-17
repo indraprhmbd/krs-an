@@ -15,7 +15,13 @@ export const getCurrentUser = query({
         q.eq("tokenIdentifier", identity.tokenIdentifier),
       )
       .unique();
-    return user ? { ...user, isAdmin: !!user.isAdmin } : null;
+
+    return {
+      ...user,
+      tokenIdentifier: identity.tokenIdentifier,
+      isAdmin: !!user?.isAdmin,
+      credits: user?.credits ?? 0,
+    };
   },
 });
 

@@ -44,7 +44,18 @@ export function AdminDashboard() {
   const [rawText, setRawText] = useState("");
   const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
 
-  if (!user || !user.isAdmin) {
+  if (user === undefined) {
+    return (
+      <div className="flex flex-col items-center justify-center p-40 space-y-4">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-700" />
+        <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest animate-pulse">
+          Authenticating Architect...
+        </p>
+      </div>
+    );
+  }
+
+  if (user === null || !user.isAdmin) {
     return (
       <div className="flex flex-col items-center justify-center p-20 space-y-4">
         <AlertCircle className="w-12 h-12 text-red-500" />
