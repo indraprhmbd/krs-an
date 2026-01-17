@@ -56,6 +56,16 @@ export function AdminDashboard() {
         <Button variant="outline" onClick={() => (window.location.href = "/")}>
           Return to Base
         </Button>
+        {user?.tokenIdentifier && (
+          <div className="mt-8 pt-8 border-t border-slate-100 text-center">
+            <p className="text-[10px] font-mono text-slate-300 uppercase tracking-widest mb-2">
+              Architect Identity Token
+            </p>
+            <code className="px-3 py-1 bg-slate-50 rounded text-[10px] text-slate-400 font-mono break-all max-w-xs">
+              {user.tokenIdentifier}
+            </code>
+          </div>
+        )}
       </div>
     );
   }

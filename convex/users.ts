@@ -44,10 +44,12 @@ export const ensureUser = mutation({
     }
 
     // Create new user
+    const firstUser = (await ctx.db.query("users").first()) === null;
     const userId = await ctx.db.insert("users", {
       tokenIdentifier: identity.tokenIdentifier,
       credits: 5, // Daily limit
       lastResetDate: new Date().toISOString().split("T")[0],
+      isAdmin: firstUser, // First user is architect
     });
 
     return userId;
