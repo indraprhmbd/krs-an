@@ -341,7 +341,7 @@ export function ScheduleMaker() {
               className="flex-1 md:flex-none bg-blue-700 hover:bg-blue-800 text-white h-11 px-8 rounded-xl font-display font-medium shadow-lg shadow-blue-100 transition-all hover:scale-[1.02]"
             >
               <Brain className="w-4 h-4 mr-2" />
-              Arrange Schedule
+              Plan Plus (AI)
             </Button>
           </div>
         </div>
@@ -643,7 +643,7 @@ export function ScheduleMaker() {
                           <span className="text-[9px] font-mono text-slate-500 uppercase">
                             {c.code}
                           </span>
-                          <p className="font-bold text-slate-900 group-hover:text-blue-700 transition-colors truncate max-w-[140px] text-xs">
+                          <p className="font-bold text-slate-900 group-hover:text-blue-700 transition-colors text-xs leading-tight">
                             {c.name}
                           </p>
                         </div>

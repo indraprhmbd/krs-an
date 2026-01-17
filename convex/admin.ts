@@ -1,5 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { paginationOptsValidator } from "convex/server";
+import { logAudit } from "./audit";
 
 // Helper to verify admin status
 async function checkAdmin(ctx: any) {
@@ -19,6 +21,25 @@ async function checkAdmin(ctx: any) {
 }
 
 // Master Schedule Operations
+export const getPaginatedMasterCourses = query({
+  args: {
+    prodi: v.optional(v.string()),
+    search: v.optional(v.string()),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    if (args.prodi && args.prodi !== "all") {
+      return await ctx.db
+        .query("master_courses")
+        .withIndex("by_prodi", (q) => q.eq("prodi", args.prodi!))
+        .paginate(args.paginationOpts);
+    }
+
+    // Standard pagination without prodi filter
+    return await ctx.db.query("master_courses").paginate(args.paginationOpts);
+  },
+});
+
 export const listMasterCourses = query({
   args: { prodi: v.optional(v.string()) },
   handler: async (ctx, args) => {
@@ -55,22 +76,45 @@ export const bulkImportMaster = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    await checkAdmin(ctx);
+    const user = await checkAdmin(ctx);
 
-    // For simplicity, we'll clear current master for that prodi or just append?
-    // Let's just append for now, or the user can decide.
-    // Actually, usually bulk import replaces.
-    for (const course of args.courses) {
-      await ctx.db.insert("master_courses", course);
-    }
-    return { success: true, count: args.courses.length };
+    const inputs = args.courses;
+    const results = await Promise.all(
+      inputs.map(async (course) => {
+        // Check for existing course to prevent duplicates (basic check by code + class)
+        // We use 'first()' instead of unique() because there might be bad data already.
+        const existing = await ctx.db
+          .query("master_courses")
+          .withIndex("by_code", (q) => q.eq("code", course.code))
+          .filter((q) => q.eq(q.field("class"), course.class))
+          .first();
+
+        if (existing) {
+          // Update existing? Or Skip? For import, usually update or skip.
+          // Let's UPDATE to ensure fresh data.
+          await ctx.db.patch(existing._id, course);
+          return { status: "updated", id: existing._id };
+        } else {
+          const id = await ctx.db.insert("master_courses", course);
+          return { status: "inserted", id };
+        }
+      }),
+    );
+
+    await logAudit(ctx, {
+      user: user.tokenIdentifier,
+      action: "bulk_import",
+      details: `Imported/Updated ${results.length} courses`,
+    });
+
+    return { success: true, count: results.length };
   },
 });
 
 export const clearMasterData = mutation({
   args: { prodi: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    await checkAdmin(ctx);
+    const user = await checkAdmin(ctx);
     let items;
     if (args.prodi) {
       items = await ctx.db
@@ -81,9 +125,51 @@ export const clearMasterData = mutation({
       items = await ctx.db.query("master_courses").collect();
     }
 
-    for (const item of items) {
-      await ctx.db.delete(item._id);
-    }
+    // Batch delete
+    await Promise.all(items.map((item) => ctx.db.delete(item._id)));
+
+    await logAudit(ctx, {
+      user: user.tokenIdentifier,
+      action: "clear_master_data",
+      details: args.prodi ? `Cleared ${args.prodi}` : "Cleared ALL",
+    });
+  },
+});
+
+export const updateMasterCourse = mutation({
+  args: {
+    id: v.id("master_courses"),
+    updates: v.object({
+      code: v.optional(v.string()),
+      name: v.optional(v.string()),
+      sks: v.optional(v.number()),
+      prodi: v.optional(v.string()),
+      class: v.optional(v.string()),
+      lecturer: v.optional(v.string()),
+      room: v.optional(v.string()),
+      capacity: v.optional(v.number()),
+      schedule: v.optional(
+        v.array(
+          v.object({
+            day: v.string(),
+            start: v.string(),
+            end: v.string(),
+          }),
+        ),
+      ),
+    }),
+  },
+  handler: async (ctx, args) => {
+    await checkAdmin(ctx);
+    await ctx.db.patch(args.id, args.updates);
+  },
+});
+
+export const deleteMasterCourse = mutation({
+  args: { id: v.id("master_courses") },
+  handler: async (ctx, args) => {
+    await checkAdmin(ctx);
+    await ctx.db.delete(args.id);
   },
 });
 

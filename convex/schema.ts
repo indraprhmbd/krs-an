@@ -37,7 +37,6 @@ export default defineSchema({
     .index("by_code", ["code"])
     .index("by_prodi", ["prodi"]),
 
-  // Curriculum definition (mandatory courses per semester)
   curriculum: defineTable({
     prodi: v.string(),
     semester: v.number(), // 1-8
@@ -46,6 +45,20 @@ export default defineSchema({
     name: v.string(),
     sks: v.number(),
   }).index("by_prodi_semester", ["prodi", "semester"]),
+
+  // AI Caching to reduce API costs
+  ai_cache: defineTable({
+    hash: v.string(),
+    response: v.any(), // JSON result from Gemini
+  }).index("by_hash", ["hash"]),
+
+  // Audit Logging for security
+  audit_logs: defineTable({
+    user: v.string(), // User Token or Email
+    action: v.string(),
+    details: v.optional(v.string()),
+    timestamp: v.number(),
+  }).index("by_timestamp", ["timestamp"]),
 
   usage_logs: defineTable({
     userId: v.id("users"),

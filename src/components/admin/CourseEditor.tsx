@@ -1,15 +1,15 @@
 import { useState, useEffect } from "react";
-import { Course, TimeSlot, DayOfWeek } from "../types";
+import { Course, TimeSlot, DayOfWeek } from "@/types";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Trash2, Plus, Clock } from "lucide-react";
 
 interface CourseEditorProps {
@@ -208,7 +208,7 @@ export function CourseEditor({
               >
                 <select
                   value={slot.day}
-                  onChange={(e) => updateSlot(i, "day", e.target.value)}
+                  onChange={(e) => updateSlot(i, "day", e.target.value as any)}
                   className="bg-white border border-slate-200 rounded-lg h-8 px-2 text-[10px] font-mono focus:ring-1 focus:ring-blue-700 outline-none"
                 >
                   {DAYS.map((d) => (
@@ -221,14 +221,18 @@ export function CourseEditor({
                   <Input
                     type="time"
                     value={slot.start}
-                    onChange={(e) => updateSlot(i, "start", e.target.value)}
+                    onChange={(e) =>
+                      updateSlot(i, "start", e.target.value as any)
+                    }
                     className="h-8 w-24 border-slate-200 bg-white text-[10px] font-mono px-2"
                   />
                   <span className="text-slate-300 text-[10px]">-</span>
                   <Input
                     type="time"
                     value={slot.end}
-                    onChange={(e) => updateSlot(i, "end", e.target.value)}
+                    onChange={(e) =>
+                      updateSlot(i, "end", e.target.value as any)
+                    }
                     className="h-8 w-24 border-slate-200 bg-white text-[10px] font-mono px-2"
                   />
                 </div>
