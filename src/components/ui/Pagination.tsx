@@ -61,7 +61,7 @@ export function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex items-center justify-center gap-1 p-4 border-t border-slate-100 bg-slate-50/30">
+    <div className="flex flex-wrap items-center justify-center gap-1 p-4 border-t border-slate-100 bg-slate-50/30">
       {/* Previous Button */}
       <Button
         variant="outline"
