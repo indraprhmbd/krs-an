@@ -17,6 +17,11 @@ import {
   Brain,
   CheckCircle2,
   ChevronLeft,
+  Download,
+  FileJson,
+  Edit3,
+  Trash,
+  Plus,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { ScheduleGrid } from "./ScheduleGrid";
@@ -24,6 +29,8 @@ import { generatePlans } from "@/lib/scheduler";
 import type { Course, Plan } from "@/types";
 import { PlanAnalysis } from "./PlanAnalysis";
 import { toast } from "sonner";
+import { CourseEditor } from "./CourseEditor";
+import { downloadJSON, parseJSONFile } from "@/lib/data-io";
 
 export function ScheduleMaker() {
   const { getToken } = useAuth();
@@ -35,6 +42,10 @@ export function ScheduleMaker() {
   const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlanIndex, setCurrentPlanIndex] = useState(0);
+
+  // Manual CRUD state
+  const [isEditorOpen, setIsEditorOpen] = useState(false);
+  const [editingCourse, setEditingCourse] = useState<Course | null>(null);
 
   // AI Backend Mutation
   const aiMutation = useReactQueryMutation({
@@ -95,6 +106,62 @@ export function ScheduleMaker() {
     );
   };
 
+  const handleManualInput = () => {
+    setEditingCourse(null);
+    setIsEditorOpen(true);
+  };
+
+  const handleEditCourse = (e: React.MouseEvent, course: Course) => {
+    e.stopPropagation();
+    setEditingCourse(course);
+    setIsEditorOpen(true);
+  };
+
+  const handleDeleteCourse = (e: React.MouseEvent, courseId: string) => {
+    e.stopPropagation();
+    setCourses((prev) => prev.filter((c) => c.id !== courseId));
+    toast.success("Academic component removed.");
+  };
+
+  const handleSaveCourse = (course: Course) => {
+    setCourses((prev) => {
+      const exists = prev.find((c) => c.id === course.id);
+      if (exists) {
+        return prev.map((c) => (c.id === course.id ? course : c));
+      }
+      return [...prev, course];
+    });
+
+    // Handle auto-selection for new courses
+    if (!selectedCodes.includes(course.code)) {
+      setSelectedCodes((prev) => [...prev, course.code]);
+    }
+
+    if (step === "upload") setStep("select");
+    toast.success("Strategy component synced.");
+  };
+
+  const handleExportJSON = () => {
+    if (courses.length === 0) return;
+    downloadJSON(courses, `krsan-data-${Date.now()}.json`);
+    toast.success("Strategy data exported.");
+  };
+
+  const handleImportJSON = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const data = await parseJSONFile(file);
+      setCourses(data);
+      const uniqueCodes = Array.from(new Set(data.map((c) => c.code)));
+      setSelectedCodes(uniqueCodes);
+      setStep("select");
+      toast.success("Strategy data imported.");
+    } catch (err: any) {
+      toast.error(err.message);
+    }
+  };
+
   if (step === "upload") {
     return (
       <div className="max-w-2xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -134,17 +201,60 @@ export function ScheduleMaker() {
                   ? "Analyzing Documents..."
                   : "Select Document"}
               </CardTitle>
-              <CardDescription className="max-w-xs mx-auto mb-6">
-                Drag and drop your KRS PDF here or click to browse your files.
+              <CardDescription className="max-w-xs mx-auto mb-6 leading-relaxed">
+                Drag and drop your academic PDF or click to browse. Let AI
+                architect your semester.
               </CardDescription>
-              <div className="flex items-center gap-2 bg-slate-900 text-white px-4 py-1.5 rounded-full shadow-lg">
+              <div className="flex items-center gap-2 bg-slate-900 text-white px-4 py-1.5 rounded-full shadow-lg mb-8">
                 <span className="text-[10px] font-mono tracking-widest uppercase">
                   {userData?.credits ?? 5} TOKENS REMAINING
                 </span>
               </div>
             </label>
+
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8 border-t border-slate-100">
+              <Button
+                variant="ghost"
+                onClick={handleManualInput}
+                className="font-mono text-[10px] uppercase tracking-widest text-slate-400 hover:text-blue-700 transition-colors gap-2"
+              >
+                <Plus className="w-3.5 h-3.5" /> Manual Architecture
+              </Button>
+              <div className="hidden sm:block w-1.5 h-1.5 rounded-full bg-slate-200" />
+              <div className="relative">
+                <input
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  id="json-import"
+                  onChange={handleImportJSON}
+                />
+                <label htmlFor="json-import">
+                  <Button
+                    variant="ghost"
+                    asChild
+                    className="font-mono text-[10px] uppercase tracking-widest text-slate-400 hover:text-blue-700 transition-colors gap-2 cursor-pointer"
+                  >
+                    <span>
+                      <FileJson className="w-3.5 h-3.5" /> Import Strategy
+                    </span>
+                  </Button>
+                </label>
+              </div>
+            </div>
           </CardContent>
         </Card>
+
+        <p className="text-center text-[10px] font-mono text-slate-300 uppercase tracking-[0.3em]">
+          INTELLIGENT ACADEMIC COMPOSER
+        </p>
+
+        <CourseEditor
+          isOpen={isEditorOpen}
+          onClose={() => setIsEditorOpen(false)}
+          course={editingCourse}
+          onSave={handleSaveCourse}
+        />
       </div>
     );
   }
@@ -181,10 +291,23 @@ export function ScheduleMaker() {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Add Manual Option */}
+          <Card
+            onClick={handleManualInput}
+            className="border-2 border-dashed border-slate-100 bg-slate-50/50 hover:bg-white hover:border-blue-200 transition-all duration-300 cursor-pointer flex flex-col items-center justify-center min-h-[180px] group"
+          >
+            <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mb-4 border border-slate-100 group-hover:border-blue-100 transition-colors shadow-sm">
+              <Plus className="w-5 h-5 text-slate-300 group-hover:text-blue-700" />
+            </div>
+            <span className="text-xs font-mono uppercase tracking-[0.2em] text-slate-400 group-hover:text-blue-700">
+              Add Component
+            </span>
+          </Card>
+
           {Object.entries(grouped).map(([code, options]) => (
             <Card
               key={code}
-              className={`cursor-pointer transition-all duration-300 border-2 overflow-hidden group ${
+              className={`cursor-pointer transition-all duration-300 border-2 overflow-hidden group relative ${
                 selectedCodes.includes(code)
                   ? "border-blue-700 bg-blue-50/10 shadow-xl shadow-blue-50/50"
                   : "border-slate-100 hover:border-blue-200 hover:shadow-lg"
@@ -208,9 +331,29 @@ export function ScheduleMaker() {
                     )}
                   </div>
                 </div>
-                <CardTitle className="text-lg font-display leading-tight group-hover:text-blue-700 transition-colors">
+                <CardTitle className="text-lg font-display leading-tight group-hover:text-blue-700 transition-colors mb-2 pr-12">
                   {options[0].name}
                 </CardTitle>
+
+                {/* Edit/Delete Overlays */}
+                <div className="absolute top-16 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 rounded-lg border-slate-100 hover:text-blue-700 bg-white/80 backdrop-blur"
+                    onClick={(e) => handleEditCourse(e, options[0])}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 rounded-lg border-slate-100 hover:text-red-500 hover:bg-red-50 bg-white/80 backdrop-blur"
+                    onClick={(e) => handleDeleteCourse(e, options[0].id)}
+                  >
+                    <Trash className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="p-6 pt-0">
                 <div className="flex items-center gap-2 text-xs font-mono text-slate-400 uppercase tracking-widest mt-2">
@@ -222,7 +365,7 @@ export function ScheduleMaker() {
           ))}
         </div>
 
-        <div className="flex justify-center pt-8">
+        <div className="flex flex-col sm:flex-row justify-between items-center pt-8 border-t border-slate-100 gap-4">
           <Button
             variant="link"
             onClick={() => setStep("upload")}
@@ -230,7 +373,22 @@ export function ScheduleMaker() {
           >
             <ChevronLeft className="w-3 h-3" /> Start Over
           </Button>
+
+          <Button
+            variant="outline"
+            onClick={handleExportJSON}
+            className="gap-2 font-mono text-[10px] uppercase tracking-widest border-slate-200 hover:bg-slate-50 hover:text-blue-700 h-10 px-6 rounded-xl"
+          >
+            <Download className="w-3.5 h-3.5" /> Export Strategy
+          </Button>
         </div>
+
+        <CourseEditor
+          isOpen={isEditorOpen}
+          onClose={() => setIsEditorOpen(false)}
+          course={editingCourse}
+          onSave={handleSaveCourse}
+        />
       </div>
     );
   }
