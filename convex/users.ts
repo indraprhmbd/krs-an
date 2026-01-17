@@ -1,5 +1,4 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
 
 // Helper to get current user
 export const getCurrentUser = query({
