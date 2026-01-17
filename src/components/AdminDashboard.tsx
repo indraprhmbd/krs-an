@@ -18,15 +18,31 @@ import {
   Trash2,
   Loader2,
   AlertCircle,
+  Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "./ui/dialog";
+import { useAuth } from "@clerk/clerk-react";
+import { Textarea } from "./ui/textarea";
+
 export function AdminDashboard() {
   const user = useQuery(api.users.getCurrentUser);
   const masterCourses = useQuery(api.admin.listMasterCourses, {});
   const bulkImport = useMutation(api.admin.bulkImportMaster);
   const clearMaster = useMutation(api.admin.clearMasterData);
+  const { getToken } = useAuth();
 
   const [isImporting, setIsImporting] = useState(false);
+  const [isAiCleaning, setIsAiCleaning] = useState(false);
+  const [rawText, setRawText] = useState("");
+  const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
 
   if (!user || !user.isAdmin) {
     return (
@@ -65,6 +81,37 @@ export function AdminDashboard() {
       toast.error("Deployment failed: " + err.message);
     } finally {
       setIsImporting(false);
+    }
+  };
+
+  const handleAiCleanup = async () => {
+    if (!rawText.trim()) return;
+    setIsAiCleaning(true);
+    try {
+      const clerkToken = await getToken();
+      const baseUrl = import.meta.env.VITE_AI_API_URL?.replace(/\/$/, "");
+      const res = await fetch(`${baseUrl}/process-master-data`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${clerkToken}`,
+        },
+        body: JSON.stringify({ text: rawText }),
+      });
+
+      if (!res.ok) throw new Error("AI cleaning failed");
+      const data = await res.json();
+
+      await bulkImport({ courses: data });
+      toast.success(
+        `AI successfully cleaned and deployed ${data.length} components.`,
+      );
+      setIsAiDialogOpen(false);
+      setRawText("");
+    } catch (err: any) {
+      toast.error("Cleanup failed: " + err.message);
+    } finally {
+      setIsAiCleaning(false);
     }
   };
 
@@ -128,29 +175,40 @@ export function AdminDashboard() {
                     Global Strategy Database
                   </CardDescription>
                 </div>
-                <div className="relative">
-                  <input
-                    type="file"
-                    accept=".json"
-                    className="hidden"
-                    id="master-import"
-                    onChange={handleBulkImport}
-                  />
-                  <Label htmlFor="master-import">
-                    <Button
-                      asChild
-                      className="bg-blue-700 hover:bg-blue-800 rounded-xl px-6 font-mono text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-blue-100"
-                    >
-                      <span>
-                        {isImporting ? (
-                          <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
-                        ) : (
-                          <Upload className="w-3.5 h-3.5 mr-2" />
-                        )}
-                        Deploy Bulk JSON
-                      </span>
-                    </Button>
-                  </Label>
+                <div className="flex gap-3">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsAiDialogOpen(true)}
+                    className="rounded-xl px-6 font-mono text-[10px] uppercase tracking-widest border-blue-100 text-blue-700 hover:bg-blue-50"
+                  >
+                    <Wand2 className="w-3.5 h-3.5 mr-2" />
+                    AI Architect Tool
+                  </Button>
+
+                  <div className="relative">
+                    <input
+                      type="file"
+                      accept=".json"
+                      className="hidden"
+                      id="master-import"
+                      onChange={handleBulkImport}
+                    />
+                    <Label htmlFor="master-import">
+                      <Button
+                        asChild
+                        className="bg-slate-900 hover:bg-slate-800 rounded-xl px-6 font-mono text-[10px] uppercase tracking-widest cursor-pointer shadow-lg shadow-slate-100"
+                      >
+                        <span>
+                          {isImporting ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
+                          ) : (
+                            <Upload className="w-3.5 h-3.5 mr-2" />
+                          )}
+                          Direct Deployment
+                        </span>
+                      </Button>
+                    </Label>
+                  </div>
                 </div>
               </div>
             </CardHeader>
@@ -218,6 +276,66 @@ export function AdminDashboard() {
           </div>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={isAiDialogOpen} onOpenChange={setIsAiDialogOpen}>
+        <DialogContent className="max-w-3xl bg-white rounded-3xl p-8 border-none shadow-2xl">
+          <DialogHeader className="mb-6">
+            <DialogTitle className="text-2xl font-display font-bold text-slate-900 italic flex items-center gap-3">
+              <Wand2 className="w-6 h-6 text-blue-700" />
+              Intelligence Scraper
+            </DialogTitle>
+            <DialogDescription className="text-[11px] font-mono text-slate-400 uppercase tracking-widest pt-2 border-t border-slate-100">
+              Paste raw text from the university portal. AI will architect the
+              schema.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <Textarea
+              value={rawText}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setRawText(e.target.value)
+              }
+              placeholder="Paste messy schedule text here... (Example: Prodi Informatika, MK: Data Science, Jadwal: Senin 07:00-09:00...)"
+              className="min-h-[300px] bg-slate-50 border-none rounded-2xl p-6 font-mono text-xs leading-relaxed focus-visible:ring-blue-700"
+            />
+            <div className="flex items-center gap-2 p-4 bg-blue-50/50 rounded-xl border border-blue-50">
+              <AlertCircle className="w-4 h-4 text-blue-700 flex-shrink-0" />
+              <p className="text-[10px] text-blue-900 leading-normal">
+                AI will attempt to match:{" "}
+                <strong>
+                  Code, Name, SKS, Prodi, Class, Lecturer, Room, and Schedule
+                </strong>
+                . Verify output after deployment.
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter className="mt-8 pt-6 border-t border-slate-100">
+            <Button
+              variant="ghost"
+              onClick={() => setIsAiDialogOpen(false)}
+              className="font-mono text-[10px] uppercase tracking-widest text-slate-400"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleAiCleanup}
+              disabled={isAiCleaning || !rawText.trim()}
+              className="bg-blue-700 hover:bg-blue-800 text-white font-display font-medium px-8 rounded-xl shadow-lg shadow-blue-100 min-w-[160px]"
+            >
+              {isAiCleaning ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Architecting...
+                </>
+              ) : (
+                "Execute Deployment"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
