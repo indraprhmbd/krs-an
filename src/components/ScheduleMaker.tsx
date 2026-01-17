@@ -67,11 +67,14 @@ export function ScheduleMaker() {
       // If code is not selected, ignore
       if (!selectedCodes.includes(c.code)) return false;
 
-      // If code is locked, only allow the specific course ID
+      // Check if this code has a locked selection
       const lockedId = lockedCourses[c.code];
-      if (lockedId && c.id !== lockedId) return false;
 
-      return true;
+      // If not locked or locked to "any", include all variations
+      if (!lockedId || lockedId === "any") return true;
+
+      // If locked to specific ID, only include that one
+      return c.id === lockedId;
     });
 
     const generated = generatePlans(activeCourses, selectedCodes);

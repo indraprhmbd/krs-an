@@ -19,7 +19,7 @@ export function ScheduleGrid({ courses }: { courses: Course[] }) {
         {DAYS.map((d) => (
           <div
             key={d}
-            className="p-4 border-b border-r font-display font-bold text-center bg-slate-50/80 text-slate-400 text-[10px] uppercase tracking-[0.2em]"
+            className="p-3 border-b border-r font-display font-bold text-center bg-slate-50/80 text-slate-700 text-[11px] uppercase tracking-[0.15em]"
           >
             {d}
           </div>
