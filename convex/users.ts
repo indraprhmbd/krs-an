@@ -136,9 +136,13 @@ export const generateServiceToken = mutation({
       lastSmartGenerateTime: Date.now(),
     };
 
-    // If expanding, increment the database limit
+    // If expanding, increment the database limit (CAP at 36)
     if (args.type === "expand") {
-      update.planLimit = (user.planLimit ?? 12) + 12;
+      const currentLimit = user.planLimit ?? 12;
+      if (currentLimit >= 36) {
+        throw new Error("Maximum plan limit (36) already reached.");
+      }
+      update.planLimit = Math.min(currentLimit + 12, 36);
     }
 
     await ctx.db.patch(user._id, update);

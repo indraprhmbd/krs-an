@@ -239,6 +239,10 @@ export function ScheduleMaker({
     let currentLimit = Math.max(planLimit, userData?.planLimit || 12);
 
     if (tokenized) {
+      if (currentLimit >= 36) {
+        toast.error("Maximum limit of 36 plans reached.");
+        return;
+      }
       if (!userData || userData.credits <= 0) {
         toast.error("Daily limit reached. Come back tomorrow!");
         return;
@@ -246,7 +250,7 @@ export function ScheduleMaker({
       try {
         await consumeTokenMutation({ type: "expand" });
         toast.success("Consumed 1 token for +12 expansion.");
-        currentLimit = (userData?.planLimit || planLimit) + 12;
+        currentLimit = Math.min((userData?.planLimit || planLimit) + 12, 36);
         setPlanLimit(currentLimit);
       } catch (err: any) {
         toast.error("Failed to consume token: " + err.message);
