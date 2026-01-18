@@ -2,6 +2,7 @@ import { action, query, mutation } from "./_generated/server";
 import { api } from "./_generated/api";
 import { v } from "convex/values";
 import Groq from "groq-sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const checkCache = query({
   args: { hash: v.string() },
@@ -45,6 +46,7 @@ export const smartGenerate = action({
       preferredDaysOff: v.array(v.string()),
       customInstructions: v.string(),
     }),
+    model: v.optional(v.string()), // "groq" | "gemini"
   },
   handler: async (ctx, args) => {
     // 1. Auth check
@@ -81,11 +83,6 @@ export const smartGenerate = action({
 
     // 4. (Skipped) Token consumption moved to after success
 
-    // 5. Call Groq API
-    const groq = new Groq({
-      apiKey: process.env.GROQ_API_KEY,
-    });
-
     // OPTIMIZATION: Minify payload to save tokens
     // Group by course code to avoid repeating name/sks/id prefix
     const optimizedCourses = args.courses.reduce((acc: any, c: any) => {
@@ -110,9 +107,8 @@ export const smartGenerate = action({
       return acc;
     }, {});
 
-    const prompt = `You are a university schedule optimizer. Create 5 diverse, conflict-free schedules.
-
-DATA (Minified JSON):
+    const systemPrompt = `You are a university schedule optimizer. Create 3 diverse, conflict-free schedules.`;
+    const prompt = `DATA (Minified JSON):
 ${JSON.stringify(optimizedCourses, null, 2)}
 
 SELECTED CODES (User wants ALL of these):
@@ -138,29 +134,57 @@ THIN OUTPUT FORMAT (JSON ONLY):
   "plans": [
     {
       "name": "Strategy Name",
-      "courseIds": ["id_from_data_1", "id_from_data_2"] 
+      "courseIds": ["id_from_data_1", "id_from_data_2"]
     }
   ]
 }
-IMPORTANT: 
+IMPORTANT:
 - Use EXACT IDs from the 'id' field in the DATA provided.
-- Do not make up IDs. 
+- Do not make up IDs.
 - Ensure each plan has NO time overlaps.
 - Return ONLY the JSON object.
 
 Return ONLY valid JSON.`;
 
-    try {
-      const completion = await groq.chat.completions.create({
-        messages: [{ role: "user", content: prompt }],
-        model: "llama-3.1-8b-instant",
-        response_format: { type: "json_object" },
-        temperature: 0.6, // Increased from 0.3 to help 88 find more solutions
-        max_tokens: 2048,
+    let aiResponseText: string | null | undefined;
+    const modelToUse = args.model || "groq";
+
+    if (modelToUse === "gemini") {
+      // 5a. Call Gemini API
+      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+      const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash", // Using Flash for speed/cost
+        generationConfig: {
+          responseMimeType: "application/json",
+        },
       });
 
-      const responseText = completion.choices[0]?.message?.content || "{}";
-      const aiResponse = JSON.parse(responseText);
+      const result = await model.generateContent(
+        `${systemPrompt}\n\n${prompt}`,
+      );
+      aiResponseText = result.response.text();
+    } else {
+      // 5b. Call Groq API
+      const groq = new Groq({
+        apiKey: process.env.GROQ_API_KEY,
+      });
+
+      const completion = await groq.chat.completions.create({
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: prompt },
+        ],
+        model: "llama-3.3-70b-versatile", // Upgraded to latest 70B for better reasoning
+        response_format: { type: "json_object" },
+        temperature: 0.6,
+        max_tokens: 2048,
+      });
+      aiResponseText = completion.choices[0]?.message?.content;
+    }
+
+    try {
+      if (!aiResponseText) throw new Error("No response from AI provider");
+      const aiResponse = JSON.parse(aiResponseText);
       const aiPlans = aiResponse.plans || [];
 
       if (aiPlans.length === 0) {

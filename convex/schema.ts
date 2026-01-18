@@ -9,6 +9,7 @@ export default defineSchema({
     isAdmin: v.optional(v.boolean()),
     lastSmartGenerateTime: v.optional(v.number()), // Timestamp of last AI usage
     planLimit: v.optional(v.number()), // Persistence for expanded generation limit
+    preferredAiModel: v.optional(v.string()), // "groq" | "gemini"
   }).index("by_token", ["tokenIdentifier"]),
 
   plans: defineTable({

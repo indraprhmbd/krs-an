@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Brain, Check, Info } from "lucide-react";
+import { Brain, Check, Info, Zap, Sparkles } from "lucide-react";
 import { useState } from "react";
 import type { Course } from "@/types";
 import { Textarea } from "@/components/ui/textarea";
@@ -22,6 +22,7 @@ interface SmartGenerateDialogProps {
     preferredLecturers: string[];
     preferredDaysOff: string[];
     customInstructions: string;
+    model: string;
   }) => void;
   isGenerating: boolean;
   cooldown?: { active: boolean; seconds: number };
@@ -39,6 +40,7 @@ export function SmartGenerateDialog({
   const [preferredLecturers, setPreferredLecturers] = useState<string[]>([]);
   const [preferredDaysOff, setPreferredDaysOff] = useState<string[]>([]);
   const [customInstructions, setCustomInstructions] = useState("");
+  const [aiModel, setAiModel] = useState<"groq" | "gemini">("groq");
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -89,6 +91,7 @@ export function SmartGenerateDialog({
       preferredLecturers,
       preferredDaysOff,
       customInstructions,
+      model: aiModel,
     });
   };
 
@@ -182,8 +185,60 @@ export function SmartGenerateDialog({
               placeholder="e.g. Avoid 7 AM classes, Group classes together..."
               value={customInstructions}
               onChange={(e) => setCustomInstructions(e.target.value)}
-              className="resize-none h-24 text-xs bg-slate-50 border-slate-200 focus:ring-violet-500"
+              className="resize-none h-20 text-xs bg-slate-50 border-slate-200 focus:ring-violet-500"
             />
+          </div>
+
+          {/* Section 4: AI Brain Switcher */}
+          <div className="space-y-3">
+            <label className="text-sm font-bold text-slate-900">AI Brain</label>
+            <div className="grid grid-cols-2 gap-3">
+              <div
+                onClick={() => setAiModel("groq")}
+                className={`cursor-pointer rounded-2xl border-2 p-3 transition-all ${
+                  aiModel === "groq"
+                    ? "border-orange-500 bg-orange-50/50"
+                    : "border-slate-100 bg-white hover:border-slate-200"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Zap
+                    className={`w-4 h-4 ${aiModel === "groq" ? "text-orange-600" : "text-slate-400"}`}
+                  />
+                  <span
+                    className={`text-xs font-bold ${aiModel === "groq" ? "text-orange-900" : "text-slate-600"}`}
+                  >
+                    Groq (LPU)
+                  </span>
+                </div>
+                <p className="text-[9px] text-slate-500 leading-tight">
+                  Ultra fast reasoning. Best for quick variations. (Llama 3.3)
+                </p>
+              </div>
+
+              <div
+                onClick={() => setAiModel("gemini")}
+                className={`cursor-pointer rounded-2xl border-2 p-3 transition-all ${
+                  aiModel === "gemini"
+                    ? "border-blue-500 bg-blue-50/50"
+                    : "border-slate-100 bg-white hover:border-slate-200"
+                }`}
+              >
+                <div className="flex items-center gap-2 mb-1">
+                  <Sparkles
+                    className={`w-4 h-4 ${aiModel === "gemini" ? "text-blue-600" : "text-slate-400"}`}
+                  />
+                  <span
+                    className={`text-xs font-bold ${aiModel === "gemini" ? "text-blue-900" : "text-slate-600"}`}
+                  >
+                    Gemini (Flash)
+                  </span>
+                </div>
+                <p className="text-[9px] text-slate-500 leading-tight">
+                  High capacity & deeper reasoning. (Experimental 2.0)
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

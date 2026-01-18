@@ -202,7 +202,8 @@ export function ScheduleMaker({
     setIsSmartDialogOpen(true);
   };
 
-  const handleRunSmartGenerate = async (preferences: any) => {
+  const handleRunSmartGenerate = async (results: any) => {
+    const { model, ...preferences } = results;
     if (isSmartGenerating) return;
 
     setIsSmartGenerating(true);
@@ -212,6 +213,7 @@ export function ScheduleMaker({
         selectedCodes,
         maxSks: sessionProfile.maxSks,
         preferences,
+        model,
       });
 
       if (result.success) {
