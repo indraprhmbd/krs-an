@@ -88,6 +88,9 @@ const translations: Record<Language, Record<string, string>> = {
     "howtouse.premium_title": "Fitur Premium",
     "howtouse.premium_desc":
       "Gunakan Smart Generate untuk mengatur preferensi spesifik seperti 'Tanpa Kelas Pagi'.",
+    "about.legal_title": "Aspek Legal & Privasi",
+    "about.legal_desc":
+      "KRSan menyajikan data jadwal kuliah dan nama pengajar berdasarkan informasi publik yang disediakan oleh institusi terkait. Kami hanya memproses data ini untuk tujuan edukasi dan kemudahan administratif mahasiswa, sesuai dengan semangat UU Pelindungan Data Pribadi No. 27 Tahun 2022 (Kapasitas Profesional).",
   },
   EN: {
     "nav.architect": "Architect",
@@ -167,6 +170,9 @@ const translations: Record<Language, Record<string, string>> = {
     "howtouse.premium_title": "Premium Features",
     "howtouse.premium_desc":
       "Use Smart Generate to set specific preferences like 'No Morning Classes'.",
+    "about.legal_title": "Legal & Privacy Aspects",
+    "about.legal_desc":
+      "KRSan presents course schedules and faculty names based on public information provided by the respective institutions. We process this data solely for educational purposes and student administrative convenience, in accordance with the spirit of the Personal Data Protection Act No. 27 of 2022 (Professional Capacity).",
   },
 };
 

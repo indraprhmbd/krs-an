@@ -1,5 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { Share2, Copy, Check, X, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -33,21 +40,23 @@ export function ShareDialog({
         hideClose
         className="sm:max-w-md bg-white rounded-3xl overflow-hidden p-0 border-none shadow-2xl"
       >
-        <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <h2 className="text-2xl font-display font-black mb-1 flex items-center gap-2">
-              <Share2 className="w-5 h-5 text-blue-500" />
-              Share Plan
-            </h2>
-            <p className="text-slate-400 text-xs truncate max-w-[250px]">
-              {planName}
-            </p>
+        <DialogHeader className="p-0">
+          <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
+            <div className="relative z-10">
+              <DialogTitle className="text-2xl font-display font-black mb-1 flex items-center gap-2">
+                <Share2 className="w-5 h-5 text-blue-500" />
+                Share Plan
+              </DialogTitle>
+              <DialogDescription className="text-slate-400 text-xs truncate max-w-[250px]">
+                {planName}
+              </DialogDescription>
+            </div>
+            <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
+              <X size={20} className="text-white" />
+            </DialogClose>
+            <Share2 className="absolute -bottom-6 -right-6 w-32 h-32 text-blue-500/10 -rotate-12" />
           </div>
-          <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
-            <X size={20} className="text-white" />
-          </DialogClose>
-          <Share2 className="absolute -bottom-6 -right-6 w-32 h-32 text-blue-500/10 -rotate-12" />
-        </div>
+        </DialogHeader>
 
         <div className="p-8 space-y-6 bg-white">
           <div className="space-y-4">

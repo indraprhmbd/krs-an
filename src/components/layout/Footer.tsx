@@ -2,6 +2,9 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -15,6 +18,7 @@ import {
   Mail,
   HelpCircle,
   X,
+  ShieldCheck,
 } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 
@@ -119,18 +123,23 @@ function HowToUseDialog() {
         hideClose
         className="w-[92%] sm:max-w-2xl bg-white rounded-3xl overflow-hidden p-0 border-none shadow-2xl [&_svg]:text-white max-h-[90vh] overflow-y-auto"
       >
-        <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <h2 className="text-3xl font-display font-black mb-2">
-              {t("howtouse.title")}
-            </h2>
-            <div className="h-1 w-12 bg-blue-600 rounded-full" />
+        <DialogHeader className="p-0">
+          <div className="bg-slate-900 p-8 text-white relative overflow-hidden text-left">
+            <div className="relative z-10">
+              <DialogTitle className="text-3xl font-display font-black mb-2">
+                {t("howtouse.title")}
+              </DialogTitle>
+              <div className="h-1 w-12 bg-blue-600 rounded-full" />
+              <DialogDescription className="hidden">
+                Guide on how to use KRSan application.
+              </DialogDescription>
+            </div>
+            <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
+              <X size={20} className="text-white" />
+            </DialogClose>
+            <HelpCircle className="absolute -bottom-8 -right-8 w-40 h-40 text-blue-500/10 rotate-12" />
           </div>
-          <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
-            <X size={20} className="text-white" />
-          </DialogClose>
-          <HelpCircle className="absolute -bottom-8 -right-8 w-40 h-40 text-blue-500/10 rotate-12" />
-        </div>
+        </DialogHeader>
         <div className="p-8 grid md:grid-cols-2 gap-6 bg-white">
           <div className="space-y-4">
             <div className="space-y-2">
@@ -229,20 +238,22 @@ function AboutDialog() {
         hideClose
         className="w-[92%] sm:max-w-2xl bg-white rounded-3xl overflow-hidden p-0 border-none shadow-2xl [&_svg]:text-white max-h-[90vh] overflow-y-auto"
       >
-        <div className="bg-blue-600 p-8 text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <h2 className="text-3xl font-display font-black mb-2">
-              Filosofi KRSan
-            </h2>
-            <p className="text-blue-100 text-sm font-medium italic opacity-80">
-              "Simplicity in Complexity"
-            </p>
+        <DialogHeader className="p-0">
+          <div className="bg-blue-600 p-8 text-white relative overflow-hidden text-left">
+            <div className="relative z-10">
+              <DialogTitle className="text-3xl font-display font-black mb-2">
+                Filosofi KRSan
+              </DialogTitle>
+              <DialogDescription className="text-blue-100 text-sm font-medium italic opacity-80">
+                "Simplicity in Complexity"
+              </DialogDescription>
+            </div>
+            <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
+              <X size={20} className="text-white" />
+            </DialogClose>
+            <Info className="absolute -bottom-8 -right-8 w-40 h-40 text-blue-500/30 rotate-12" />
           </div>
-          <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
-            <X size={20} className="text-white" />
-          </DialogClose>
-          <Info className="absolute -bottom-8 -right-8 w-40 h-40 text-blue-500/30 rotate-12" />
-        </div>
+        </DialogHeader>
         <div className="p-8 space-y-6 text-slate-600 leading-relaxed text-sm bg-white">
           <div className="space-y-3">
             <h3 className="font-bold text-slate-900 flex items-center gap-2">
@@ -285,6 +296,16 @@ function AboutDialog() {
               semesternya."
             </p>
           </div>
+
+          <div className="pt-6 border-t border-slate-100 space-y-3">
+            <h3 className="font-bold text-slate-900 flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+              {t("about.legal_title")}
+            </h3>
+            <p className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 p-4 rounded-2xl border border-slate-100">
+              {t("about.legal_desc")}
+            </p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
@@ -309,20 +330,22 @@ function DonateDialog() {
         hideClose
         className="w-[92%] sm:max-w-md bg-white rounded-3xl overflow-hidden p-0 border-none shadow-2xl [&_svg]:text-white max-h-[90vh] overflow-y-auto"
       >
-        <div className="bg-emerald-600 p-8 text-white relative overflow-hidden">
-          <div className="relative z-10">
-            <h2 className="text-2xl font-display font-black mb-1">
-              Support Author
-            </h2>
-            <p className="text-emerald-100 text-xs">
-              Dukung pengembangan KRSan agar tetap gratis & tanpa iklan!
-            </p>
+        <DialogHeader className="p-0">
+          <div className="bg-emerald-600 p-8 text-white relative overflow-hidden text-left">
+            <div className="relative z-10">
+              <DialogTitle className="text-2xl font-display font-black mb-1">
+                Support Author
+              </DialogTitle>
+              <DialogDescription className="text-emerald-100 text-xs text-left">
+                Dukung pengembangan KRSan agar tetap gratis & tanpa iklan!
+              </DialogDescription>
+            </div>
+            <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
+              <X size={20} className="text-white" />
+            </DialogClose>
+            <Coffee className="absolute -bottom-6 -right-6 w-32 h-32 text-emerald-500/30 -rotate-12" />
           </div>
-          <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
-            <X size={20} className="text-white" />
-          </DialogClose>
-          <Coffee className="absolute -bottom-6 -right-6 w-32 h-32 text-emerald-500/30 -rotate-12" />
-        </div>
+        </DialogHeader>
 
         <div className="p-8 space-y-6 bg-white">
           <div className="bg-slate-50 p-6 rounded-3xl border-2 border-dashed border-slate-200 text-center space-y-3">
