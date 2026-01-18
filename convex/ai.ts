@@ -150,20 +150,37 @@ Return ONLY valid JSON.`;
     const modelToUse = args.model || "groq";
 
     if (modelToUse === "gemini") {
-      // 5a. Call Gemini API
+      // 5a. Call Gemini API with Fallback Logic
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-      const model = genAI.getGenerativeModel(
-        {
-          model: "gemini-2.0-flash-exp",
-          generationConfig: { responseMimeType: "application/json" },
-        }, // Matching UI promise
-        { apiVersion: "v1beta" }, // Required for experimental models
-      );
 
-      const result = await model.generateContent(
-        `${systemPrompt}\n\n${prompt}`,
-      );
-      aiResponseText = result.response.text();
+      try {
+        // Try Gemini 2.0 Flash (Experimental) first
+        const model = genAI.getGenerativeModel(
+          {
+            model: "gemini-2.0-flash-exp",
+            generationConfig: { responseMimeType: "application/json" },
+          },
+          { apiVersion: "v1beta" },
+        );
+        const result = await model.generateContent(
+          `${systemPrompt}\n\n${prompt}`,
+        );
+        aiResponseText = result.response.text();
+      } catch (error: any) {
+        console.error("Gemini 2.0 Error, falling back to 1.5:", error.message);
+        // Fallback to Gemini 1.5 Flash (Stable v1)
+        const stableModel = genAI.getGenerativeModel(
+          {
+            model: "gemini-1.5-flash",
+            generationConfig: { responseMimeType: "application/json" },
+          },
+          { apiVersion: "v1" }, // Use Stable V1 for 1.5 Flash
+        );
+        const result = await stableModel.generateContent(
+          `${systemPrompt}\n\n${prompt}`,
+        );
+        aiResponseText = result.response.text();
+      }
     } else {
       // 5b. Call Groq API
       const groq = new Groq({
