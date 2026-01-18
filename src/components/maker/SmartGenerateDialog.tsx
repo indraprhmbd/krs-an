@@ -24,6 +24,7 @@ interface SmartGenerateDialogProps {
     customInstructions: string;
   }) => void;
   isGenerating: boolean;
+  cooldown?: { active: boolean; seconds: number };
 }
 
 export function SmartGenerateDialog({
@@ -33,6 +34,7 @@ export function SmartGenerateDialog({
   selectedCodes,
   onGenerate,
   isGenerating,
+  cooldown,
 }: SmartGenerateDialogProps) {
   const [preferredLecturers, setPreferredLecturers] = useState<string[]>([]);
   const [preferredDaysOff, setPreferredDaysOff] = useState<string[]>([]);
@@ -196,10 +198,14 @@ export function SmartGenerateDialog({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={isGenerating}
-            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-100 font-bold"
+            disabled={isGenerating || cooldown?.active}
+            className="bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white shadow-lg shadow-violet-100 font-bold min-w-[140px]"
           >
-            {isGenerating ? "Reasoning..." : "Generate with AI (1 Token)"}
+            {isGenerating
+              ? "Reasoning..."
+              : cooldown?.active
+                ? `Wait ${cooldown.seconds}s`
+                : "Generate with AI (1 Token)"}
           </Button>
         </DialogFooter>
       </DialogContent>

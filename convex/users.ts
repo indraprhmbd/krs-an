@@ -39,6 +39,7 @@ export const getCurrentUser = query({
       tokenIdentifier: identity.tokenIdentifier,
       isAdmin: !!user?.isAdmin,
       credits: user?.credits ?? 0,
+      lastSmartGenerateTime: user?.lastSmartGenerateTime,
     };
   },
 });

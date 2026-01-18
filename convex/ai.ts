@@ -39,6 +39,7 @@ export const smartGenerate = action({
   args: {
     courses: v.array(v.any()),
     selectedCodes: v.array(v.string()),
+    maxSks: v.number(),
     preferences: v.object({
       preferredLecturers: v.array(v.string()),
       preferredDaysOff: v.array(v.string()),
@@ -117,27 +118,36 @@ ${JSON.stringify(optimizedCourses, null, 2)}
 SELECTED CODES (User wants ALL of these):
 ${args.selectedCodes.join(", ")}
 
+CONSTRAINTS:
+- MAX SKS: ${args.maxSks} (CRITICAL: Total SKS MUST NOT exceed this)
+
 USER PREFERENCES:
 - Prioritize Lecturers: ${args.preferences.preferredLecturers.join(", ") || "None"}
 - Avoid Days: ${args.preferences.preferredDaysOff.join(", ") || "None"}
 - Note: ${args.preferences.customInstructions || "None"}
 
 REQUIREMENTS:
-1. **CRITICAL:** Aim for **ALL** selected codes in every plan.
-2. **FALLBACK:** If mathematically impossible, you may drop **AT MOST ONE** (1) subject.
+1. **CRITICAL:** Total SKS for each plan MUST be ≤ ${args.maxSks}.
+2. **FALLBACK:** If mathematically impossible to include all subjects without conflicts or exceeding SKS, you may drop **UP TO TWO (2)** subjects.
 3. No time conflicts allowed.
 4. Balanced load (≤8 SKS/day).
-5. 5 DISTINCT VARIATIONS.
+5. 5 DISTINCT VARIATIONS (different days, times, or lecturers).
 
-THIN OUTPUT FORMAT (JSON ONLY - USE IDS ONLY TO SAVE TOKENS):
+THIN OUTPUT FORMAT (JSON ONLY):
 {
   "plans": [
     {
-      "name": "Strategy Name (e.g., 'Plan A: Early Morning Focus')",
-      "courseIds": ["id1", "id2", "id3"] // IDs from the input data provided above
+      "name": "Strategy Name",
+      "courseIds": ["id_from_data_1", "id_from_data_2"] 
     }
   ]
 }
+IMPORTANT: 
+- Use EXACT IDs from the 'id' field in the DATA provided.
+- Do not make up IDs. 
+- Ensure each plan has NO time overlaps.
+- Return ONLY the JSON object.
+
 Return ONLY valid JSON.`;
 
     try {
@@ -145,8 +155,8 @@ Return ONLY valid JSON.`;
         messages: [{ role: "user", content: prompt }],
         model: "llama-3.1-8b-instant",
         response_format: { type: "json_object" },
-        temperature: 0.3, // Lower temperature for better logic
-        max_tokens: 2048, // Reduced since output is thin
+        temperature: 0.6, // Increased from 0.3 to help 88 find more solutions
+        max_tokens: 2048,
       });
 
       const responseText = completion.choices[0]?.message?.content || "{}";
@@ -162,8 +172,6 @@ Return ONLY valid JSON.`;
       const courseMap = new Map();
       args.courses.forEach((c: any) => courseMap.set(c.id, c));
 
-      // 7. SUCCESS! Consume token and save plans
-      await ctx.runMutation(api.users.generateServiceToken, {});
       const savedPlanIds: string[] = [];
 
       for (let i = 0; i < Math.min(aiPlans.length, 5); i++) {
@@ -174,6 +182,7 @@ Return ONLY valid JSON.`;
           .map((id: string) => courseMap.get(id))
           .filter(Boolean);
 
+        // Safety: If reconstruction fails (wrong IDs), skip this plan
         if (fullCourses.length === 0) continue;
 
         const planId = await ctx.runMutation(api.plans.savePlan, {
@@ -189,6 +198,15 @@ Return ONLY valid JSON.`;
           generatedBy: "ai",
         });
         savedPlanIds.push(planId);
+      }
+
+      // 7. FAIR TOKEN REGULATION: Only consume if at least one plan was successfully created
+      if (savedPlanIds.length > 0) {
+        await ctx.runMutation(api.users.generateServiceToken, {});
+      } else {
+        throw new Error(
+          "AI failed to generate a valid, non-overlapping schedule. Token was not consumed.",
+        );
       }
 
       return {

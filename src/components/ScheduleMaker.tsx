@@ -23,6 +23,7 @@ interface ScheduleMakerProps {
     _id: string;
     credits: number;
     isAdmin: boolean;
+    lastSmartGenerateTime?: number;
   };
 }
 
@@ -129,6 +130,18 @@ export function ScheduleMaker({
   const [isSmartGenerating, setIsSmartGenerating] = useState(false);
   const renamePlanMutation = useMutation(api.plans.renamePlan);
 
+  const getCooldownStatus = () => {
+    if (!userData?.lastSmartGenerateTime) return { active: false, seconds: 0 };
+    const diff = Date.now() - userData.lastSmartGenerateTime;
+    const cooldownMs = 30000;
+    if (diff < cooldownMs) {
+      return { active: true, seconds: Math.ceil((cooldownMs - diff) / 1000) };
+    }
+    return { active: false, seconds: 0 };
+  };
+
+  const cooldown = getCooldownStatus();
+
   const handleRenameArchived = async (planId: string, newName: string) => {
     try {
       await renamePlanMutation({ planId: planId as any, newName });
@@ -168,6 +181,16 @@ export function ScheduleMaker({
       toast.error("You need 1 token for Smart Generate");
       return;
     }
+
+    // Quick check: if in cooldown, tell user immediately
+    if (cooldown.active) {
+      toast.error(
+        `Please wait ${cooldown.seconds} seconds before generating again`,
+      );
+      return;
+    }
+
+    setIsSmartGenerating(false); // Reset stuck state if any
     setIsSmartDialogOpen(true);
   };
 
@@ -179,6 +202,7 @@ export function ScheduleMaker({
       const result = await smartGenerateAction({
         courses: courses as any,
         selectedCodes,
+        maxSks: sessionProfile.maxSks,
         preferences,
       });
 
@@ -298,9 +322,9 @@ export function ScheduleMaker({
       mandatoryCodes.has(c.code),
     );
 
-    const coursesWithIds = filteredCourses.map((c) => ({
+    const coursesWithIds = filteredCourses.map((c: any) => ({
       ...c,
-      id: `${c.code}-${c.class}-${Math.random().toString(36).substr(2, 9)}`,
+      id: c._id || `${c.code}-${c.class}`,
     }));
 
     setCourses(coursesWithIds as any);
@@ -315,7 +339,7 @@ export function ScheduleMaker({
   const handleAddMasterCourse = (masterCourse: any) => {
     const newCourse = {
       ...masterCourse,
-      id: `${masterCourse.code}-${masterCourse.class}-${Math.random().toString(36).substr(2, 9)}`,
+      id: masterCourse._id || `${masterCourse.code}-${masterCourse.class}`,
     };
     setCourses((prev) => [...prev, newCourse]);
     if (!selectedCodes.includes(masterCourse.code)) {
@@ -454,6 +478,7 @@ export function ScheduleMaker({
                 onBack={() => setStep("config")}
                 isGenerating={isGenerating}
                 isSmartGenerating={isSmartGenerating}
+                cooldown={cooldown}
               />
             )}
 
@@ -504,6 +529,7 @@ export function ScheduleMaker({
         selectedCodes={selectedCodes}
         onGenerate={handleRunSmartGenerate}
         isGenerating={isSmartGenerating}
+        cooldown={cooldown}
       />
 
       <ShareDialog

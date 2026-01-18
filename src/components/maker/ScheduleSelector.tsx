@@ -38,8 +38,9 @@ interface ScheduleSelectorProps {
   onGenerate: (tokenized?: boolean) => void;
   onSmartGenerate?: () => void;
   onBack?: () => void;
-  isGenerating?: boolean;
-  isSmartGenerating?: boolean;
+  isGenerating: boolean;
+  isSmartGenerating: boolean;
+  cooldown?: { active: boolean; seconds: number };
 }
 
 export function ScheduleSelector({
@@ -56,6 +57,7 @@ export function ScheduleSelector({
   onBack,
   isGenerating,
   isSmartGenerating,
+  cooldown,
 }: ScheduleSelectorProps) {
   const { t } = useLanguage();
   const grouped = courses.reduce(
@@ -165,7 +167,9 @@ export function ScheduleSelector({
                     />
                     {isSmartGenerating
                       ? t("selector.thinking")
-                      : t("selector.smart_generate")}
+                      : cooldown?.active
+                        ? `Cooldown (${cooldown.seconds}s)`
+                        : t("selector.smart_generate")}
                   </Button>
                   <div className="h-8 md:h-9 px-1.5 flex items-center bg-violet-600/10 border-l border-white/20 rounded-r-xl">
                     <HelpTooltip
