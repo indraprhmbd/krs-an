@@ -170,14 +170,11 @@ Return ONLY valid JSON.`;
         console.error("Gemini 2.0 Error, falling back to 1.5:", error.message);
         // Fallback to Gemini 1.5 Flash (Stable v1)
         const stableModel = genAI.getGenerativeModel(
-          {
-            model: "gemini-1.5-flash",
-            generationConfig: { responseMimeType: "application/json" },
-          },
-          { apiVersion: "v1" }, // Use Stable V1 for 1.5 Flash
+          { model: "gemini-1.5-flash" },
+          { apiVersion: "v1" },
         );
         const result = await stableModel.generateContent(
-          `${systemPrompt}\n\n${prompt}`,
+          `IMPORTANT: RETURN ONLY JSON.\n\n${systemPrompt}\n\n${prompt}`,
         );
         aiResponseText = result.response.text();
       }
