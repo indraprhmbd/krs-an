@@ -42,7 +42,11 @@ export default defineSchema({
     ),
   })
     .index("by_code", ["code"])
-    .index("by_prodi", ["prodi"]),
+    .index("by_prodi", ["prodi"])
+    .searchIndex("search_courses", {
+      searchField: "name",
+      filterFields: ["prodi"],
+    }),
 
   curriculum: defineTable({
     prodi: v.string(),

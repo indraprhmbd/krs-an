@@ -35,6 +35,25 @@ export const getPaginatedMasterCourses = query({
     paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
+    if (args.search) {
+      let q = ctx.db
+        .query("master_courses")
+        .withSearchIndex("search_courses", (q) => {
+          let searchQ = q.search("name", args.search!);
+          if (args.prodi && args.prodi !== "all") {
+            searchQ = searchQ.eq("prodi", args.prodi!);
+          }
+          return searchQ;
+        });
+
+      const results = await q.take(50); // Limit to top 50 results for speed/efficiency
+      return {
+        page: results,
+        isDone: true,
+        continueCursor: "",
+      };
+    }
+
     if (args.prodi && args.prodi !== "all") {
       return await ctx.db
         .query("master_courses")
