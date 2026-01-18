@@ -4,6 +4,8 @@ import { api } from "../../convex/_generated/api";
 import { generatePlans } from "@/lib/scheduler";
 import type { Course, Plan, ArchivedPlan } from "@/types";
 import { toast } from "sonner";
+import { useLanguage } from "../context/LanguageContext";
+import { HelpTooltip } from "./ui/HelpTooltip";
 
 // Refactored Components
 import { ScheduleConfig } from "./maker/ScheduleConfig";
@@ -12,6 +14,7 @@ import { ScheduleViewer } from "./maker/ScheduleViewer";
 import { ScheduleArchive } from "./maker/ScheduleArchive";
 import { SmartGenerateDialog } from "./maker/SmartGenerateDialog";
 import { MasterCatalogDialog } from "./maker/MasterCatalogDialog";
+import { ShareDialog } from "./maker/ShareDialog";
 
 interface ScheduleMakerProps {
   externalStep?: "config" | "select" | "view" | "archive";
@@ -28,6 +31,7 @@ export function ScheduleMaker({
   onStepChange,
   userData,
 }: ScheduleMakerProps) {
+  const { t } = useLanguage();
   const [internalStep, setInternalStep] = useState<
     "config" | "select" | "view" | "archive"
   >("config");
@@ -58,6 +62,9 @@ export function ScheduleMaker({
   const [viewSource, setViewSource] = useState<"live" | "archive">("live");
   const [isMasterSearchOpen, setIsMasterSearchOpen] = useState(false);
   const [isSmartDialogOpen, setIsSmartDialogOpen] = useState(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [activeShareId, setActiveShareId] = useState<string | null>(null);
+  const [activeSharePlanName, setActiveSharePlanName] = useState("");
 
   const [planLimit, setPlanLimit] = useState(12);
 
@@ -71,11 +78,10 @@ export function ScheduleMaker({
   });
 
   // Plan Archive Queries/Mutations
-  const archived = useQuery((api as any).plans.listPlans) as
-    | ArchivedPlan[]
-    | undefined;
-  const savePlanMutation = useMutation((api as any).plans.savePlan);
-  const deletePlanMutation = useMutation((api as any).plans.deletePlan);
+  const archived = useQuery(api.plans.listPlans) as ArchivedPlan[] | undefined;
+  const savePlanMutation = useMutation(api.plans.savePlan);
+  const deletePlanMutation = useMutation(api.plans.deletePlan);
+  const createShareLinkMutation = useMutation(api.plans.createShareLink);
   const consumeTokenMutation = useMutation(api.users.generateServiceToken);
 
   const [isSaving, setIsSaving] = useState(false);
@@ -83,13 +89,19 @@ export function ScheduleMaker({
 
   // Handlers
   const handleSavePlan = async (plan: Plan) => {
+    if (archived && archived.length >= 30) {
+      toast.error(
+        "Storage full (30/30). Please delete old plans in Archive to save new ones.",
+      );
+      return;
+    }
     setIsSaving(true);
     try {
       await savePlanMutation({
         name: plan.name,
         data: JSON.stringify(plan),
       });
-      toast.success("Plan archived successfully! View it in 'History' tab.");
+      toast.success("Plan archived successfully!");
     } catch (err: any) {
       toast.error("Failed to archive plan: " + err.message);
     } finally {
@@ -99,7 +111,7 @@ export function ScheduleMaker({
 
   const handleDeleteArchived = async (planId: string) => {
     try {
-      await deletePlanMutation({ planId });
+      await deletePlanMutation({ planId: planId as any });
       toast.success("Plan removed from archive.");
     } catch (err: any) {
       toast.error("Failed to delete plan: " + err.message);
@@ -124,6 +136,29 @@ export function ScheduleMaker({
     } catch (err: any) {
       toast.error("Failed to rename plan: " + err.message);
     }
+  };
+
+  const handleSharePlan = async (planId: string) => {
+    const plan = archived?.find((p) => (p as any)._id === planId);
+    if (!plan) return;
+
+    setActiveSharePlanName(plan.name);
+
+    if ((plan as any).shareId) {
+      setActiveShareId((plan as any).shareId);
+      setIsShareDialogOpen(true);
+      return;
+    }
+
+    toast.promise(createShareLinkMutation({ planId: planId as any }), {
+      loading: "Generating share link...",
+      success: (id) => {
+        setActiveShareId(id);
+        setIsShareDialogOpen(true);
+        return "Link generated!";
+      },
+      error: "Failed to generate link",
+    });
   };
 
   const smartGenerateAction = useAction(api.ai.smartGenerate);
@@ -294,7 +329,16 @@ export function ScheduleMaker({
     <div className="pb-20 space-y-8">
       {/* Architect Flow Stepper (Only visible if architecting) */}
       {step !== "archive" && (
-        <div className="max-w-xl mx-auto px-4">
+        <div className="max-w-xl mx-auto px-4 space-y-6">
+          <div className="flex items-center justify-center gap-2">
+            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
+              Architect Engine
+            </h3>
+            <HelpTooltip
+              titleKey="help.architect_title"
+              descKey="help.architect_desc"
+            />
+          </div>
           <div className="flex items-center justify-between relative">
             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-slate-100 -z-10" />
             <div
@@ -306,9 +350,9 @@ export function ScheduleMaker({
             />
 
             {[
-              { id: "config", label: "Configure" },
-              { id: "select", label: "Select" },
-              { id: "view", label: "Visualize" },
+              { id: "config", label: t("maker.step_config") },
+              { id: "select", label: t("maker.step_select") },
+              { id: "view", label: t("maker.step_view") },
             ].map((s, i) => {
               const isActive = step === s.id;
               const isPast =
@@ -398,6 +442,7 @@ export function ScheduleMaker({
             onImport={handleImportArchived}
             onDelete={handleDeleteArchived}
             onRename={handleRenameArchived}
+            onShare={handleSharePlan}
           />
         )}
       </div>
@@ -416,6 +461,13 @@ export function ScheduleMaker({
         selectedCodes={selectedCodes}
         onGenerate={handleRunSmartGenerate}
         isGenerating={isSmartGenerating}
+      />
+
+      <ShareDialog
+        isOpen={isShareDialogOpen}
+        onClose={() => setIsShareDialogOpen(false)}
+        shareId={activeShareId}
+        planName={activeSharePlanName}
       />
     </div>
   );

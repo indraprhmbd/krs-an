@@ -10,11 +10,13 @@ import {
   ChevronLeft,
   Brain,
 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { HelpTooltip } from "@/components/ui/HelpTooltip";
 import {
   Command,
   CommandEmpty,
@@ -55,6 +57,7 @@ export function ScheduleSelector({
   isGenerating,
   isSmartGenerating,
 }: ScheduleSelectorProps) {
+  const { t } = useLanguage();
   const grouped = courses.reduce(
     (acc, c) => {
       acc[c.code] = acc[c.code] || [];
@@ -94,7 +97,7 @@ export function ScheduleSelector({
             )}
             <div className="space-y-1 text-center md:text-left flex-1">
               <h2 className="text-xl md:text-2xl font-bold font-display text-slate-900 tracking-tight">
-                Curate Your Semester
+                {t("selector.title")}
               </h2>
               <div className="flex flex-wrap items-center gap-2 md:gap-3 justify-center md:justify-start">
                 <Badge
@@ -124,7 +127,7 @@ export function ScheduleSelector({
               className="w-full sm:w-auto border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-700 h-10 md:h-11 rounded-xl text-xs md:text-sm"
             >
               <PlusCircle className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2" />
-              Add Subject
+              {t("selector.add_course")}
             </Button>
             <Button
               onClick={() => onGenerate(false)}
@@ -134,25 +137,35 @@ export function ScheduleSelector({
               <Brain
                 className={`w-3.5 h-3.5 md:w-4 md:h-4 mr-2 ${isGenerating ? "animate-pulse" : ""}`}
               />
-              {isGenerating ? "Planning..." : "Generate Docs"}
+              {isGenerating ? t("selector.generating") : t("selector.generate")}
             </Button>
 
             {onSmartGenerate && (
-              <Button
-                variant="outline"
-                onClick={onSmartGenerate}
-                disabled={
-                  selectedCodes.length === 0 ||
-                  isSmartGenerating ||
-                  isGenerating
-                }
-                className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 h-10 md:h-11 px-6 rounded-xl font-display font-bold shadow-lg shadow-violet-100 transition-all hover:scale-[1.02] disabled:opacity-50 text-xs md:text-sm"
-              >
-                <Brain
-                  className={`w-3.5 h-3.5 md:w-4 md:h-4 mr-2 ${isSmartGenerating ? "animate-spin" : ""}`}
-                />
-                {isSmartGenerating ? "Thinking..." : "Smart Generate (1 Token)"}
-              </Button>
+              <div className="flex items-center">
+                <Button
+                  variant="outline"
+                  onClick={onSmartGenerate}
+                  disabled={
+                    selectedCodes.length === 0 ||
+                    isSmartGenerating ||
+                    isGenerating
+                  }
+                  className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 h-10 md:h-11 px-6 rounded-l-xl rounded-r-none font-display font-bold shadow-lg shadow-violet-100 transition-all hover:scale-[1.02] disabled:opacity-50 text-xs md:text-sm"
+                >
+                  <Brain
+                    className={`w-3.5 h-3.5 md:w-4 md:h-4 mr-2 ${isSmartGenerating ? "animate-spin" : ""}`}
+                  />
+                  {isSmartGenerating
+                    ? t("selector.thinking")
+                    : t("selector.smart_generate")}
+                </Button>
+                <div className="h-10 md:h-11 px-2 flex items-center bg-violet-600/10 border-l border-white/20 rounded-r-xl">
+                  <HelpTooltip
+                    titleKey="help.smart_generate_title"
+                    descKey="help.smart_generate_desc"
+                  />
+                </div>
+              </div>
             )}
           </div>
         </div>

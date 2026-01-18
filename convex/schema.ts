@@ -17,9 +17,11 @@ export default defineSchema({
     createdAt: v.number(),
     isSmartGenerated: v.optional(v.boolean()),
     generatedBy: v.optional(v.string()), // "ai" | "manual"
+    shareId: v.optional(v.string()),
   })
     .index("by_user", ["userId"])
-    .index("by_user_type", ["userId", "generatedBy"]),
+    .index("by_user_type", ["userId", "generatedBy"])
+    .index("by_shareId", ["shareId"]),
 
   // Every single available class from the university
   master_courses: defineTable({

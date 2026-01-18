@@ -24,6 +24,18 @@ export const savePlan = mutation({
 
     if (!user) throw new Error("User not found");
 
+    // Check plan limit
+    const existingPlans = await ctx.db
+      .query("plans")
+      .withIndex("by_user", (q) => q.eq("userId", user._id))
+      .collect();
+
+    if (existingPlans.length >= 30) {
+      throw new Error(
+        "Maximum limit of 30 plans reached. Please delete some plans to save a new one.",
+      );
+    }
+
     const planId = await ctx.db.insert("plans", {
       userId: user._id,
       name: args.name,
@@ -130,5 +142,61 @@ export const renamePlan = mutation({
     }
 
     await ctx.db.patch(args.planId, { name: args.newName });
+  },
+});
+
+/**
+ * Create a shareable ID for a plan
+ */
+export const createShareLink = mutation({
+  args: { planId: v.id("plans") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
+      )
+      .unique();
+
+    if (!user) throw new Error("User not found");
+
+    const plan = await ctx.db.get(args.planId);
+    if (!plan || plan.userId !== user._id) {
+      throw new Error("Plan not found or unauthorized");
+    }
+
+    if (plan.shareId) return plan.shareId;
+
+    // Generate a clean 10-char slug
+    const shareId = Math.random().toString(36).substring(2, 12);
+    await ctx.db.patch(args.planId, { shareId });
+    return shareId;
+  },
+});
+
+/**
+ * Get a public shared plan by its shareId
+ */
+export const getSharedPlan = query({
+  args: { shareId: v.string() },
+  handler: async (ctx, args) => {
+    const plan = await ctx.db
+      .query("plans")
+      .withIndex("by_shareId", (q) => q.eq("shareId", args.shareId))
+      .unique();
+
+    if (!plan) return null;
+
+    try {
+      return {
+        ...plan,
+        data: JSON.parse(plan.data),
+      };
+    } catch (e) {
+      return null;
+    }
   },
 });

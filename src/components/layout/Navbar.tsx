@@ -5,10 +5,12 @@ import {
   LogOut,
   Shield,
   Sparkles,
-  User,
   Database,
+  Languages,
 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 import { Button } from "@/components/ui/button";
+import { HelpTooltip } from "@/components/ui/HelpTooltip";
 import {
   Popover,
   PopoverContent,
@@ -32,6 +34,7 @@ export function Navbar({
   onRestoreArchitect,
 }: NavbarProps) {
   const { isSignedIn, user } = useUser();
+  const { lang, setLang, t } = useLanguage();
   const isArchitect = step === "config" || step === "select" || step === "view";
   const isArchive = step === "archive";
 
@@ -60,7 +63,7 @@ export function Navbar({
             >
               <Shield className="w-3 h-3" />
               <span className="text-[9px] font-mono uppercase tracking-widest pt-0.5">
-                Admin
+                {t("nav.admin")}
               </span>
             </Link>
           )}
@@ -81,7 +84,7 @@ export function Navbar({
             }`}
           >
             <Sparkles className="w-3.5 h-3.5 mr-1.5" />
-            <span className="hidden xs:inline">Architect</span>
+            <span className="hidden xs:inline">{t("nav.architect")}</span>
           </Button>
           <Button
             variant={isArchive ? "secondary" : "ghost"}
@@ -94,7 +97,7 @@ export function Navbar({
             }`}
           >
             <History className="w-3.5 h-3.5 mr-1.5" />
-            <span className="hidden xs:inline">Archive</span>
+            <span className="hidden xs:inline">{t("nav.archive")}</span>
           </Button>
         </div>
 
@@ -144,15 +147,74 @@ export function Navbar({
                   </div>
                 </div>
 
-                <div className="p-4 space-y-4">
+                <div className="p-4 space-y-5">
+                  {/* Language Strategy Slider */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100">
+                        <Languages size={14} className="text-slate-500" />
+                      </div>
+                      <div>
+                        <p className="text-[10px] font-bold text-slate-800 uppercase tracking-tight">
+                          {t("nav.language")}
+                        </p>
+                        <p className="text-[9px] text-slate-400 font-mono leading-none">
+                          {lang === "ID" ? "Bahasa Indonesia" : "English US"}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div
+                      onClick={() => setLang(lang === "ID" ? "EN" : "ID")}
+                      className="relative w-[72px] h-[30px] bg-slate-100 rounded-full p-1 cursor-pointer border border-slate-200 shadow-inner group transition-all"
+                    >
+                      {/* Sliding Knob */}
+                      <div
+                        className={`absolute w-[32px] h-[22px] bg-white rounded-full shadow-md border border-slate-100 transition-all duration-300 ease-out flex items-center justify-center ${
+                          lang === "EN" ? "translate-x-[30px]" : "translate-x-0"
+                        }`}
+                      >
+                        <div className="w-1 h-1 rounded-full bg-blue-600/30" />
+                      </div>
+
+                      {/* Labels */}
+                      <div className="flex justify-between items-center h-full px-2 text-[9px] font-black pointer-events-none">
+                        <span
+                          className={`transition-colors duration-300 ${
+                            lang === "ID"
+                              ? "text-blue-700 opacity-100"
+                              : "text-slate-400 opacity-40"
+                          }`}
+                        >
+                          ID
+                        </span>
+                        <span
+                          className={`transition-colors duration-300 ${
+                            lang === "EN"
+                              ? "text-blue-700 opacity-100"
+                              : "text-slate-400 opacity-40"
+                          }`}
+                        >
+                          EN
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="h-px bg-slate-100" />
+
                   <div className="space-y-2">
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-semibold text-slate-700 flex items-center gap-1.5">
                         <Database className="w-3.5 h-3.5 text-blue-600" />
-                        Service Tokens
+                        {t("nav.tokens")}
+                        <HelpTooltip
+                          titleKey="help.tokens_title"
+                          descKey="help.tokens_desc"
+                        />
                       </span>
                       <span className="font-mono text-slate-500">
-                        {userData?.credits ?? 0}/5 Used
+                        {userData?.credits ?? 0}/5 {t("nav.tokens_used")}
                       </span>
                     </div>
                     <div>
@@ -169,8 +231,7 @@ export function Navbar({
                         />
                       </div>
                       <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
-                        Tokens reset daily. Use them to expand schedule limits
-                        beyond standard caps.
+                        {t("nav.tokens_reset")}
                       </p>
                     </div>
                   </div>
@@ -183,7 +244,7 @@ export function Navbar({
                       className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50 h-9"
                     >
                       <LogOut className="w-4 h-4 mr-2" />
-                      Sign Out
+                      {t("nav.signout")}
                     </Button>
                   </SignOutButton>
                 </div>

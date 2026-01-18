@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 import {
   Heart,
   MessageSquare,
@@ -8,9 +13,13 @@ import {
   Github,
   Instagram,
   Mail,
+  HelpCircle,
+  X,
 } from "lucide-react";
+import { useLanguage } from "../../context/LanguageContext";
 
 export function Footer() {
+  const { t } = useLanguage();
   return (
     <footer className="py-12 border-t bg-white relative overflow-hidden">
       {/* Decorative background element */}
@@ -28,9 +37,7 @@ export function Footer() {
               />
             </div>
             <p className="text-xs text-slate-500 leading-relaxed max-w-xs mx-auto md:mx-0">
-              Platform optimasi jadwal perkuliahan tercanggih untuk mahasiswa
-              Indonesia. Dirancang untuk efisiensi, estetika, dan kemudahan
-              dalam menyusun masa depan akademik.
+              {t("footer.tagline")}
             </p>
           </div>
 
@@ -38,6 +45,7 @@ export function Footer() {
           <div className="flex flex-col items-center justify-center gap-4">
             <div className="flex flex-wrap justify-center gap-6">
               <AboutDialog />
+              <HowToUseDialog />
               <DonateDialog />
               <a
                 href="mailto:indraprhmbd@gmail.com"
@@ -47,7 +55,7 @@ export function Footer() {
                   <MessageSquare size={18} />
                 </div>
                 <span className="text-[10px] font-bold uppercase tracking-widest">
-                  Feedback
+                  {t("footer.feedback")}
                 </span>
               </a>
             </div>
@@ -93,12 +101,101 @@ export function Footer() {
   );
 }
 
+function HowToUseDialog() {
+  const { t } = useLanguage();
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <button className="group flex flex-col items-center gap-2 text-slate-400 hover:text-blue-600 transition-all">
+          <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:scale-110 transition-all border border-slate-100">
+            <HelpCircle size={18} />
+          </div>
+          <span className="text-[10px] font-bold uppercase tracking-widest">
+            {t("footer.howtouse")}
+          </span>
+        </button>
+      </DialogTrigger>
+      <DialogContent
+        hideClose
+        className="w-[92%] sm:max-w-2xl bg-white rounded-3xl overflow-hidden p-0 border-none shadow-2xl [&_svg]:text-white max-h-[90vh] overflow-y-auto"
+      >
+        <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
+          <div className="relative z-10">
+            <h2 className="text-3xl font-display font-black mb-2">
+              {t("howtouse.title")}
+            </h2>
+            <div className="h-1 w-12 bg-blue-600 rounded-full" />
+          </div>
+          <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
+            <X size={20} className="text-white" />
+          </DialogClose>
+          <HelpCircle className="absolute -bottom-8 -right-8 w-40 h-40 text-blue-500/10 rotate-12" />
+        </div>
+        <div className="p-8 grid md:grid-cols-2 gap-6 bg-white">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm">
+                <span className="w-5 h-5 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-[10px]">
+                  01
+                </span>
+                {t("howtouse.step1_title")}
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                {t("howtouse.step1_desc")}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm">
+                <span className="w-5 h-5 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-[10px]">
+                  02
+                </span>
+                {t("howtouse.step2_title")}
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                {t("howtouse.step2_desc")}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-bold text-slate-900 flex items-center gap-2 text-sm">
+                <span className="w-5 h-5 rounded bg-blue-50 text-blue-600 flex items-center justify-center text-[10px]">
+                  03
+                </span>
+                {t("howtouse.step3_title")}
+              </h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                {t("howtouse.step3_desc")}
+              </p>
+            </div>
+          </div>
+          <div className="bg-slate-50 p-6 rounded-2xl border border-slate-100 space-y-4 self-start">
+            <div className="flex items-center gap-2 text-blue-700">
+              <Heart className="w-4 h-4 fill-blue-600" />
+              <h4 className="font-bold text-xs uppercase tracking-wider">
+                {t("howtouse.premium_title")}
+              </h4>
+            </div>
+            <p className="text-xs text-slate-600 leading-relaxed">
+              {t("howtouse.premium_desc")}
+            </p>
+            <div className="pt-2 border-t border-slate-200">
+              <p className="text-[10px] text-slate-400 italic">
+                Pro tip: Lock matkul favoritmu sebelum generate untuk hasil yang
+                lebih spesifik!
+              </p>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function SocialIcon({
   icon,
   href,
   color,
 }: {
-  icon: any;
+  icon: React.ReactNode;
   href: string;
   color: string;
 }) {
@@ -115,6 +212,7 @@ function SocialIcon({
 }
 
 function AboutDialog() {
+  const { t } = useLanguage();
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -123,11 +221,14 @@ function AboutDialog() {
             <Info size={18} />
           </div>
           <span className="text-[10px] font-bold uppercase tracking-widest">
-            About
+            {t("footer.about")}
           </span>
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-2xl bg-white rounded-3xl overflow-hidden p-0 border-none shadow-2xl">
+      <DialogContent
+        hideClose
+        className="w-[92%] sm:max-w-2xl bg-white rounded-3xl overflow-hidden p-0 border-none shadow-2xl [&_svg]:text-white max-h-[90vh] overflow-y-auto"
+      >
         <div className="bg-blue-600 p-8 text-white relative overflow-hidden">
           <div className="relative z-10">
             <h2 className="text-3xl font-display font-black mb-2">
@@ -137,6 +238,9 @@ function AboutDialog() {
               "Simplicity in Complexity"
             </p>
           </div>
+          <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
+            <X size={20} className="text-white" />
+          </DialogClose>
           <Info className="absolute -bottom-8 -right-8 w-40 h-40 text-blue-500/30 rotate-12" />
         </div>
         <div className="p-8 space-y-6 text-slate-600 leading-relaxed text-sm bg-white">
@@ -188,6 +292,7 @@ function AboutDialog() {
 }
 
 function DonateDialog() {
+  const { t } = useLanguage();
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -196,11 +301,14 @@ function DonateDialog() {
             <Coffee size={18} />
           </div>
           <span className="text-[10px] font-bold uppercase tracking-widest">
-            Donate
+            {t("footer.donate")}
           </span>
         </button>
       </DialogTrigger>
-      <DialogContent className="max-w-md bg-white rounded-3xl overflow-hidden p-0 border-none shadow-2xl">
+      <DialogContent
+        hideClose
+        className="w-[92%] sm:max-w-md bg-white rounded-3xl overflow-hidden p-0 border-none shadow-2xl [&_svg]:text-white max-h-[90vh] overflow-y-auto"
+      >
         <div className="bg-emerald-600 p-8 text-white relative overflow-hidden">
           <div className="relative z-10">
             <h2 className="text-2xl font-display font-black mb-1">
@@ -210,6 +318,9 @@ function DonateDialog() {
               Dukung pengembangan KRSan agar tetap gratis & tanpa iklan!
             </p>
           </div>
+          <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
+            <X size={20} className="text-white" />
+          </DialogClose>
           <Coffee className="absolute -bottom-6 -right-6 w-32 h-32 text-emerald-500/30 -rotate-12" />
         </div>
 
