@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Brain, Check, Info, Zap, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Course } from "@/types";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -41,6 +41,11 @@ export function SmartGenerateDialog({
   const [preferredDaysOff, setPreferredDaysOff] = useState<string[]>([]);
   const [customInstructions, setCustomInstructions] = useState("");
   const [aiModel, setAiModel] = useState<"groq" | "gemini">("groq");
+
+  // Sync state - Always force 'groq' for now as Gemini is unavailable
+  useEffect(() => {
+    setAiModel("groq");
+  }, [isOpen]);
 
   const days = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
@@ -217,26 +222,28 @@ export function SmartGenerateDialog({
               </div>
 
               <div
-                onClick={() => setAiModel("gemini")}
-                className={`cursor-pointer rounded-2xl border-2 p-3 transition-all ${
-                  aiModel === "gemini"
-                    ? "border-blue-500 bg-blue-50/50"
-                    : "border-slate-100 bg-white hover:border-slate-200"
-                }`}
+                className={`rounded-2xl border-2 p-3 transition-all border-slate-100 bg-slate-50/50 opacity-60 cursor-not-allowed group relative`}
               >
                 <div className="flex items-center gap-2 mb-1">
-                  <Sparkles
-                    className={`w-4 h-4 ${aiModel === "gemini" ? "text-blue-600" : "text-slate-400"}`}
-                  />
-                  <span
-                    className={`text-xs font-bold ${aiModel === "gemini" ? "text-blue-900" : "text-slate-600"}`}
-                  >
+                  <Sparkles className="w-4 h-4 text-slate-400" />
+                  <span className="text-xs font-bold text-slate-400 line-through">
                     Gemini (Flash)
                   </span>
+                  <Badge
+                    variant="outline"
+                    className="text-[8px] px-1 py-0 h-3 border-slate-300 text-slate-500"
+                  >
+                    UNAVAILABLE
+                  </Badge>
                 </div>
-                <p className="text-[9px] text-slate-500 leading-tight">
-                  High capacity & deeper reasoning. (Experimental 2.0)
+                <p className="text-[9px] text-slate-400 leading-tight">
+                  Gemini API is currently down or restricted.
                 </p>
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span className="bg-slate-800 text-white text-[10px] px-2 py-1 rounded">
+                    NOT AVAILABLE
+                  </span>
+                </div>
               </div>
             </div>
           </div>

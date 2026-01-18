@@ -41,7 +41,31 @@ export const getCurrentUser = query({
       credits: user?.credits ?? 0,
       lastSmartGenerateTime: user?.lastSmartGenerateTime,
       planLimit: user?.planLimit ?? 12,
+      preferredAiModel: user?.preferredAiModel ?? "groq",
     };
+  },
+});
+
+export const updatePreferences = mutation({
+  args: {
+    preferredAiModel: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Unauthorized");
+
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_token", (q) =>
+        q.eq("tokenIdentifier", identity.tokenIdentifier),
+      )
+      .unique();
+
+    if (!user) throw new Error("User not found");
+
+    await ctx.db.patch(user._id, {
+      preferredAiModel: args.preferredAiModel,
+    });
   },
 });
 

@@ -150,34 +150,9 @@ Return ONLY valid JSON.`;
     const modelToUse = args.model || "groq";
 
     if (modelToUse === "gemini") {
-      // 5a. Call Gemini API with Fallback Logic
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-
-      try {
-        // Try Gemini 2.0 Flash (Experimental) first
-        const model = genAI.getGenerativeModel(
-          {
-            model: "gemini-2.0-flash-exp",
-            generationConfig: { responseMimeType: "application/json" },
-          },
-          { apiVersion: "v1beta" },
-        );
-        const result = await model.generateContent(
-          `${systemPrompt}\n\n${prompt}`,
-        );
-        aiResponseText = result.response.text();
-      } catch (error: any) {
-        console.error("Gemini 2.0 Error, falling back to 1.5:", error.message);
-        // Fallback to Gemini 1.5 Flash (Stable v1)
-        const stableModel = genAI.getGenerativeModel(
-          { model: "gemini-1.5-flash" },
-          { apiVersion: "v1" },
-        );
-        const result = await stableModel.generateContent(
-          `IMPORTANT: RETURN ONLY JSON.\n\n${systemPrompt}\n\n${prompt}`,
-        );
-        aiResponseText = result.response.text();
-      }
+      throw new Error(
+        "Gemini is currently unavailable. Please use Groq (Ultra Fast) instead.",
+      );
     } else {
       // 5b. Call Groq API
       const groq = new Groq({

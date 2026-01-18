@@ -92,6 +92,7 @@ export function ScheduleMaker({
   const deletePlanMutation = useMutation(api.plans.deletePlan);
   const createShareLinkMutation = useMutation(api.plans.createShareLink);
   const consumeTokenMutation = useMutation(api.users.generateServiceToken);
+  const updatePreferencesMutation = useMutation(api.users.updatePreferences);
 
   const [isSaving, setIsSaving] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -215,6 +216,9 @@ export function ScheduleMaker({
         preferences,
         model,
       });
+
+      // Persist the choice
+      await updatePreferencesMutation({ preferredAiModel: model });
 
       if (result.success) {
         toast.success(
