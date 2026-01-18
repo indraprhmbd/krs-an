@@ -9,6 +9,7 @@ import {
   Check,
   ChevronLeft,
   Brain,
+  Sparkles,
 } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 import {
@@ -77,13 +78,15 @@ export function ScheduleSelector({
       return sum + (course?.sks || 0);
     }, 0);
 
+  const totalSksString = `${totalSelectedSks} / ${sessionProfile.maxSks} SKS`;
+
   return (
     <div className="space-y-6 animate-in fade-in duration-500 max-w-5xl mx-auto px-4 md:px-0">
       {/* Header Section */}
       {/* Header Section */}
       <div className="bg-white/90 backdrop-blur-md p-4 md:p-6 rounded-3xl border border-slate-200 shadow-xl shadow-slate-100/50 flex flex-col gap-6">
-        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-4 w-full md:w-auto">
+        <div className="flex flex-col xl:flex-row justify-between items-center xl:items-start gap-6">
+          <div className="flex items-center gap-4 w-full xl:w-auto">
             {onBack && (
               <Button
                 variant="outline"
@@ -94,78 +97,85 @@ export function ScheduleSelector({
                 <ChevronLeft className="w-4 h-4" />
               </Button>
             )}
-            <div className="space-y-1 text-center md:text-left flex-1">
-              <h2 className="text-xl md:text-2xl font-bold font-display text-slate-900 tracking-tight">
+            <div className="space-y-1 text-center xl:text-left flex-1 min-w-0">
+              <h2 className="text-xl md:text-2xl font-bold font-display text-slate-900 tracking-tight truncate">
                 {t("selector.title")}
               </h2>
-              <div className="flex flex-wrap items-center gap-2 md:gap-3 justify-center md:justify-start">
+              <div className="flex flex-wrap items-center gap-2 md:gap-3 justify-center xl:justify-start">
                 <Badge
                   variant="outline"
-                  className={`px-2 py-0.5 md:px-3 md:py-1 font-mono text-[10px] md:text-xs ${
+                  className={`px-2 py-0.5 md:px-3 md:py-1 font-mono text-[10px] md:text-xs shrink-0 ${
                     totalSelectedSks > sessionProfile.maxSks
                       ? "border-red-200 text-red-700 bg-red-50"
                       : "border-blue-100 text-blue-700 bg-blue-50"
                   }`}
                 >
-                  {totalSelectedSks} / {sessionProfile.maxSks} SKS
+                  {totalSksString}
                 </Badge>
-                <span className="text-xs text-slate-400 font-mono hidden md:inline">
+                <span className="text-xs text-slate-400 font-mono hidden sm:inline">
                   |
                 </span>
-                <p className="text-[10px] md:text-xs text-slate-500">
+                <p className="text-[10px] md:text-xs text-slate-500 font-medium">
                   {selectedCodes.length} Subjects
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full xl:w-auto xl:min-w-[320px]">
+            {/* Left/Top Action */}
             <Button
               variant="outline"
               onClick={onAddSubject}
-              className="w-full sm:w-auto border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-700 h-10 md:h-11 rounded-xl text-xs md:text-sm"
+              className="sm:col-span-1 border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-blue-700 h-9 md:h-10 rounded-xl text-[10px] md:text-xs shadow-sm px-3"
             >
-              <PlusCircle className="w-3.5 h-3.5 md:w-4 md:h-4 mr-2" />
+              <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
               {t("selector.add_course")}
             </Button>
-            <Button
-              onClick={() => onGenerate(false)}
-              disabled={selectedCodes.length === 0 || isGenerating}
-              className="w-full sm:w-auto bg-blue-700 hover:bg-blue-800 text-white h-10 md:h-11 px-6 md:px-8 rounded-xl font-display font-bold shadow-lg shadow-blue-100 transition-all hover:scale-[1.02] disabled:opacity-50 text-xs md:text-sm"
-            >
-              <Brain
-                className={`w-3.5 h-3.5 md:w-4 md:h-4 mr-2 ${isGenerating ? "animate-pulse" : ""}`}
-              />
-              {isGenerating ? t("selector.generating") : t("selector.generate")}
-            </Button>
 
-            {onSmartGenerate && (
-              <div className="flex items-center">
-                <Button
-                  variant="outline"
-                  onClick={onSmartGenerate}
-                  disabled={
-                    selectedCodes.length === 0 ||
-                    isSmartGenerating ||
-                    isGenerating
-                  }
-                  className="w-full sm:w-auto bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 h-10 md:h-11 px-6 rounded-l-xl rounded-r-none font-display font-bold shadow-lg shadow-violet-100 transition-all hover:scale-[1.02] disabled:opacity-50 text-xs md:text-sm"
-                >
-                  <Brain
-                    className={`w-3.5 h-3.5 md:w-4 md:h-4 mr-2 ${isSmartGenerating ? "animate-spin" : ""}`}
-                  />
-                  {isSmartGenerating
-                    ? t("selector.thinking")
-                    : t("selector.smart_generate")}
-                </Button>
-                <div className="h-10 md:h-11 px-2 flex items-center bg-violet-600/10 border-l border-white/20 rounded-r-xl">
-                  <HelpTooltip
-                    titleKey="help.smart_generate_title"
-                    descKey="help.smart_generate_desc"
-                  />
+            {/* Main/Right Action Stack */}
+            <div className="sm:col-span-1 flex flex-col gap-1.5">
+              <Button
+                onClick={() => onGenerate(false)}
+                disabled={selectedCodes.length === 0 || isGenerating}
+                className="w-full bg-blue-700 hover:bg-blue-800 text-white h-9 md:h-10 px-4 rounded-xl font-display font-bold shadow-md shadow-blue-100 transition-all hover:scale-[1.02] disabled:opacity-50 text-[10px] md:text-xs"
+              >
+                <Brain
+                  className={`w-3 h-3 md:w-3.5 md:h-3.5 mr-1.5 ${isGenerating ? "animate-pulse" : ""}`}
+                />
+                {isGenerating
+                  ? t("selector.generating")
+                  : t("selector.generate")}
+              </Button>
+
+              {onSmartGenerate && (
+                <div className="flex items-center w-full">
+                  <Button
+                    variant="outline"
+                    onClick={onSmartGenerate}
+                    disabled={
+                      selectedCodes.length === 0 ||
+                      isSmartGenerating ||
+                      isGenerating
+                    }
+                    className="flex-1 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white border-0 h-8 md:h-9 px-3 rounded-l-xl rounded-r-none font-display font-bold shadow-sm transition-all hover:scale-[1.01] disabled:opacity-50 text-[9px] md:text-[10px]"
+                  >
+                    <Sparkles
+                      className={`w-2.5 h-2.5 md:w-3 md:h-3 mr-1.5 ${isSmartGenerating ? "animate-spin" : ""}`}
+                    />
+                    {isSmartGenerating
+                      ? t("selector.thinking")
+                      : t("selector.smart_generate")}
+                  </Button>
+                  <div className="h-8 md:h-9 px-1.5 flex items-center bg-violet-600/10 border-l border-white/20 rounded-r-xl">
+                    <HelpTooltip
+                      titleKey="help.smart_generate_title"
+                      descKey="help.smart_generate_desc"
+                    />
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>
