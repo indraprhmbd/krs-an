@@ -14,7 +14,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.archive": "Archive",
     "nav.admin": "Admin",
     "nav.tokens": "Service Tokens",
-    "nav.tokens_used": "Digunakan",
+    "nav.tokens_used": "Tersisa",
     "nav.tokens_reset":
       "Token reset setiap hari. Gunakan untuk memperluas limit jadwal.",
     "nav.signout": "Keluar",
@@ -97,7 +97,7 @@ const translations: Record<Language, Record<string, string>> = {
     "nav.archive": "Archive",
     "nav.admin": "Admin",
     "nav.tokens": "Service Tokens",
-    "nav.tokens_used": "Used",
+    "nav.tokens_used": "Remaining",
     "nav.tokens_reset":
       "Tokens reset daily. Use them to expand schedule limits.",
     "nav.signout": "Sign Out",

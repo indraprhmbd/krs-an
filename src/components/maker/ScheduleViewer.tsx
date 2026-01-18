@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ChevronLeft, ChevronRight, Bookmark, Sparkles } from "lucide-react";
 import { ScheduleGrid } from "../ScheduleGrid";
-import { PlanAnalysis } from "../PlanAnalysis";
 import type { Plan } from "@/types";
 
 interface ScheduleViewerProps {
@@ -180,13 +179,11 @@ export function ScheduleViewer({
       </div>
 
       <div id="printable-area" className="flex flex-col gap-6">
-        <div className="bg-white p-1 rounded-2xl border border-slate-200 shadow-xl shadow-blue-50/20 w-full overflow-hidden">
+        <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-xl shadow-blue-900/5 overflow-hidden">
           <ScheduleGrid courses={currentPlan.courses} />
         </div>
 
-        <div className="grid md:grid-cols-2 gap-6">
-          <PlanAnalysis plan={currentPlan} />
-
+        <div className="w-full">
           <Card className="border-slate-200 shadow-sm overflow-hidden rounded-2xl flex flex-col">
             <CardHeader className="bg-slate-50/50 py-3 border-b border-slate-200 flex flex-row items-center justify-between">
               <CardTitle className="text-xs font-display flex items-center gap-2">
@@ -220,11 +217,11 @@ export function ScheduleViewer({
                       <span className="text-[9px] font-mono text-slate-500 uppercase">
                         {c.code} • CLASS {c.class}
                       </span>
+                      <p className="text-[9px] font-bold text-slate-500 mt-1 truncate">
+                        {c.lecturer}
+                      </p>
                       <p className="font-bold text-slate-900 group-hover:text-blue-700 transition-colors text-xs leading-tight">
                         {c.name}
-                      </p>
-                      <p className="text-[9px] text-slate-400 mt-0.5 truncate max-w-[200px]">
-                        {c.lecturer}
                       </p>
                     </div>
                     <Badge

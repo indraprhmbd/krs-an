@@ -150,9 +150,12 @@ export function ScheduleGrid({ courses }: { courses: Course[] }) {
                             <span className="font-bold text-slate-800 leading-[1] line-clamp-1 mt-0.5">
                               {c.name}
                             </span>
-                            <div className="mt-auto flex items-center justify-between text-[7px] text-slate-400 font-mono">
-                              <span className="truncate opacity-80">
-                                {c.room}
+                            <div className="mt-auto flex items-center justify-between text-[7px] text-slate-500 font-bold font-mono">
+                              <span className="truncate">
+                                {c.lecturer.split(",")[0].split(" ")[0] ===
+                                "Dosen"
+                                  ? c.lecturer.split(",")[0]
+                                  : c.lecturer.split(",")[0]}
                               </span>
                             </div>
                           </div>

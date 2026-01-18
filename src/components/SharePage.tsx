@@ -5,14 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScheduleGrid } from "./ScheduleGrid";
-import { PlanAnalysis } from "./PlanAnalysis";
 import {
   ChevronLeft,
   LogIn,
   BookmarkPlus,
   Share2,
   History,
-  Info,
   Sparkles,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -198,7 +196,6 @@ export function SharePage() {
             <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-xl shadow-blue-900/5 overflow-hidden">
               <ScheduleGrid courses={sharedPlan.data.courses} />
             </div>
-            <PlanAnalysis plan={sharedPlan.data} />
           </div>
 
           <div className="space-y-6">
@@ -242,12 +239,9 @@ export function SharePage() {
                       <p className="font-bold text-slate-900 text-xs leading-tight mb-1">
                         {c.name}
                       </p>
-                      <div className="flex items-center gap-1.5 text-slate-400">
-                        <Info size={10} />
-                        <span className="text-[10px] truncate">
-                          {c.lecturer}
-                        </span>
-                      </div>
+                      <p className="text-[9px] font-bold text-slate-500 mt-1 truncate">
+                        {c.lecturer}
+                      </p>
                     </div>
                   ))}
                 </div>

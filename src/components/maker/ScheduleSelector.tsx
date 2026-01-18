@@ -21,7 +21,6 @@ import {
   Command,
   CommandEmpty,
   CommandGroup,
-  CommandInput,
   CommandItem,
 } from "@/components/ui/command";
 import type { Course } from "@/types";
@@ -275,10 +274,6 @@ export function ScheduleSelector({
                           align="start"
                         >
                           <Command>
-                            <CommandInput
-                              placeholder="Search..."
-                              className="h-8 text-xs"
-                            />
                             <CommandEmpty>No class found.</CommandEmpty>
                             <CommandGroup className="max-h-[200px] overflow-auto">
                               <CommandItem

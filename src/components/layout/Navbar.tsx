@@ -221,12 +221,14 @@ export function Navbar({
                       <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all duration-500 ${
-                            (userData?.credits ?? 0) >= 5
+                            (userData?.credits ?? 0) <= 1
                               ? "bg-red-500"
-                              : "bg-blue-600"
+                              : (userData?.credits ?? 0) >= 5
+                                ? "bg-emerald-500"
+                                : "bg-blue-600"
                           }`}
                           style={{
-                            width: `${Math.min(((userData?.credits ?? 0) / 5) * 100, 100)}%`,
+                            width: `${Math.max(0, Math.min(((userData?.credits ?? 0) / 5) * 100, 100))}%`,
                           }}
                         />
                       </div>

@@ -327,124 +327,167 @@ export function ScheduleMaker({
 
   return (
     <div className="pb-20 space-y-8">
-      {/* Architect Flow Stepper (Only visible if architecting) */}
-      {step !== "archive" && (
-        <div className="max-w-xl mx-auto px-4 space-y-6">
-          <div className="flex items-center justify-center gap-2">
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
-              Architect Engine
-            </h3>
-            <HelpTooltip
-              titleKey="help.architect_title"
-              descKey="help.architect_desc"
-            />
-          </div>
-          <div className="flex items-center justify-between relative">
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-slate-100 -z-10" />
-            <div
-              className="absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-blue-600 transition-all duration-500 -z-10"
-              style={{
-                width:
-                  step === "config" ? "0%" : step === "select" ? "50%" : "100%",
-              }}
-            />
-
-            {[
-              { id: "config", label: t("maker.step_config") },
-              { id: "select", label: t("maker.step_select") },
-              { id: "view", label: t("maker.step_view") },
-            ].map((s, i) => {
-              const isActive = step === s.id;
-              const isPast =
-                (step === "select" && i === 0) || (step === "view" && i <= 1);
-
-              return (
-                <div
-                  key={s.id}
-                  className="flex flex-col items-center gap-2 group cursor-pointer"
-                  onClick={() => {
-                    if (s.id === "config") setStep("config");
-                    if (s.id === "select" && courses.length > 0)
-                      setStep("select");
-                  }}
-                >
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-mono font-bold transition-all border-2 ${
-                      isActive
-                        ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 scale-110"
-                        : isPast
-                          ? "bg-blue-100 border-blue-600 text-blue-600"
-                          : "bg-white border-slate-200 text-slate-400"
-                    }`}
-                  >
-                    {i + 1}
-                  </div>
-                  <span
-                    className={`text-[9px] font-mono uppercase tracking-widest transition-colors ${isActive ? "text-blue-700 font-bold" : "text-slate-400"}`}
-                  >
-                    {s.label}
-                  </span>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row gap-6 md:gap-10">
+          {/* Sidebar Step Indicator (Desktop) / Top Flow (Mobile) */}
+          {step !== "archive" && (
+            <aside className="lg:w-56 shrink-0 h-fit lg:sticky lg:top-24">
+              <div className="flex flex-col gap-6">
+                <div className="hidden lg:flex items-center gap-2 px-2">
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
+                    Architect Engine
+                  </h3>
+                  <HelpTooltip
+                    titleKey="help.architect_title"
+                    descKey="help.architect_desc"
+                  />
                 </div>
-              );
-            })}
+
+                {/* Stepper Container */}
+                <div className="flex lg:flex-col items-center lg:items-start justify-between lg:justify-start gap-0 lg:gap-8 relative lg:pl-4">
+                  {/* Vertical line for desktop */}
+                  <div className="hidden lg:block absolute left-8 top-2 bottom-2 w-0.5 bg-slate-100 -z-10" />
+                  <div
+                    className="hidden lg:block absolute left-8 top-2 w-0.5 bg-blue-600 transition-all duration-700 -z-10"
+                    style={{
+                      height:
+                        step === "config"
+                          ? "0%"
+                          : step === "select"
+                            ? "50%"
+                            : "100%",
+                    }}
+                  />
+
+                  {/* Horizontal line for mobile */}
+                  <div className="lg:hidden absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-slate-100 -z-10" />
+                  <div
+                    className="lg:hidden absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-blue-600 transition-all duration-500 -z-10"
+                    style={{
+                      width:
+                        step === "config"
+                          ? "0%"
+                          : step === "select"
+                            ? "50%"
+                            : "100%",
+                    }}
+                  />
+
+                  {[
+                    { id: "config", label: t("maker.step_config") },
+                    { id: "select", label: t("maker.step_select") },
+                    { id: "view", label: t("maker.step_view") },
+                  ].map((s, i) => {
+                    const isActive = step === s.id;
+                    const isPast =
+                      (step === "select" && i === 0) ||
+                      (step === "view" && i <= 1);
+
+                    return (
+                      <div
+                        key={s.id}
+                        className="flex lg:flex-row flex-col items-center gap-2 lg:gap-4 group cursor-pointer transition-all"
+                        onClick={() => {
+                          if (isActive) return;
+                          if (s.id === "config") setStep("config");
+                          if (s.id === "select" && courses.length > 0)
+                            setStep("select");
+                        }}
+                      >
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-mono font-bold transition-all border-2 relative z-10 ${
+                            isActive
+                              ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 scale-110 lg:scale-125"
+                              : isPast
+                                ? "bg-blue-100 border-blue-600 text-blue-600"
+                                : "bg-white border-slate-200 text-slate-400"
+                          }`}
+                        >
+                          {i + 1}
+                        </div>
+                        <div className="flex flex-col lg:items-start items-center">
+                          <span
+                            className={`text-[9px] font-mono uppercase tracking-widest transition-colors ${
+                              isActive
+                                ? "text-blue-700 font-bold"
+                                : "text-slate-400"
+                            }`}
+                          >
+                            {s.label}
+                          </span>
+                          {isActive && (
+                            <span className="hidden lg:block text-[8px] text-blue-400 font-medium lowercase italic opacity-80">
+                              currently active
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </aside>
+          )}
+
+          {/* Main Content Area */}
+          <div className="flex-1 min-w-0">
+            {step === "config" && (
+              <ScheduleConfig
+                sessionProfile={sessionProfile}
+                setSessionProfile={setSessionProfile}
+                onStart={handleAutoLoad}
+              />
+            )}
+
+            {step === "select" && (
+              <ScheduleSelector
+                courses={courses}
+                selectedCodes={selectedCodes}
+                lockedCourses={lockedCourses}
+                sessionProfile={sessionProfile}
+                toggleCourse={toggleCourse}
+                setLockedCourses={setLockedCourses}
+                handleDeleteCourse={handleDeleteCourse}
+                onAddSubject={() => setIsMasterSearchOpen(true)}
+                onGenerate={handleGenerate}
+                onSmartGenerate={onInitSmartGenerate}
+                onBack={() => setStep("config")}
+                isGenerating={isGenerating}
+                isSmartGenerating={isSmartGenerating}
+              />
+            )}
+
+            {step === "view" && plans.length > 0 && (
+              <ScheduleViewer
+                plans={plans}
+                currentPlanIndex={currentPlanIndex}
+                setCurrentPlanIndex={setCurrentPlanIndex}
+                onBack={() =>
+                  setStep(viewSource === "archive" ? "archive" : "select")
+                }
+                onSavePlan={handleSavePlan}
+                isSaving={isSaving}
+                onExpand={
+                  viewSource === "live" ? () => handleGenerate(true) : undefined
+                }
+                isGenerating={isGenerating}
+                userData={userData as any}
+              />
+            )}
+
+            {step === "archive" && (
+              <div className="w-full">
+                <ScheduleArchive
+                  archived={archived}
+                  onImport={handleImportArchived}
+                  onDelete={handleDeleteArchived}
+                  onRename={handleRenameArchived}
+                  onShare={handleSharePlan}
+                />
+              </div>
+            )}
           </div>
         </div>
-      )}
-
-      <div className="container mx-auto px-4">
-        {step === "config" && (
-          <ScheduleConfig
-            sessionProfile={sessionProfile}
-            setSessionProfile={setSessionProfile}
-            onStart={handleAutoLoad}
-          />
-        )}
-
-        {step === "select" && (
-          <ScheduleSelector
-            courses={courses}
-            selectedCodes={selectedCodes}
-            lockedCourses={lockedCourses}
-            sessionProfile={sessionProfile}
-            toggleCourse={toggleCourse}
-            setLockedCourses={setLockedCourses}
-            handleDeleteCourse={handleDeleteCourse}
-            onAddSubject={() => setIsMasterSearchOpen(true)}
-            onGenerate={handleGenerate}
-            onSmartGenerate={onInitSmartGenerate}
-            onBack={() => setStep("config")}
-            isGenerating={isGenerating}
-            isSmartGenerating={isSmartGenerating}
-          />
-        )}
-
-        {step === "view" && plans.length > 0 && (
-          <ScheduleViewer
-            plans={plans}
-            currentPlanIndex={currentPlanIndex}
-            setCurrentPlanIndex={setCurrentPlanIndex}
-            onBack={() =>
-              setStep(viewSource === "archive" ? "archive" : "select")
-            }
-            onSavePlan={handleSavePlan}
-            isSaving={isSaving}
-            onExpand={
-              viewSource === "live" ? () => handleGenerate(true) : undefined
-            }
-            isGenerating={isGenerating}
-            userData={userData as any}
-          />
-        )}
-
-        {step === "archive" && (
-          <ScheduleArchive
-            archived={archived}
-            onImport={handleImportArchived}
-            onDelete={handleDeleteArchived}
-            onRename={handleRenameArchived}
-            onShare={handleSharePlan}
-          />
-        )}
       </div>
 
       <MasterCatalogDialog
