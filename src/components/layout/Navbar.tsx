@@ -7,6 +7,9 @@ import {
   Sparkles,
   Database,
   Languages,
+  Info,
+  HelpCircle,
+  Coffee,
   MessageSquare,
 } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
@@ -243,9 +246,42 @@ export function Navbar({
 
                     {/* Supplemental Utilities (formerly Footer) */}
                     <div className="grid grid-cols-2 gap-2">
-                      <AboutDialog />
-                      <HowToUseDialog />
-                      <DonateDialog />
+                      <AboutDialog
+                        trigger={
+                          <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
+                            <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100/50 group-hover:bg-blue-100 transition-colors">
+                              <Info size={12} className="text-blue-600" />
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                              {t("footer.about")}
+                            </span>
+                          </button>
+                        }
+                      />
+                      <HowToUseDialog
+                        trigger={
+                          <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
+                            <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100/50 group-hover:bg-blue-100 transition-colors">
+                              <HelpCircle size={12} className="text-blue-600" />
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                              {t("footer.howtouse")}
+                            </span>
+                          </button>
+                        }
+                      />
+                      <DonateDialog
+                        trigger={
+                          <button className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group">
+                            <div className="w-6 h-6 rounded-lg bg-emerald-50 flex items-center justify-center border border-emerald-100/50 group-hover:bg-emerald-100 transition-colors">
+                              <Coffee size={12} className="text-emerald-600" />
+                            </div>
+                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                              {t("footer.donate")}
+                            </span>
+                          </button>
+                        }
+                      />
                       <a
                         href="mailto:indraprhmbd@gmail.com"
                         className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group"

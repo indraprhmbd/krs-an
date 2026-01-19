@@ -104,10 +104,9 @@ export function ScheduleSelector({
     selectedCodes.length > 0;
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 max-w-5xl mx-auto px-4 md:px-0">
+    <div className="h-full flex flex-col gap-6 animate-in fade-in duration-500 overflow-hidden">
       {/* Header Section */}
-      {/* Header Section */}
-      <div className="bg-white/90 backdrop-blur-md p-4 md:p-6 rounded-3xl border border-slate-200 shadow-xl shadow-slate-100/50 flex flex-col gap-6">
+      <div className="shrink-0 bg-white/90 backdrop-blur-md p-4 md:p-6 rounded-3xl border border-slate-200 shadow-xl shadow-slate-100/50 flex flex-col gap-6">
         <div className="flex flex-col xl:flex-row justify-between items-center xl:items-start gap-6">
           <div className="flex items-center gap-4 w-full xl:w-auto">
             {onBack && (
@@ -279,228 +278,236 @@ export function ScheduleSelector({
       </div>
 
       {/* Course List Cards */}
-      <div className="grid gap-4">
-        {Object.entries(grouped).map(([code, variations]) => {
-          const isSelected = selectedCodes.includes(code);
-          const lockedIds = lockedCourses[code];
-          const currentLocked = lockedIds || [];
-          // Display logic: show first locked course details if something is locked, else generic first variation
-          const activeCourse =
-            lockedIds && lockedIds.length > 0
-              ? variations.find((v) => v.id === lockedIds[0])
-              : variations[0];
+      <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
+        <div className="grid gap-4 pb-4">
+          {Object.entries(grouped).map(([code, variations]) => {
+            const isSelected = selectedCodes.includes(code);
+            const lockedIds = lockedCourses[code];
+            const currentLocked = lockedIds || [];
+            // Display logic: show first locked course details if something is locked, else generic first variation
+            const activeCourse =
+              lockedIds && lockedIds.length > 0
+                ? variations.find((v) => v.id === lockedIds[0])
+                : variations[0];
 
-          if (!activeCourse) return null;
+            if (!activeCourse) return null;
 
-          return (
-            <div
-              key={code}
-              className={`group relative overflow-hidden transition-all duration-300 rounded-xl md:rounded-2xl border ${
-                isSelected
-                  ? "bg-white border-slate-200 shadow-sm ring-1 ring-blue-100 md:ring-0"
-                  : "bg-slate-50/50 border-slate-100 hover:border-slate-200"
-              }`}
-            >
-              <div className="p-2.5 md:p-4 flex gap-3 md:gap-4 items-start relative">
-                {/* Selection Checkbox (Left) */}
-                <div
-                  onClick={() => toggleCourse(code)}
-                  className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center cursor-pointer transition-colors mt-0.5 ${
-                    isSelected
-                      ? "bg-blue-50 text-blue-700 ring-1 ring-blue-100"
-                      : "bg-white text-slate-300 hover:text-slate-400 border border-slate-200"
-                  }`}
-                >
-                  {isSelected ? (
-                    <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5" />
-                  ) : (
-                    <Plus className="w-4 h-4 md:w-5 md:h-5" />
-                  )}
-                </div>
-
-                {/* Main Content Area (Right) */}
-                <div className="flex-1 min-w-0 flex flex-col gap-2">
-                  {/* Header: Code/SKS + Trash */}
-                  <div className="flex justify-between items-start gap-2">
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono font-bold text-[9px] md:text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
-                          {code}
-                        </span>
-                        <span className="text-[9px] md:text-[10px] text-slate-400 font-mono">
-                          {activeCourse.sks} SKS
-                        </span>
-                      </div>
-                      <h3
-                        className={`font-bold font-display text-xs md:text-sm leading-tight ${
-                          isSelected ? "text-slate-900" : "text-slate-500"
-                        }`}
-                      >
-                        {activeCourse.name}
-                      </h3>
-                    </div>
-
-                    {/* Mobile Only Trash (Top Right) */}
-                    {isSelected && (
-                      <div className="md:hidden -mr-1 -mt-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-red-300 hover:text-red-500"
-                          onClick={(e) =>
-                            handleDeleteCourse(e, activeCourse.id)
-                          }
-                        >
-                          <Trash className="w-3.5 h-3.5" />
-                        </Button>
-                      </div>
+            return (
+              <div
+                key={code}
+                className={`group relative overflow-hidden transition-all duration-300 rounded-xl md:rounded-2xl border ${
+                  isSelected
+                    ? "bg-white border-slate-200 shadow-sm ring-1 ring-blue-100 md:ring-0"
+                    : "bg-slate-50/50 border-slate-100 hover:border-slate-200"
+                }`}
+              >
+                <div className="p-2.5 md:p-4 flex gap-3 md:gap-4 items-start relative">
+                  {/* Selection Checkbox (Left) */}
+                  <div
+                    onClick={() => toggleCourse(code)}
+                    className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center cursor-pointer transition-colors mt-0.5 ${
+                      isSelected
+                        ? "bg-blue-50 text-blue-700 ring-1 ring-blue-100"
+                        : "bg-white text-slate-300 hover:text-slate-400 border border-slate-200"
+                    }`}
+                  >
+                    {isSelected ? (
+                      <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5" />
+                    ) : (
+                      <Plus className="w-4 h-4 md:w-5 md:h-5" />
                     )}
                   </div>
 
-                  {/* Selector Logic (Mobile & Desktop) - Now inside the right column */}
-                  {isSelected && (
-                    <div className="w-full animate-in fade-in slide-in-from-top-1">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <Button
-                            variant="outline"
-                            role="combobox"
-                            className="w-full justify-between h-7 md:h-9 border-slate-200 bg-slate-50/50 hover:bg-white text-[10px] md:text-xs font-mono px-2"
-                          >
-                            <span className="truncate">
-                              {lockedIds && lockedIds.length > 0
-                                ? lockedIds.length === 1
-                                  ? `Class ${variations.find((v) => v.id === lockedIds[0])?.class}`
-                                  : `${lockedIds.length} Classes`
-                                : "Auto-Optimize (All)"}
-                            </span>
-                            <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent
-                          className="w-[200px] md:w-[300px] p-0 bg-white"
-                          align="start"
+                  {/* Main Content Area (Right) */}
+                  <div className="flex-1 min-w-0 flex flex-col gap-2">
+                    {/* Header: Code/SKS + Trash */}
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="space-y-0.5 min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-mono font-bold text-[9px] md:text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
+                            {code}
+                          </span>
+                          <span className="text-[9px] md:text-[10px] text-slate-400 font-mono">
+                            {activeCourse.sks} SKS
+                          </span>
+                        </div>
+                        <h3
+                          className={`font-bold font-display text-xs md:text-sm leading-tight ${
+                            isSelected ? "text-slate-900" : "text-slate-500"
+                          }`}
                         >
-                          <Command>
-                            <CommandEmpty>No class found.</CommandEmpty>
-                            <CommandGroup className="max-h-[200px] overflow-auto">
-                              <CommandItem
-                                value="all"
-                                onSelect={() => {
-                                  setLockedCourses((prev: any) => {
-                                    const newLocked = { ...prev };
-                                    if (
+                          {activeCourse.name}
+                        </h3>
+                      </div>
+
+                      {/* Mobile Only Trash (Top Right) */}
+                      {isSelected && (
+                        <div className="md:hidden -mr-1 -mt-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 text-red-300 hover:text-red-500"
+                            onClick={(e) =>
+                              handleDeleteCourse(e, activeCourse.id)
+                            }
+                          >
+                            <Trash className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Selector Logic (Mobile & Desktop) - Now inside the right column */}
+                    {isSelected && (
+                      <div className="w-full animate-in fade-in slide-in-from-top-1">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              role="combobox"
+                              className="w-full justify-between h-7 md:h-9 border-slate-200 bg-slate-50/50 hover:bg-white text-[10px] md:text-xs font-mono px-2"
+                            >
+                              <span className="truncate">
+                                {lockedIds && lockedIds.length > 0
+                                  ? lockedIds.length === 1
+                                    ? `Class ${variations.find((v) => v.id === lockedIds[0])?.class}`
+                                    : `${lockedIds.length} Classes`
+                                  : "Auto-Optimize (All)"}
+                              </span>
+                              <ChevronsUpDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-[200px] md:w-[300px] p-0 bg-white"
+                            align="start"
+                          >
+                            <Command>
+                              <CommandEmpty>No class found.</CommandEmpty>
+                              <CommandGroup className="max-h-[200px] overflow-auto">
+                                <CommandItem
+                                  value="all"
+                                  onSelect={() => {
+                                    setLockedCourses((prev: any) => {
+                                      const newLocked = { ...prev };
+                                      if (
+                                        !currentLocked ||
+                                        currentLocked.length === 0
+                                      ) {
+                                        delete newLocked[code];
+                                      } else {
+                                        delete newLocked[code];
+                                      }
+                                      return newLocked;
+                                    });
+                                  }}
+                                  className="text-xs font-bold text-blue-700"
+                                >
+                                  <div
+                                    className={`mr-2 flex h-3 w-3 items-center justify-center rounded-sm border border-primary ${
                                       !currentLocked ||
                                       currentLocked.length === 0
-                                    ) {
-                                      delete newLocked[code];
-                                    } else {
-                                      delete newLocked[code];
-                                    }
-                                    return newLocked;
-                                  });
-                                }}
-                                className="text-xs font-bold text-blue-700"
-                              >
-                                <div
-                                  className={`mr-2 flex h-3 w-3 items-center justify-center rounded-sm border border-primary ${
-                                    !currentLocked || currentLocked.length === 0
-                                      ? "bg-primary text-primary-foreground"
-                                      : "opacity-50 [&_svg]:invisible"
-                                  }`}
-                                >
-                                  <Check className="h-3 w-3" />
-                                </div>
-                                Auto-Optimize (Any Class)
-                              </CommandItem>
-                              {variations.map((v) => {
-                                const isChecked = currentLocked?.includes(v.id);
-                                return (
-                                  <CommandItem
-                                    key={v.id}
-                                    value={v.id}
-                                    onSelect={() => {
-                                      setLockedCourses((prev: any) => {
-                                        const newLocked = { ...prev };
-                                        const current = newLocked[code] || [];
-                                        if (current.includes(v.id)) {
-                                          newLocked[code] = current.filter(
-                                            (id: string) => id !== v.id,
-                                          );
-                                          if (newLocked[code].length === 0)
-                                            delete newLocked[code];
-                                        } else {
-                                          newLocked[code] = [...current, v.id];
-                                        }
-                                        return newLocked;
-                                      });
-                                    }}
-                                    className="text-xs"
+                                        ? "bg-primary text-primary-foreground"
+                                        : "opacity-50 [&_svg]:invisible"
+                                    }`}
                                   >
-                                    <div
-                                      className={`mr-2 flex h-3 w-3 items-center justify-center rounded-sm border border-primary ${
-                                        isChecked
-                                          ? "bg-primary text-primary-foreground"
-                                          : "opacity-50 [&_svg]:invisible"
-                                      }`}
+                                    <Check className="h-3 w-3" />
+                                  </div>
+                                  Auto-Optimize (Any Class)
+                                </CommandItem>
+                                {variations.map((v) => {
+                                  const isChecked = currentLocked?.includes(
+                                    v.id,
+                                  );
+                                  return (
+                                    <CommandItem
+                                      key={v.id}
+                                      value={v.id}
+                                      onSelect={() => {
+                                        setLockedCourses((prev: any) => {
+                                          const newLocked = { ...prev };
+                                          const current = newLocked[code] || [];
+                                          if (current.includes(v.id)) {
+                                            newLocked[code] = current.filter(
+                                              (id: string) => id !== v.id,
+                                            );
+                                            if (newLocked[code].length === 0)
+                                              delete newLocked[code];
+                                          } else {
+                                            newLocked[code] = [
+                                              ...current,
+                                              v.id,
+                                            ];
+                                          }
+                                          return newLocked;
+                                        });
+                                      }}
+                                      className="text-xs"
                                     >
-                                      <Check className="h-3 w-3" />
-                                    </div>
-                                    <div className="flex flex-col w-full min-w-0">
-                                      <div className="flex items-center justify-between w-full">
-                                        <span className="font-bold">
-                                          Class {v.class}
-                                        </span>
-                                        <span className="text-[9px] text-slate-400 font-mono">
-                                          {v.schedule[0]?.day}{" "}
-                                          {v.schedule[0]?.start}
+                                      <div
+                                        className={`mr-2 flex h-3 w-3 items-center justify-center rounded-sm border border-primary ${
+                                          isChecked
+                                            ? "bg-primary text-primary-foreground"
+                                            : "opacity-50 [&_svg]:invisible"
+                                        }`}
+                                      >
+                                        <Check className="h-3 w-3" />
+                                      </div>
+                                      <div className="flex flex-col w-full min-w-0">
+                                        <div className="flex items-center justify-between w-full">
+                                          <span className="font-bold">
+                                            Class {v.class}
+                                          </span>
+                                          <span className="text-[9px] text-slate-400 font-mono">
+                                            {v.schedule[0]?.day}{" "}
+                                            {v.schedule[0]?.start}
+                                          </span>
+                                        </div>
+                                        <span className="text-slate-500 text-[10px] truncate w-full block">
+                                          {v.lecturer.split(",")[0]}
                                         </span>
                                       </div>
-                                      <span className="text-slate-500 text-[10px] truncate w-full block">
-                                        {v.lecturer.split(",")[0]}
-                                      </span>
-                                    </div>
-                                  </CommandItem>
-                                );
-                              })}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </div>
-                  )}
-                  {/* End Main Content Col */}
-                </div>
+                                    </CommandItem>
+                                  );
+                                })}
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    )}
+                    {/* End Main Content Col */}
+                  </div>
 
-                {/* Desktop Trash (Far Right, Vertical Center aligned with top or center?) 
+                  {/* Desktop Trash (Far Right, Vertical Center aligned with top or center?) 
                     Ideally it sits on the right of the whole card. 
                     But we have a flex row.
                 */}
-                {isSelected && (
-                  <div className="hidden md:flex shrink-0 self-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-lg"
-                      onClick={(e) => handleDeleteCourse(e, activeCourse.id)}
-                    >
-                      <Trash className="w-4 h-4" />
-                    </Button>
-                  </div>
-                )}
+                  {isSelected && (
+                    <div className="hidden md:flex shrink-0 self-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                        onClick={(e) => handleDeleteCourse(e, activeCourse.id)}
+                      >
+                        <Trash className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
 
-      {courses.length === 0 && (
-        <div className="text-center py-20 opacity-50">
-          <p className="font-mono text-xs uppercase tracking-widest text-slate-400">
-            No subjects loaded. Add from Master Catalog.
-          </p>
+          {courses.length === 0 && (
+            <div className="text-center py-20 opacity-50">
+              <p className="font-mono text-xs uppercase tracking-widest text-slate-400">
+                {t("selector.no_subjects")}
+              </p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

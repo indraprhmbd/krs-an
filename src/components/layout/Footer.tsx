@@ -105,19 +105,21 @@ export function Footer() {
   );
 }
 
-export function HowToUseDialog() {
+export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
   const { t } = useLanguage();
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="group flex flex-col items-center gap-2 text-slate-400 hover:text-blue-600 transition-all">
-          <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:scale-110 transition-all border border-slate-100">
-            <HelpCircle size={18} />
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest">
-            {t("footer.howtouse")}
-          </span>
-        </button>
+        {trigger || (
+          <button className="group flex flex-col items-center gap-2 text-slate-400 hover:text-blue-600 transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:scale-110 transition-all border border-slate-100">
+              <HelpCircle size={18} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-widest">
+              {t("footer.howtouse")}
+            </span>
+          </button>
+        )}
       </DialogTrigger>
       <DialogContent
         hideClose
@@ -220,19 +222,21 @@ function SocialIcon({
   );
 }
 
-export function AboutDialog() {
+export function AboutDialog({ trigger }: { trigger?: React.ReactNode }) {
   const { t } = useLanguage();
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="group flex flex-col items-center gap-2 text-slate-400 hover:text-blue-600 transition-all">
-          <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:scale-110 transition-all border border-slate-100">
-            <Info size={18} />
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest">
-            {t("footer.about")}
-          </span>
-        </button>
+        {trigger || (
+          <button className="group flex flex-col items-center gap-2 text-slate-400 hover:text-blue-600 transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:scale-110 transition-all border border-slate-100">
+              <Info size={18} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-widest">
+              {t("footer.about")}
+            </span>
+          </button>
+        )}
       </DialogTrigger>
       <DialogContent
         hideClose
@@ -297,19 +301,21 @@ export function AboutDialog() {
   );
 }
 
-export function DonateDialog() {
+export function DonateDialog({ trigger }: { trigger?: React.ReactNode }) {
   const { t } = useLanguage();
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <button className="group flex flex-col items-center gap-2 text-slate-400 hover:text-blue-600 transition-all">
-          <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:scale-110 transition-all border border-slate-100">
-            <Coffee size={18} />
-          </div>
-          <span className="text-[10px] font-bold uppercase tracking-widest">
-            {t("footer.donate")}
-          </span>
-        </button>
+        {trigger || (
+          <button className="group flex flex-col items-center gap-2 text-slate-400 hover:text-blue-600 transition-all">
+            <div className="w-10 h-10 rounded-2xl bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 group-hover:scale-110 transition-all border border-slate-100">
+              <Coffee size={18} />
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-widest">
+              {t("footer.donate")}
+            </span>
+          </button>
+        )}
       </DialogTrigger>
       <DialogContent
         hideClose

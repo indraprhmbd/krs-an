@@ -17,7 +17,7 @@ export function ScheduleGrid({ courses }: { courses: Course[] }) {
 
   return (
     <div className="bg-slate-50/50 rounded-xl border border-slate-200 shadow-inner p-1 h-full flex flex-col">
-      <div className="bg-white rounded-lg border border-slate-100 shadow-2xl shadow-blue-50/50 flex-1 relative overflow-hidden">
+      <div className="bg-white rounded-lg border border-slate-100 shadow-2xl shadow-blue-50/50 flex-1 relative overflow-auto custom-scrollbar">
         <div
           className="grid grid-cols-[50px_repeat(6,minmax(100px,1fr))] md:grid-cols-[60px_repeat(6,1fr)] min-w-[700px] md:min-w-0"
           style={{ gridTemplateRows: `auto repeat(${slots}, 1.5rem)` }}

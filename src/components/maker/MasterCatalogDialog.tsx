@@ -105,8 +105,8 @@ export function MasterCatalogDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-white rounded-3xl p-6 border-none shadow-2xl overflow-hidden flex flex-col max-h-[85vh]">
-        <DialogHeader className="mb-4">
+      <DialogContent className="max-w-2xl bg-white rounded-3xl p-6 border-none shadow-2xl overflow-hidden flex flex-col h-[85vh] max-h-[85vh]">
+        <DialogHeader className="mb-4 shrink-0">
           <DialogTitle className="text-xl font-display font-bold text-slate-900 flex items-center gap-2">
             <Search className="w-5 h-5 text-blue-700" />
             Master Catalog
