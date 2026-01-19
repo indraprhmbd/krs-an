@@ -253,7 +253,10 @@ export function ScheduleViewer({
                   }}
                 >
                   <SelectTrigger className="h-7 text-[10px] font-bold px-3 border-slate-200 bg-white hover:bg-slate-50 rounded-lg w-full min-w-[100px]">
-                    <SelectValue placeholder="" />
+                    <span className="truncate w-full text-left block">
+                      Class {c.class} • {c.lecturer.split(",")[0]} •{" "}
+                      {c.schedule[0]?.day} {c.schedule[0]?.start}
+                    </span>
                   </SelectTrigger>
                   <SelectContent className="rounded-2xl border-none shadow-2xl">
                     <SelectItem
