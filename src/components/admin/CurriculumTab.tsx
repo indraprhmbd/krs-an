@@ -48,11 +48,11 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
 
   return (
     <Card className="border-slate-200 shadow-sm overflow-hidden rounded-2xl">
-      <CardHeader className="p-5 border-b border-slate-100 bg-slate-50/30">
+      <CardHeader className="p-4 md:p-5 border-b border-slate-100 bg-slate-50/30">
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
-          <div className="flex flex-col md:flex-row items-end gap-4 w-full xl:w-auto">
-            <div className="space-y-1">
-              <CardTitle className="text-xl font-display">
+          <div className="flex flex-col lg:flex-row items-start lg:items-end gap-4 w-full xl:w-auto">
+            <div className="space-y-0.5">
+              <CardTitle className="text-xl font-display text-slate-900">
                 Curriculum Blueprint
               </CardTitle>
               <CardDescription className="font-mono text-[9px] uppercase tracking-widest mt-0.5">
@@ -60,13 +60,13 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
               </CardDescription>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:flex lg:flex-wrap gap-2 w-full">
               <div className="space-y-1">
-                <Label className="text-[8px] uppercase font-mono tracking-widest text-slate-500">
+                <Label className="text-[8px] uppercase font-mono tracking-widest text-slate-500 ml-1">
                   Prodi Filter
                 </Label>
                 <Select value={prodi} onValueChange={setProdi}>
-                  <SelectTrigger className="h-8 w-44 rounded-lg font-mono text-[9px] uppercase border-slate-200">
+                  <SelectTrigger className="h-9 md:h-8 w-full lg:w-44 rounded-xl lg:rounded-lg font-mono text-[9px] uppercase border-slate-200 bg-white">
                     <SelectValue placeholder="Select Prodi" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-slate-100 shadow-xl max-h-[300px]">
@@ -96,30 +96,15 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
               </div>
 
               <div className="space-y-1">
-                <Label className="text-[8px] uppercase font-mono tracking-widest text-slate-500">
-                  Search Courses
-                </Label>
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
-                  <Input
-                    placeholder="Code/Name..."
-                    className="pl-8 h-8 w-48 rounded-lg font-mono text-[9px] uppercase border-slate-200"
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1">
-                <Label className="text-[8px] uppercase font-mono tracking-widest text-slate-500">
-                  Semester Filter
+                <Label className="text-[8px] uppercase font-mono tracking-widest text-slate-500 ml-1">
+                  Semester
                 </Label>
                 <Select
                   value={semester.toString()}
                   onValueChange={(val) => setSemester(parseInt(val))}
                 >
-                  <SelectTrigger className="h-8 w-28 rounded-lg font-mono text-[9px] uppercase border-slate-200">
-                    <SelectValue placeholder="Semester" />
+                  <SelectTrigger className="h-9 md:h-8 w-full lg:w-28 rounded-xl lg:rounded-lg font-mono text-[9px] uppercase border-slate-200 bg-white">
+                    <SelectValue placeholder="Sem" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl border-slate-100 shadow-xl">
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
@@ -134,14 +119,29 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="space-y-1 sm:col-span-2 lg:col-span-1">
+                <Label className="text-[8px] uppercase font-mono tracking-widest text-slate-500 ml-1">
+                  Search
+                </Label>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                  <Input
+                    placeholder="Code/Name..."
+                    className="pl-8 h-9 md:h-8 w-full lg:w-48 rounded-xl lg:rounded-lg font-mono text-[9px] uppercase border-slate-200 bg-white"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+              </div>
             </div>
           </div>
 
           <Button
             onClick={onOpenImport}
-            className="bg-blue-700 hover:bg-blue-800 text-white rounded-xl px-4 h-9 shadow-lg shadow-blue-100 font-display text-xs"
+            className="w-full xl:w-auto bg-blue-700 hover:bg-blue-800 text-white rounded-xl px-6 h-10 md:h-9 shadow-lg shadow-blue-100 font-display text-xs"
           >
-            <PlusCircle className="w-3.5 h-3.5 mr-2" />
+            <PlusCircle className="w-4 h-4 mr-2" />
             Batch Import
           </Button>
         </div>
@@ -164,20 +164,26 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
                   key={c._id}
                   className="hover:bg-slate-50/50 transition-colors group"
                 >
-                  <td className="px-4 py-2 font-mono font-bold text-blue-900">
+                  <td className="px-2 md:px-4 py-2 font-mono font-bold text-blue-900 text-[10px] md:text-xs">
                     {c.code}
                   </td>
-                  <td className="px-4 py-2 font-medium">{c.name}</td>
-                  <td className="px-4 py-2 text-slate-500">{c.sks}</td>
-                  <td className="px-4 py-2 text-slate-500">{c.term}</td>
-                  <td className="px-4 py-2 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                  <td className="px-2 md:px-4 py-2 font-medium min-w-[120px] text-[10px] md:text-xs">
+                    {c.name}
+                  </td>
+                  <td className="px-2 md:px-4 py-2 text-slate-500 text-[10px] md:text-xs">
+                    {c.sks}
+                  </td>
+                  <td className="px-2 md:px-4 py-2 text-slate-500 text-[10px] md:text-xs">
+                    {c.term}
+                  </td>
+                  <td className="px-2 md:px-4 py-2 text-right opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-7 w-7 text-slate-400 hover:text-red-600"
+                      className="h-8 w-8 text-slate-400 hover:text-red-600 active:bg-slate-50"
                       onClick={() => handleRemove(c._id)}
                     >
-                      <Trash2 className="w-3.5 h-3.5" />
+                      <Trash2 className="w-4 h-4" />
                     </Button>
                   </td>
                 </tr>

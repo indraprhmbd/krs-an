@@ -222,7 +222,19 @@ export function ScheduleMaker({
         setStep("archive");
       }
     } catch (err: any) {
-      toast.error(err.message || "Smart Generate failed");
+      // Improve error handling for common AI failures
+      const msg = err.message || "";
+      if (
+        msg.includes("Token was not consumed") ||
+        msg.includes("no valid plans")
+      ) {
+        toast.warning(
+          "AI couldn't find a perfect schedule. Try relaxing your constraints (days off/lecturers) or reducing SKS.",
+          { duration: 5000 },
+        );
+      } else {
+        toast.error(msg || "Smart Generate failed");
+      }
     } finally {
       setIsSmartGenerating(false);
     }

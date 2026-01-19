@@ -242,109 +242,113 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                 Global Component Database ({totalLoaded} loaded)
               </CardDescription>
             </div>
-            <div className="flex flex-wrap gap-2 w-full xl:w-auto justify-start xl:justify-end">
+            <div className="flex flex-col sm:flex-row gap-2 w-full xl:w-auto justify-start xl:justify-end">
               {selectedIds.length > 0 && (
                 <Button
                   variant="destructive"
                   size="sm"
                   onClick={handleBatchDelete}
-                  className="rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest h-8"
+                  className="w-full sm:w-auto rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest h-9 md:h-8"
                 >
-                  <Trash2 className="w-3 h-3 mr-2" />
+                  <Trash2 className="w-3.5 h-3.5 mr-2" />
                   Delete ({selectedIds.length})
                 </Button>
               )}
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleFixProdi}
-                disabled={isFixing}
-                className="rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest border-emerald-200 text-emerald-700 hover:bg-emerald-50 h-8"
-              >
-                {isFixing ? (
-                  <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                ) : (
+              <div className="grid grid-cols-2 sm:flex gap-2 w-full">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleFixProdi}
+                  disabled={isFixing}
+                  className="rounded-xl font-mono text-[9px] uppercase tracking-widest border-emerald-200 text-emerald-700 hover:bg-emerald-50 h-9 md:h-8"
+                >
+                  {isFixing ? (
+                    <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                  ) : (
+                    <Wand2 className="w-3 h-3 mr-2" />
+                  )}
+                  Fix Format
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={onOpenScraper}
+                  className="rounded-xl font-mono text-[9px] uppercase tracking-widest border-blue-200 text-blue-700 hover:bg-blue-50 h-9 md:h-8"
+                >
                   <Wand2 className="w-3 h-3 mr-2" />
-                )}
-                Fix Format
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={onOpenScraper}
-                className="rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest border-blue-200 text-blue-700 hover:bg-blue-50 h-8"
-              >
-                <Wand2 className="w-3 h-3 mr-2" />
-                AI Scraper
-              </Button>
-
-              <div className="relative">
-                <input
-                  type="file"
-                  accept=".csv"
-                  className="hidden"
-                  id="csv-import"
-                  onChange={handleCsvImport}
-                />
-                <Label htmlFor="csv-import">
-                  <Button
-                    asChild
-                    variant="outline"
-                    className="rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer h-8"
-                  >
-                    <span>
-                      {isImporting ? (
-                        <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                      ) : (
-                        <FileSpreadsheet className="w-3 h-3 mr-2" />
-                      )}
-                      CSV
-                    </span>
-                  </Button>
-                </Label>
+                  AI Scraper
+                </Button>
               </div>
 
-              <div className="relative">
-                <input
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  id="master-import"
-                  onChange={handleBulkImport}
-                />
-                <Label htmlFor="master-import">
-                  <Button
-                    asChild
-                    className="bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest cursor-pointer shadow-lg shadow-slate-100 h-8"
-                  >
-                    <span>
-                      {isImporting ? (
-                        <Loader2 className="w-3 h-3 animate-spin mr-2" />
-                      ) : (
-                        <Upload className="w-3 h-3 mr-2" />
-                      )}
-                      JSON
-                    </span>
-                  </Button>
-                </Label>
+              <div className="grid grid-cols-2 sm:flex gap-2 w-full">
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept=".csv"
+                    className="hidden"
+                    id="csv-import"
+                    onChange={handleCsvImport}
+                  />
+                  <Label htmlFor="csv-import">
+                    <Button
+                      asChild
+                      variant="outline"
+                      className="w-full rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer h-9 md:h-8"
+                    >
+                      <span>
+                        {isImporting ? (
+                          <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                        ) : (
+                          <FileSpreadsheet className="w-3 h-3 mr-2" />
+                        )}
+                        CSV
+                      </span>
+                    </Button>
+                  </Label>
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="file"
+                    accept=".json"
+                    className="hidden"
+                    id="master-import"
+                    onChange={handleBulkImport}
+                  />
+                  <Label htmlFor="master-import">
+                    <Button
+                      asChild
+                      className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest cursor-pointer shadow-lg shadow-slate-100 h-9 md:h-8"
+                    >
+                      <span>
+                        {isImporting ? (
+                          <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                        ) : (
+                          <Upload className="w-3 h-3 mr-2" />
+                        )}
+                        JSON
+                      </span>
+                    </Button>
+                  </Label>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-3 mt-4 pt-4 border-t border-slate-100">
+          <div className="flex flex-col md:flex-row gap-2 mt-4 pt-4 border-t border-slate-100">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="Search by code or name..."
-                className="pl-10 h-10 rounded-xl border-slate-200"
+                placeholder="Search code or name..."
+                className="pl-10 h-10 rounded-xl border-slate-200 text-xs"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
-            <div className="w-full md:w-48">
+            <div className="w-full md:w-56">
               <Select value={prodiFilter} onValueChange={setProdiFilter}>
-                <SelectTrigger className="h-10 rounded-xl border-slate-200">
+                <SelectTrigger className="h-10 rounded-xl border-slate-200 text-[10px] font-bold">
                   <SelectValue placeholder="All Prodi" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl border-slate-100 shadow-xl max-h-[300px]">
@@ -407,41 +411,45 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                     key={c._id}
                     className={`hover:bg-slate-50/50 transition-colors group ${selectedIds.includes(c._id) ? "bg-blue-50/30" : ""}`}
                   >
-                    <td className="px-4 py-2.5">
+                    <td className="px-2 md:px-4 py-2.5">
                       <Checkbox
                         checked={selectedIds.includes(c._id)}
                         onCheckedChange={() => toggleSelect(c._id)}
                       />
                     </td>
-                    <td className="px-4 py-2.5 font-mono font-bold text-blue-900">
+                    <td className="px-2 md:px-4 py-2.5 font-mono font-bold text-blue-900">
                       {c.code}
                     </td>
-                    <td className="px-4 py-2.5 font-medium">{c.name}</td>
-                    <td className="px-4 py-2.5 text-slate-600">{c.class}</td>
-                    <td className="px-4 py-2.5 text-slate-500 text-[10px]">
+                    <td className="px-2 md:px-4 py-2.5 font-medium min-w-[120px]">
+                      {c.name}
+                    </td>
+                    <td className="px-2 md:px-4 py-2.5 text-slate-600">
+                      {c.class}
+                    </td>
+                    <td className="px-2 md:px-4 py-2.5 text-slate-500 text-[10px]">
                       {c.prodi}
                     </td>
-                    <td className="px-4 py-2.5 font-mono">{c.sks}</td>
-                    <td className="px-4 py-2.5 text-slate-500 text-[10px] overflow-hidden max-w-[150px] truncate">
+                    <td className="px-2 md:px-4 py-2.5 font-mono">{c.sks}</td>
+                    <td className="px-2 md:px-4 py-2.5 text-slate-500 text-[10px] overflow-hidden max-w-[150px] truncate">
                       {c.lecturer}
                     </td>
-                    <td className="px-4 py-2.5 text-right opacity-0 group-hover:opacity-100 transition-opacity">
+                    <td className="px-2 md:px-4 py-2.5 text-right opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-slate-400 hover:text-blue-600"
+                          className="h-8 w-8 text-slate-400 hover:text-blue-600 active:bg-slate-100"
                           onClick={() => handleEditMaster(c)}
                         >
-                          <Edit3 className="w-3.5 h-3.5" />
+                          <Edit3 className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-7 w-7 text-slate-400 hover:text-red-600"
+                          className="h-8 w-8 text-slate-400 hover:text-red-600 active:bg-slate-100"
                           onClick={() => handleDeleteMaster(c._id)}
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </td>
