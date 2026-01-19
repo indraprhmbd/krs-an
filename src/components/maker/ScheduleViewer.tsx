@@ -118,7 +118,7 @@ export function ScheduleViewer({
         variations.find((v) => {
           const { valid } = checkConflicts([...fixedCombo, v]);
           return valid;
-        }) || variations[0];
+        }) || variations[0]; // If all conflict, just pick best available or first
 
       if (best) {
         fixedCombo.push(best);
@@ -382,24 +382,25 @@ export function ScheduleViewer({
                     : false;
 
                   if (!c) {
+                    const sampleCourse = variations[0];
                     return (
                       <div
                         key={code}
                         className="p-4 bg-slate-50/50 border-l-4 border-l-slate-200 transition-all hover:bg-slate-100/50"
                       >
-                        <div className="flex justify-between items-start mb-2">
+                        <div className="flex justify-between items-start mb-1">
                           <span className="text-[9px] font-mono text-slate-400 uppercase font-black tracking-widest">
                             {code}
                           </span>
                           <Badge
                             variant="outline"
-                            className="text-[7px] h-3.5 px-1 border-slate-200 text-slate-400 font-black"
+                            className="text-[7px] h-3.5 px-0.5 border-slate-200 text-slate-400 font-extrabold rounded-[2px] tracking-tighter"
                           >
                             UNSELECTED
                           </Badge>
                         </div>
-                        <h4 className="font-bold text-slate-400 text-[10px] uppercase tracking-tight mb-3">
-                          Variation Pending...
+                        <h4 className="font-bold text-slate-500 text-[11px] leading-tight line-clamp-2 mb-3">
+                          {sampleCourse?.name || "Unknown Course"}
                         </h4>
                         <Popover>
                           <PopoverTrigger asChild>
