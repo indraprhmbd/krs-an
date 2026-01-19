@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/card";
 import { Search, PlusCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface CurriculumTabProps {
   onOpenImport: () => void;
@@ -36,6 +37,9 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
   );
 
   const removeCurriculum = useMutation(api.admin.removeCurriculumItem);
+  const batchDeleteCurriculum = useMutation(api.admin.batchDeleteCurriculum);
+
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
 
   const handleRemove = async (id: any) => {
     try {
@@ -44,6 +48,37 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
     } catch (err) {
       toast.error("Failed to remove item");
     }
+  };
+
+  const handleBatchDelete = async () => {
+    if (selectedIds.length === 0) return;
+    if (
+      !confirm(`Are you sure you want to delete ${selectedIds.length} items?`)
+    ) {
+      return;
+    }
+
+    try {
+      await batchDeleteCurriculum({ ids: selectedIds as any });
+      toast.success(`Successfully deleted ${selectedIds.length} items.`);
+      setSelectedIds([]);
+    } catch (err: any) {
+      toast.error("Batch delete failed: " + err.message);
+    }
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedIds.length === filteredCurriculum.length) {
+      setSelectedIds([]);
+    } else {
+      setSelectedIds(filteredCurriculum.map((c: any) => c._id));
+    }
+  };
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    );
   };
 
   return (
@@ -137,13 +172,27 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
             </div>
           </div>
 
-          <Button
-            onClick={onOpenImport}
-            className="w-full xl:w-auto bg-blue-700 hover:bg-blue-800 text-white rounded-xl px-6 h-10 md:h-9 shadow-lg shadow-blue-100 font-display text-xs"
-          >
-            <PlusCircle className="w-4 h-4 mr-2" />
-            Batch Import
-          </Button>
+          <div className="flex gap-2">
+            {selectedIds.length > 0 && (
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={handleBatchDelete}
+                className="rounded-xl px-4 h-10 md:h-9 shadow-lg font-display text-xs"
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete ({selectedIds.length})
+              </Button>
+            )}
+
+            <Button
+              onClick={onOpenImport}
+              className="w-full xl:w-auto bg-blue-700 hover:bg-blue-800 text-white rounded-xl px-6 h-10 md:h-9 shadow-lg shadow-blue-100 font-display text-xs"
+            >
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Batch Import
+            </Button>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-0">
@@ -151,6 +200,15 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
           <table className="w-full text-xs">
             <thead className="bg-slate-50 border-b border-slate-200 text-[9px] font-mono uppercase tracking-widest text-slate-500">
               <tr>
+                <th className="px-4 py-3 text-left w-12">
+                  <Checkbox
+                    checked={
+                      filteredCurriculum.length > 0 &&
+                      selectedIds.length === filteredCurriculum.length
+                    }
+                    onCheckedChange={toggleSelectAll}
+                  />
+                </th>
                 <th className="px-4 py-3 text-left">Code</th>
                 <th className="px-4 py-3 text-left">Course Name</th>
                 <th className="px-4 py-3 text-left">SKS</th>
@@ -164,6 +222,12 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
                   key={c._id}
                   className="hover:bg-slate-50/50 transition-colors group"
                 >
+                  <td className="px-4 py-2">
+                    <Checkbox
+                      checked={selectedIds.includes(c._id)}
+                      onCheckedChange={() => toggleSelect(c._id)}
+                    />
+                  </td>
                   <td className="px-2 md:px-4 py-2 font-mono font-bold text-blue-900 text-[10px] md:text-xs">
                     {c.code}
                   </td>

@@ -282,6 +282,17 @@ export const removeCurriculumItem = mutation({
   },
 });
 
+export const batchDeleteCurriculum = mutation({
+  args: { ids: v.array(v.id("curriculum")) },
+  handler: async (ctx, args) => {
+    await checkAdmin(ctx);
+    for (const id of args.ids) {
+      await ctx.db.delete(id);
+    }
+    return { success: true, deletedCount: args.ids.length };
+  },
+});
+
 export const fixProdiFormatting = mutation({
   args: {},
   handler: async (ctx) => {
