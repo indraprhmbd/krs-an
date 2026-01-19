@@ -87,6 +87,7 @@ export function generatePlans(
   allCourses: Course[],
   selectedCodes: string[],
   limit: number = 12,
+  maxDailySks: number = 8,
 ): Plan[] {
   // 1. Group by code and Shuffle
   const groups: Record<string, Course[]> = {};
@@ -145,7 +146,7 @@ export function generatePlans(
   // 2. High Analysis Score
   const scoredPlans = foundPlans.map((combo) => {
     const stats = calculateScore(combo);
-    const passesDailyHeuristic = checkDailySksLimit(combo, 8);
+    const passesDailyHeuristic = checkDailySksLimit(combo, maxDailySks);
 
     // Heuristic boost
     const finalSafe = stats.safe + (passesDailyHeuristic ? 15 : 0);
@@ -165,7 +166,8 @@ export function generatePlans(
     .map((item, idx) => {
       const isComplete = keys.length === selectedCodes.length;
       const labels = [...item.stats.labels];
-      if (item.passesDailyHeuristic) labels.push("Balanced daily SKS (<8)");
+      if (item.passesDailyHeuristic)
+        labels.push(`Balanced daily SKS (<${maxDailySks})`);
 
       return {
         id: crypto.randomUUID(),

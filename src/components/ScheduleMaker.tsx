@@ -95,6 +95,7 @@ export function ScheduleMaker({
   const updatePreferencesMutation = useMutation(api.users.updatePreferences);
 
   const [isSaving, setIsSaving] = useState(false);
+  const [maxDailySks, setMaxDailySks] = useState(8);
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Handlers
@@ -203,22 +204,30 @@ export function ScheduleMaker({
     setIsSmartDialogOpen(true);
   };
 
-  const handleRunSmartGenerate = async (results: any) => {
-    const { model, ...preferences } = results;
-    if (isSmartGenerating) return;
-
+  const handleRunSmartGenerate = async (preferences: {
+    preferredLecturers: string[];
+    preferredDaysOff: string[];
+    customInstructions: string;
+    model: string;
+    maxDailySks: number;
+  }) => {
+    setIsSmartDialogOpen(false);
     setIsSmartGenerating(true);
+
+    // Save preference to local state
+    setMaxDailySks(preferences.maxDailySks);
+
     try {
       const result = await smartGenerateAction({
         courses: courses as any,
         selectedCodes,
         maxSks: sessionProfile.maxSks,
         preferences,
-        model,
+        model: preferences.model,
       });
 
       // Persist the choice
-      await updatePreferencesMutation({ preferredAiModel: model });
+      await updatePreferencesMutation({ preferredAiModel: preferences.model });
 
       if (result.success) {
         toast.success(
@@ -273,6 +282,7 @@ export function ScheduleMaker({
         activeCourses,
         selectedCodes,
         currentLimit,
+        maxDailySks,
       );
 
       if (generated.length === 0) {
@@ -376,6 +386,42 @@ export function ScheduleMaker({
 
     toast.success(`${masterCourses.length} courses added to session.`);
     setIsMasterSearchOpen(false);
+  };
+
+  const handleSaveManualPlan = async (combo: Course[]) => {
+    setIsSaving(true);
+    try {
+      const planId = await savePlanMutation({
+        name: `Manual Draft ${new Date().toLocaleTimeString()}`,
+        data: JSON.stringify({
+          id: crypto.randomUUID(),
+          name: "Manual Plan",
+          courses: combo,
+          score: { safe: 100, risky: 0, optimal: 0 },
+          analysis: "Hand-crafted schedule with manual selection",
+        }),
+        isSmartGenerated: false,
+        generatedBy: "manual",
+      });
+
+      toast.success("Manual plan saved to archive!");
+      // Optionally switch to view mode or just toast
+      const newPlan = {
+        id: planId,
+        name: "Manual Plan",
+        courses: combo,
+        score: { safe: 100, risky: 0, optimal: 0 },
+        analysis: "Hand-crafted schedule with manual selection",
+      };
+      setPlans([newPlan]);
+      setCurrentPlanIndex(0);
+      setStep("view");
+      setViewSource("live");
+    } catch (err: any) {
+      toast.error("Failed to save manual plan: " + err.message);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -504,6 +550,7 @@ export function ScheduleMaker({
                 onAddSubject={() => setIsMasterSearchOpen(true)}
                 onGenerate={handleGenerate}
                 onSmartGenerate={onInitSmartGenerate}
+                onSaveManual={handleSaveManualPlan}
                 onBack={() => setStep("config")}
                 isGenerating={isGenerating}
                 isSmartGenerating={isSmartGenerating}

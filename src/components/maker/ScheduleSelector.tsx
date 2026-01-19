@@ -10,8 +10,11 @@ import {
   ChevronLeft,
   Brain,
   Sparkles,
+  AlertTriangle,
+  ClipboardCheck,
 } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
+import { checkConflicts } from "../../lib/rules";
 import {
   Popover,
   PopoverContent,
@@ -37,6 +40,7 @@ interface ScheduleSelectorProps {
   onAddSubject: () => void;
   onGenerate: (tokenized?: boolean) => void;
   onSmartGenerate?: () => void;
+  onSaveManual?: (combo: Course[]) => void;
   onBack?: () => void;
   isGenerating: boolean;
   isSmartGenerating: boolean;
@@ -54,6 +58,7 @@ export function ScheduleSelector({
   onAddSubject,
   onGenerate,
   onSmartGenerate,
+  onSaveManual,
   onBack,
   isGenerating,
   isSmartGenerating,
@@ -81,6 +86,22 @@ export function ScheduleSelector({
     }, 0);
 
   const totalSksString = `${totalSelectedSks} / ${sessionProfile.maxSks} SKS`;
+
+  // Manual Builder Logic
+  const currentManualCombination = Object.entries(lockedCourses)
+    .map(([code, ids]) => {
+      const variations = grouped[code] || [];
+      return variations.find((v) => v.id === ids[0]);
+    })
+    .filter(Boolean) as Course[];
+
+  const { valid: isManualValid, messages: conflictMessages } = checkConflicts(
+    currentManualCombination,
+  );
+
+  const isManualComplete =
+    currentManualCombination.length === selectedCodes.length &&
+    selectedCodes.length > 0;
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500 max-w-5xl mx-auto px-4 md:px-0">
@@ -182,6 +203,68 @@ export function ScheduleSelector({
             </div>
           </div>
         </div>
+
+        {/* Manual Builder Flash Card */}
+        {currentManualCombination.length > 0 && (
+          <div
+            className={`p-4 rounded-3xl border transition-all animate-in slide-in-from-top-2 flex flex-col sm:flex-row items-center justify-between gap-4 ${
+              !isManualValid
+                ? "bg-red-50 border-red-100 shadow-sm"
+                : isManualComplete
+                  ? "bg-green-50 border-green-100 shadow-sm"
+                  : "bg-blue-50/30 border-blue-100"
+            }`}
+          >
+            <div className="flex items-center gap-3 w-full sm:w-auto">
+              <div
+                className={`w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 ${
+                  !isManualValid
+                    ? "bg-red-100 text-red-600"
+                    : isManualComplete
+                      ? "bg-green-100 text-green-600"
+                      : "bg-blue-100 text-blue-600"
+                }`}
+              >
+                {!isManualValid ? (
+                  <AlertTriangle className="w-5 h-5" />
+                ) : isManualComplete ? (
+                  <Check className="w-5 h-5" />
+                ) : (
+                  <PlusCircle className="w-5 h-5" />
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-slate-900">
+                  {!isManualValid
+                    ? "Schedule Conflict Detected"
+                    : isManualComplete
+                      ? "Custom Schedule Ready!"
+                      : "Building Custom Draft..."}
+                </p>
+                <p className="text-[10px] text-slate-500 font-medium truncate">
+                  {!isManualValid
+                    ? conflictMessages[0]
+                    : isManualComplete
+                      ? "This configuration is safe to save."
+                      : `${currentManualCombination.length} subjects locked manually.`}
+                </p>
+              </div>
+            </div>
+
+            <Button
+              disabled={!isManualValid || !isManualComplete || isGenerating}
+              onClick={() => onSaveManual?.(currentManualCombination)}
+              className={`w-full sm:w-auto h-9 px-6 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all ${
+                isManualValid && isManualComplete
+                  ? "bg-slate-900 hover:bg-black text-white shadow-lg shadow-slate-200"
+                  : "bg-slate-100 text-slate-400 border-none opacity-50"
+              }`}
+            >
+              <ClipboardCheck className="w-3.5 h-3.5 mr-2" />
+              Save Manual Plan
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Course List Cards */}

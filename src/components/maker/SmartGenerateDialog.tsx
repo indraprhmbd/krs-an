@@ -23,6 +23,7 @@ interface SmartGenerateDialogProps {
     preferredDaysOff: string[];
     customInstructions: string;
     model: string;
+    maxDailySks: number;
   }) => void;
   isGenerating: boolean;
   cooldown?: { active: boolean; seconds: number };
@@ -41,6 +42,7 @@ export function SmartGenerateDialog({
   const [preferredDaysOff, setPreferredDaysOff] = useState<string[]>([]);
   const [customInstructions, setCustomInstructions] = useState("");
   const [aiModel, setAiModel] = useState<"groq" | "gemini">("groq");
+  const [maxDailySks, setMaxDailySks] = useState(8);
 
   // Sync state - Always force 'groq' for now as Gemini is unavailable
   useEffect(() => {
@@ -97,6 +99,7 @@ export function SmartGenerateDialog({
       preferredDaysOff,
       customInstructions,
       model: aiModel,
+      maxDailySks,
     });
   };
 
@@ -192,6 +195,47 @@ export function SmartGenerateDialog({
               onChange={(e) => setCustomInstructions(e.target.value)}
               className="resize-none h-20 text-xs bg-slate-50 border-slate-200 focus:ring-violet-500"
             />
+          </div>
+
+          {/* Section 4: SKS Limit Slider */}
+          <div className="space-y-3">
+            <div className="flex justify-between items-center">
+              <label className="text-sm font-bold text-slate-900">
+                Daily SKS Limit
+              </label>
+              <Badge className="bg-violet-100 text-violet-700 border-none font-mono font-bold">
+                {maxDailySks >= 24 ? "UNLIMITED" : `${maxDailySks} SKS`}
+              </Badge>
+            </div>
+            <p className="text-[10px] text-slate-500 -mt-2 mb-2">
+              Maximum academic load permitted per day. Default is 8.
+            </p>
+            <div className="flex items-center gap-4 px-1">
+              <input
+                type="range"
+                min="4"
+                max="24"
+                step="1"
+                value={maxDailySks}
+                onChange={(e) => setMaxDailySks(parseInt(e.target.value))}
+                className="flex-1 h-1.5 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-violet-600"
+              />
+              <div className="flex gap-1">
+                {[4, 8, 12, 18, 24].map((v) => (
+                  <button
+                    key={v}
+                    onClick={() => setMaxDailySks(v)}
+                    className={`w-6 h-6 flex items-center justify-center rounded-md text-[8px] font-bold border transition-all ${
+                      maxDailySks === v
+                        ? "bg-violet-600 border-violet-600 text-white"
+                        : "bg-white border-slate-200 text-slate-400 hover:border-violet-300"
+                    }`}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
 
           {/* Section 4: AI Brain Switcher */}

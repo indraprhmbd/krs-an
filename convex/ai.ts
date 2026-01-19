@@ -46,6 +46,7 @@ export const smartGenerate = action({
       preferredLecturers: v.array(v.string()),
       preferredDaysOff: v.array(v.string()),
       customInstructions: v.string(),
+      maxDailySks: v.optional(v.number()),
     }),
     model: v.optional(v.string()), // "groq" | "gemini"
   },
@@ -127,7 +128,7 @@ REQUIREMENTS:
 1. **CRITICAL:** Total SKS for each plan MUST be ≤ ${args.maxSks}.
 2. **FALLBACK:** If mathematically impossible to include all subjects without conflicts or exceeding SKS, you may drop **UP TO TWO (2)** subjects.
 3. No time conflicts allowed.
-4. Balanced load (≤8 SKS/day).
+4. Balanced load (≤${args.preferences.maxDailySks || 8} SKS/day).
 5. 3 DISTINCT VARIATIONS (different days, times, or lecturers).
 
 THIN OUTPUT FORMAT (JSON ONLY):
