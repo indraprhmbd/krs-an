@@ -54,7 +54,7 @@ function App() {
   if (!isLoaded) return null;
 
   return (
-    <div className="h-screen flex flex-col bg-slate-50/30 font-sans overflow-hidden">
+    <div className="h-[100dvh] flex flex-col bg-slate-50/30 font-sans overflow-hidden">
       <Toaster position="top-center" />
 
       <Routes>

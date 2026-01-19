@@ -104,7 +104,7 @@ export function ScheduleSelector({
     selectedCodes.length > 0;
 
   return (
-    <div className="h-full flex flex-col gap-6 animate-in fade-in duration-500 overflow-hidden">
+    <div className="flex-1 min-h-0 flex flex-col gap-4 md:gap-6 animate-in fade-in duration-500 overflow-hidden">
       {/* Header Section */}
       <div className="shrink-0 bg-white/90 backdrop-blur-md p-4 md:p-6 rounded-3xl border border-slate-200 shadow-xl shadow-slate-100/50 flex flex-col gap-6">
         <div className="flex flex-col xl:flex-row justify-between items-center xl:items-start gap-6">
