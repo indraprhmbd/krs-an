@@ -432,6 +432,13 @@ export function ScheduleViewer({
                                       <span className="text-slate-500 text-[9px] font-medium truncate italic">
                                         {v.lecturer}
                                       </span>
+                                      <span className="text-blue-600 text-[8px] font-mono font-bold mt-0.5">
+                                        {v.schedule
+                                          .map(
+                                            (s: any) => `${s.day} ${s.start}`,
+                                          )
+                                          .join(", ")}
+                                      </span>
                                     </div>
                                   </CommandItem>
                                 ))}
