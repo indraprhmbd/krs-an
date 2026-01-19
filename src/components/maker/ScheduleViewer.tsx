@@ -500,7 +500,7 @@ export function ScheduleViewer({
                 <LayoutList className="w-4 h-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="p-0 sm:max-w-[425px] h-[80vh] flex flex-col overflow-hidden rounded-t-[2rem] sm:rounded-2xl bg-white border-none">
+            <DialogContent className="p-0 w-[95vw] sm:max-w-[425px] h-[80vh] flex flex-col overflow-hidden rounded-[2.5rem] sm:rounded-3xl bg-white border-none shadow-2xl">
               <DialogHeader className="p-4 border-b shrink-0">
                 <DialogTitle className="text-sm font-display flex items-center justify-between pr-8">
                   <div className="flex items-center gap-2">
