@@ -165,7 +165,7 @@ export function ScheduleViewer({
                 }}
               >
                 <SelectTrigger className="w-full h-8 text-[10px] font-black uppercase tracking-widest border-2 border-dashed border-slate-200 text-slate-400 hover:border-blue-400 hover:text-blue-600 rounded-xl bg-white shadow-sm">
-                  <SelectValue placeholder="Select Class" />
+                  <SelectValue placeholder="+" />
                 </SelectTrigger>
                 <SelectContent className="rounded-2xl border-none shadow-2xl">
                   {variations.map((v) => (
@@ -233,10 +233,7 @@ export function ScheduleViewer({
             </div>
 
             {isManualEdit && (
-              <div className="flex items-center gap-2 pt-1 mt-1 border-t border-slate-100/50">
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
-                  Class Selection:
-                </span>
+              <div className="pt-1 mt-1 border-t border-slate-100/50">
                 <Select
                   value={c.id}
                   onValueChange={(value) => {
@@ -244,8 +241,8 @@ export function ScheduleViewer({
                     if (variation) handleUpdateCourse(c.code, variation);
                   }}
                 >
-                  <SelectTrigger className="h-7 text-[10px] font-bold px-3 border-slate-200 bg-white hover:bg-slate-50 rounded-lg w-auto min-w-[100px]">
-                    <SelectValue />
+                  <SelectTrigger className="h-7 text-[10px] font-bold px-3 border-slate-200 bg-white hover:bg-slate-50 rounded-lg w-full min-w-[100px]">
+                    <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent className="rounded-2xl border-none shadow-2xl">
                     {variations.map((v) => (

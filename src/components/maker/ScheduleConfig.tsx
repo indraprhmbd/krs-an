@@ -203,7 +203,7 @@ export function ScheduleConfig({
 
             <Button
               onClick={onStart}
-              className="w-full bg-blue-700 hover:bg-blue-800 text-white h-14 rounded-2xl font-display font-bold text-base shadow-xl shadow-blue-100 transition-all hover:scale-[1.01] active:scale-[0.99]"
+              className="w-full mt-8 bg-blue-700 hover:bg-blue-800 text-white h-14 rounded-2xl font-display font-bold text-base shadow-xl shadow-blue-100 transition-all hover:scale-[1.01] active:scale-[0.99]"
             >
               {t("config.btn_init")}
             </Button>

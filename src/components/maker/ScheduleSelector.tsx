@@ -359,7 +359,7 @@ export function ScheduleSelector({
                                 ? lockedIds.length === 1
                                   ? `Class ${variations.find((v) => v.id === lockedIds[0])?.class}`
                                   : `${lockedIds.length} Classes`
-                                : "Auto-Optimize (All)"}
+                                : "Auto (All)"}
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent className="rounded-2xl border-none shadow-2xl">
