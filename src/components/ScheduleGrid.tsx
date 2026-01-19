@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import type { Course, DayOfWeek } from "../types";
+import { checkConflicts } from "../lib/rules";
 
 const DAYS: DayOfWeek[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const START_HOUR = 7;
@@ -8,6 +9,11 @@ const ROWS_PER_HOUR = 2; // 30 min slots
 
 export function ScheduleGrid({ courses }: { courses: Course[] }) {
   const slots = (END_HOUR - START_HOUR) * ROWS_PER_HOUR;
+  const { messages: conflictMessages } = checkConflicts(courses);
+
+  // A course is conflicted if its name and class appear in any conflict message
+  const isConflicted = (c: Course) =>
+    conflictMessages.some((m) => m.includes(c.name) && m.includes(c.class));
 
   return (
     <div className="bg-slate-50/50 rounded-xl overflow-hidden border border-slate-200 shadow-inner p-1 h-full max-h-[80vh] flex flex-col">
@@ -129,15 +135,22 @@ export function ScheduleGrid({ courses }: { courses: Course[] }) {
 
                         const top = (startMin / 30) * 1.5;
                         const height = (durationMin / 30) * 1.5;
+                        const conflicted = isConflicted(c);
 
                         return (
                           <div
                             key={`${c.id}-${idx}`}
-                            className="absolute left-[1px] right-[1px] rounded-[2px] p-1 text-[8px] border border-blue-200 shadow-sm flex flex-col justify-start overflow-hidden hover:z-40 transition-all bg-white hover:bg-blue-50 border-l-2 border-l-blue-600"
+                            className={`absolute left-[1px] right-[1px] rounded-[2px] p-1 text-[8px] border shadow-sm flex flex-col justify-start overflow-hidden hover:z-40 transition-all ${
+                              conflicted
+                                ? "bg-red-50 border-red-200 border-l-2 border-l-red-600"
+                                : "bg-white hover:bg-blue-50 border-blue-200 border-l-2 border-l-blue-600"
+                            }`}
                             style={{ top: `${top}rem`, height: `${height}rem` }}
                           >
                             <div className="flex justify-between items-start mb-0 overflow-hidden leading-none">
-                              <span className="font-mono font-bold text-blue-700 truncate mr-0.5 scale-90 origin-left">
+                              <span
+                                className={`font-mono font-bold truncate mr-0.5 scale-90 origin-left ${conflicted ? "text-red-700" : "text-blue-700"}`}
+                              >
                                 {c.code}
                               </span>
                               <Badge

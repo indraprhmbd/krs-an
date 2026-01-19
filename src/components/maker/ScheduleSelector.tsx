@@ -200,6 +200,17 @@ export function ScheduleSelector({
                   </div>
                 </div>
               )}
+
+              {/* Visual Manual Plotter Button */}
+              <Button
+                variant="outline"
+                onClick={() => onSaveManual?.([])} // Empty combo signals "enter plotter mode"
+                disabled={selectedCodes.length === 0 || isGenerating}
+                className="w-full border-blue-200 text-blue-700 hover:bg-blue-50 h-8 md:h-9 px-4 rounded-xl font-display font-bold shadow-sm transition-all hover:scale-[1.01] disabled:opacity-50 text-[9px] md:text-[10px]"
+              >
+                <PlusCircle className="w-3 md:w-3.5 h-3 md:h-3.5 mr-1.5" />
+                Visual Manual Plotter
+              </Button>
             </div>
           </div>
         </div>

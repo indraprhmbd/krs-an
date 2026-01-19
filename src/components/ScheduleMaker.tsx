@@ -25,6 +25,7 @@ interface ScheduleMakerProps {
     isAdmin: boolean;
     lastSmartGenerateTime?: number;
     planLimit?: number;
+    preferredAiModel?: string;
   };
 }
 
@@ -97,29 +98,9 @@ export function ScheduleMaker({
   const [isSaving, setIsSaving] = useState(false);
   const [maxDailySks, setMaxDailySks] = useState(8);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isManualMode, setIsManualMode] = useState(false);
 
   // Handlers
-  const handleSavePlan = async (plan: Plan) => {
-    if (archived && archived.length >= 30) {
-      toast.error(
-        "Storage full (30/30). Please delete old plans in Archive to save new ones.",
-      );
-      return;
-    }
-    setIsSaving(true);
-    try {
-      await savePlanMutation({
-        name: plan.name,
-        data: JSON.stringify(plan),
-      });
-      toast.success("Plan archived successfully!");
-    } catch (err: any) {
-      toast.error("Failed to archive plan: " + err.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const handleDeleteArchived = async (planId: string) => {
     try {
       await deletePlanMutation({ planId: planId as any });
@@ -388,40 +369,98 @@ export function ScheduleMaker({
     setIsMasterSearchOpen(false);
   };
 
-  const handleSaveManualPlan = async (combo: Course[]) => {
-    setIsSaving(true);
-    try {
-      const planId = await savePlanMutation({
-        name: `Manual Draft ${new Date().toLocaleTimeString()}`,
-        data: JSON.stringify({
-          id: crypto.randomUUID(),
-          name: "Manual Plan",
-          courses: combo,
-          score: { safe: 100, risky: 0, optimal: 0 },
-          analysis: "Hand-crafted schedule with manual selection",
-        }),
-        isSmartGenerated: false,
-        generatedBy: "manual",
-      });
+  const handleSaveManualPlan = async (data: Course[] | Plan) => {
+    // If it's an empty array, it's the signals to enter plotter mode
+    if (Array.isArray(data) && data.length === 0) {
+      const draftCombo = selectedCodes
+        .map((code) => {
+          const variations = courses.filter((c) => c.code === code);
+          const lockedIds = lockedCourses[code] || [];
+          return (
+            variations.find((v) => lockedIds.includes(v.id)) || variations[0]
+          );
+        })
+        .filter(Boolean);
 
-      toast.success("Manual plan saved to archive!");
-      // Optionally switch to view mode or just toast
-      const newPlan = {
-        id: planId,
-        name: "Manual Plan",
-        courses: combo,
+      const draftPlan: Plan = {
+        id: "manual-draft",
+        name: "Manual Draft",
+        courses: draftCombo as Course[],
         score: { safe: 100, risky: 0, optimal: 0 },
-        analysis: "Hand-crafted schedule with manual selection",
+        analysis: "Manual assembly in progress...",
       };
-      setPlans([newPlan]);
+
+      setPlans([draftPlan]);
       setCurrentPlanIndex(0);
+      setIsManualMode(true);
       setStep("view");
       setViewSource("live");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const isFullPlan = !Array.isArray(data);
+      const name = isFullPlan
+        ? data.name
+        : `Manual Draft ${new Date().toLocaleTimeString()}`;
+
+      const payload = isFullPlan
+        ? data
+        : {
+            id: crypto.randomUUID(),
+            name: "Manual Plan",
+            courses: data,
+            score: { safe: 100, risky: 0, optimal: 0 },
+            analysis: "Hand-crafted schedule with manual selection",
+          };
+
+      const planId = await savePlanMutation({
+        name,
+        data: JSON.stringify(payload),
+        isSmartGenerated: isFullPlan,
+        generatedBy: isFullPlan
+          ? userData?.preferredAiModel || "groq"
+          : "manual",
+      });
+
+      toast.success(isFullPlan ? "Plan archived!" : "Manual plan saved!");
+
+      const newPlan = isFullPlan
+        ? data
+        : {
+            ...payload,
+            id: planId as string,
+          };
+
+      if (isManualMode) {
+        setIsManualMode(false);
+      }
+
+      if (!isFullPlan) {
+        setPlans([newPlan as Plan]);
+        setCurrentPlanIndex(0);
+      }
+
+      setStep("view");
     } catch (err: any) {
-      toast.error("Failed to save manual plan: " + err.message);
+      toast.error("Failed to save plan: " + err.message);
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleUpdateManualPlan = (updatedCourses: Course[]) => {
+    setPlans((prev) => {
+      const next = [...prev];
+      if (next[currentPlanIndex]) {
+        next[currentPlanIndex] = {
+          ...next[currentPlanIndex],
+          courses: updatedCourses,
+        };
+      }
+      return next;
+    });
   };
 
   return (
@@ -563,18 +602,22 @@ export function ScheduleMaker({
                 plans={plans}
                 currentPlanIndex={currentPlanIndex}
                 setCurrentPlanIndex={setCurrentPlanIndex}
-                onBack={() =>
-                  setStep(viewSource === "archive" ? "archive" : "select")
-                }
-                onSavePlan={handleSavePlan}
+                onBack={() => {
+                  setStep(viewSource === "archive" ? "archive" : "select");
+                  setIsManualMode(false);
+                }}
+                onSavePlan={handleSaveManualPlan}
                 isSaving={isSaving}
+                isManualEdit={isManualMode}
+                onUpdatePlan={handleUpdateManualPlan}
+                allPossibleCourses={courses}
                 onExpand={
-                  viewSource === "live" && planLimit < 36
+                  viewSource === "live" && planLimit < 36 && !isManualMode
                     ? () => handleGenerate(true)
                     : undefined
                 }
                 onShuffle={
-                  viewSource === "live"
+                  viewSource === "live" && !isManualMode
                     ? () => handleGenerate(false)
                     : undefined
                 }

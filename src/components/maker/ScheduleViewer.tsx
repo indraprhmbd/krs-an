@@ -7,18 +7,36 @@ import {
   Bookmark,
   Sparkles,
   RefreshCw,
+  AlertTriangle,
+  ClipboardCheck,
 } from "lucide-react";
 import { ScheduleGrid } from "../ScheduleGrid";
 import { HelpTooltip } from "../ui/HelpTooltip";
-import type { Plan } from "@/types";
+import type { Plan, Course } from "@/types";
+import { checkConflicts } from "../../lib/rules";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from "@/components/ui/command";
+import { ChevronsUpDown, Check } from "lucide-react";
 
 interface ScheduleViewerProps {
   plans: Plan[];
   currentPlanIndex: number;
   setCurrentPlanIndex: (index: number | ((prev: number) => number)) => void;
   onBack: () => void;
-  onSavePlan: (plan: Plan) => void;
+  onSavePlan: (data: any) => void;
   isSaving: boolean;
+  isManualEdit?: boolean;
+  onUpdatePlan?: (updated: Course[]) => void;
+  allPossibleCourses?: Course[];
   onExpand?: () => void;
   onShuffle?: () => void;
   planLimit: number;
@@ -33,6 +51,9 @@ export function ScheduleViewer({
   onBack,
   onSavePlan,
   isSaving,
+  isManualEdit,
+  onUpdatePlan,
+  allPossibleCourses,
   onExpand,
   onShuffle,
   planLimit,
@@ -44,6 +65,28 @@ export function ScheduleViewer({
     (sum, c) => sum + (c.sks || 0),
     0,
   );
+
+  const { valid, messages: conflictMessages } = checkConflicts(
+    currentPlan.courses,
+  );
+
+  const groupedVariations =
+    allPossibleCourses?.reduce(
+      (acc, c) => {
+        acc[c.code] = acc[c.code] || [];
+        acc[c.code].push(c);
+        return acc;
+      },
+      {} as Record<string, Course[]>,
+    ) || {};
+
+  const handleUpdateCourse = (code: string, newVariation: Course) => {
+    if (!onUpdatePlan) return;
+    const nextCourses = currentPlan.courses.map((c) =>
+      c.code === code ? newVariation : c,
+    );
+    onUpdatePlan(nextCourses);
+  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -85,7 +128,9 @@ export function ScheduleViewer({
               {currentPlan.name}
             </h2>
             <p className="text-slate-500 font-mono text-[9px] tracking-widest uppercase truncate mt-0.5">
-              PLAN {currentPlanIndex + 1} OF {plans.length} • OPTIMIZED BY AI
+              {isManualEdit
+                ? "MANUAL ASSEMBLER MODE • VISUAL DRAFT"
+                : `PLAN ${currentPlanIndex + 1} OF ${plans.length} • OPTIMIZED BY AI`}
             </p>
           </div>
         </div>
@@ -113,14 +158,30 @@ export function ScheduleViewer({
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => onSavePlan(currentPlan)}
-            disabled={isSaving}
-            className="h-9 md:h-10 px-2 md:px-4 font-display text-[10px] md:text-[11px] font-bold text-slate-700 hover:bg-slate-100 hover:text-blue-700 rounded-2xl transition-all"
+            onClick={() => {
+              if (isManualEdit) {
+                onSavePlan(currentPlan.courses);
+              } else {
+                onSavePlan(currentPlan);
+              }
+            }}
+            disabled={isSaving || (isManualEdit && !valid)}
+            className={`h-9 md:h-10 px-2 md:px-4 font-display text-[10px] md:text-[11px] font-bold rounded-2xl transition-all ${
+              isManualEdit && valid
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "text-slate-700 hover:bg-slate-100 hover:text-blue-700"
+            }`}
           >
-            <Bookmark
-              className={`w-4 h-4 mr-2 ${isSaving ? "animate-pulse" : ""}`}
-            />
-            {isSaving ? "Saving..." : "Save"}
+            {isManualEdit ? (
+              <ClipboardCheck
+                className={`w-4 h-4 mr-2 ${isSaving ? "animate-pulse" : ""}`}
+              />
+            ) : (
+              <Bookmark
+                className={`w-4 h-4 mr-2 ${isSaving ? "animate-pulse" : ""}`}
+              />
+            )}
+            {isSaving ? "Saving..." : isManualEdit ? "Commit & Save" : "Save"}
           </Button>
 
           <div className="hidden sm:block w-px h-6 bg-slate-200" />
@@ -247,33 +308,132 @@ export function ScheduleViewer({
             </CardHeader>
             <CardContent className="p-0 overflow-y-auto max-h-[400px]">
               <div className="divide-y divide-slate-100 text-[11px]">
-                {currentPlan.courses.map((c, i) => (
-                  <div
-                    key={i}
-                    className="p-3 hover:bg-slate-50/50 transition-colors group flex justify-between items-center"
-                  >
-                    <div className="flex flex-col">
-                      <span className="text-[9px] font-mono text-slate-500 uppercase">
-                        {c.code} • CLASS {c.class}
-                      </span>
-                      <p className="text-[9px] font-bold text-slate-500 mt-1 truncate">
-                        {c.lecturer}
-                      </p>
-                      <p className="font-bold text-slate-900 group-hover:text-blue-700 transition-colors text-xs leading-tight">
-                        {c.name}
-                      </p>
-                    </div>
-                    <Badge
-                      variant="outline"
-                      className="text-[8px] h-4 px-1 font-mono border-slate-200 text-slate-600 bg-white shrink-0"
+                {currentPlan.courses.map((c, i) => {
+                  const variations = groupedVariations[c.code] || [];
+                  const isConflicted = conflictMessages.some(
+                    (m) => m.includes(c.name) && m.includes(c.class),
+                  );
+
+                  return (
+                    <div
+                      key={i}
+                      className={`p-3 transition-colors group flex justify-between items-center ${
+                        isConflicted ? "bg-red-50" : "hover:bg-slate-50/50"
+                      }`}
                     >
-                      {c.sks} SKS
-                    </Badge>
-                  </div>
-                ))}
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-[9px] font-mono text-slate-500 uppercase">
+                            {c.code}
+                          </span>
+                          {isConflicted && (
+                            <Badge
+                              variant="destructive"
+                              className="text-[8px] h-3 px-1"
+                            >
+                              CONFLICT
+                            </Badge>
+                          )}
+                        </div>
+                        <h4 className="font-bold text-slate-900 group-hover:text-blue-700 transition-colors text-xs leading-tight truncate">
+                          {c.name}
+                        </h4>
+
+                        {isManualEdit ? (
+                          <div className="mt-2">
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="h-6 text-[9px] font-mono px-2 border-slate-200 bg-white"
+                                >
+                                  Class {c.class}
+                                  <ChevronsUpDown className="ml-1 h-3 w-3 opacity-50" />
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-[200px] p-0 bg-white"
+                                align="start"
+                              >
+                                <Command>
+                                  <CommandEmpty>
+                                    No variations found.
+                                  </CommandEmpty>
+                                  <CommandGroup className="max-h-[200px] overflow-auto">
+                                    {variations.map((v) => (
+                                      <CommandItem
+                                        key={v.id}
+                                        value={v.id}
+                                        onSelect={() =>
+                                          handleUpdateCourse(c.code, v)
+                                        }
+                                        className="text-[10px]"
+                                      >
+                                        <Check
+                                          className={`mr-2 h-3 w-3 ${
+                                            v.id === c.id
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          }`}
+                                        />
+                                        <div className="flex flex-col">
+                                          <span className="font-bold">
+                                            Class {v.class}
+                                          </span>
+                                          <span className="text-slate-400 text-[9px]">
+                                            {v.schedule
+                                              .map(
+                                                (s: any) =>
+                                                  `${s.day} ${s.start}`,
+                                              )
+                                              .join(", ")}
+                                          </span>
+                                        </div>
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                        ) : (
+                          <p className="text-[9px] font-bold text-slate-500 mt-1 truncate">
+                            CLASS {c.class} • {c.lecturer}
+                          </p>
+                        )}
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className="text-[8px] h-4 px-1 font-mono border-slate-200 text-slate-600 bg-white shrink-0 ml-3"
+                      >
+                        {c.sks} SKS
+                      </Badge>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
+
+          {/* Conflict Banner - Desktop/Visual Feedback */}
+          {!valid && isManualEdit && (
+            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-4">
+              <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 shrink-0" />
+              <div className="space-y-1">
+                <p className="text-sm font-bold text-red-900">
+                  Conflict Detected
+                </p>
+                <ul className="list-disc list-inside">
+                  {conflictMessages.map((m, i) => (
+                    <li key={i} className="text-xs text-red-700">
+                      {m}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
