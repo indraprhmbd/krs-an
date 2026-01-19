@@ -463,7 +463,7 @@ export function ScheduleMaker({
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="flex-1 min-h-0 flex flex-col gap-4 md:gap-6 animate-in fade-in duration-500 overflow-visible lg:overflow-hidden">
       <div className="flex-1 flex flex-row overflow-hidden">
         <div className="flex flex-1 flex-col lg:flex-row min-h-0 overflow-hidden">
           {/* Sidebar Step Indicator (Desktop) / Top Flow (Mobile) */}
@@ -567,7 +567,7 @@ export function ScheduleMaker({
           )}
 
           {/* Main Content Area */}
-          <div className="flex-1 min-w-0 h-full overflow-hidden p-3 lg:p-6">
+          <div className="flex-1 min-w-0 h-full overflow-y-auto lg:overflow-hidden p-3 lg:p-6">
             {step === "config" && (
               <ScheduleConfig
                 sessionProfile={sessionProfile}
@@ -600,7 +600,6 @@ export function ScheduleMaker({
               <ScheduleViewer
                 plans={plans}
                 currentPlanIndex={currentPlanIndex}
-                setCurrentPlanIndex={setCurrentPlanIndex}
                 onBack={() => {
                   setStep(viewSource === "archive" ? "archive" : "select");
                   setIsManualMode(false);
@@ -610,19 +609,6 @@ export function ScheduleMaker({
                 isManualEdit={isManualMode}
                 onUpdatePlan={handleUpdateManualPlan}
                 allPossibleCourses={courses}
-                onExpand={
-                  viewSource === "live" && planLimit < 36 && !isManualMode
-                    ? () => handleGenerate(true)
-                    : undefined
-                }
-                onShuffle={
-                  viewSource === "live" && !isManualMode
-                    ? () => handleGenerate(false)
-                    : undefined
-                }
-                planLimit={planLimit}
-                isGenerating={isGenerating}
-                userData={userData as any}
               />
             )}
 
