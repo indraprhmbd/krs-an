@@ -7,6 +7,7 @@ import {
   Sparkles,
   Database,
   Languages,
+  MessageSquare,
 } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { AboutDialog, HowToUseDialog, DonateDialog } from "./Footer";
 
 interface NavbarProps {
   userData?: {
@@ -235,6 +237,26 @@ export function Navbar({
                       <p className="text-[10px] text-slate-400 mt-1.5 leading-relaxed">
                         {t("nav.tokens_reset")}
                       </p>
+                    </div>
+
+                    <div className="h-px bg-slate-100" />
+
+                    {/* Supplemental Utilities (formerly Footer) */}
+                    <div className="grid grid-cols-2 gap-2">
+                      <AboutDialog />
+                      <HowToUseDialog />
+                      <DonateDialog />
+                      <a
+                        href="mailto:indraprhmbd@gmail.com"
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-100 group"
+                      >
+                        <div className="w-6 h-6 rounded-lg bg-blue-50 flex items-center justify-center border border-blue-100/50 group-hover:bg-blue-100 transition-colors">
+                          <MessageSquare size={12} className="text-blue-600" />
+                        </div>
+                        <span className="text-[10px] font-bold text-slate-600 uppercase tracking-tight">
+                          {t("footer.feedback")}
+                        </span>
+                      </a>
                     </div>
                   </div>
                 </div>

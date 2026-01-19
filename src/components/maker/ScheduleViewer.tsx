@@ -130,7 +130,7 @@ export function ScheduleViewer({
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-140px)] gap-6 animate-in fade-in duration-500 overflow-hidden">
+    <div className="h-full flex flex-col gap-6 animate-in fade-in duration-500 overflow-hidden">
       <style
         dangerouslySetInnerHTML={{
           __html: `
@@ -154,7 +154,7 @@ export function ScheduleViewer({
       `,
         }}
       />
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm no-print">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm no-print shrink-0">
         <div className="flex items-center gap-4 min-w-0 flex-1">
           <Button
             variant="outline"
@@ -317,13 +317,15 @@ export function ScheduleViewer({
 
       <div
         id="printable-area"
-        className="grid grid-cols-1 lg:grid-cols-[1.2fr_380px] gap-8 items-stretch flex-1 min-h-0"
+        className="grid grid-cols-1 lg:grid-cols-[1.2fr_380px] gap-8 items-stretch flex-1 min-h-0 overflow-hidden pb-4"
       >
-        <div className="w-full bg-white p-2 rounded-3xl border border-slate-200 shadow-xl shadow-blue-900/5 overflow-auto custom-scrollbar">
-          <ScheduleGrid courses={currentPlan.courses} />
+        <div className="w-full bg-white p-2 rounded-3xl border border-slate-200 shadow-xl shadow-blue-900/5 overflow-auto custom-scrollbar flex flex-col">
+          <div className="flex-1">
+            <ScheduleGrid courses={currentPlan.courses} />
+          </div>
         </div>
 
-        <div className="w-full shrink-0 flex flex-col min-h-0">
+        <div className="w-full shrink-0 flex flex-col h-full min-h-0">
           <Card className="border-slate-200 shadow-xl shadow-blue-900/5 overflow-hidden rounded-[2.5rem] flex flex-col h-full bg-white/80 backdrop-blur-sm border-2">
             <CardHeader className="bg-slate-50/50 py-3 border-b border-slate-200 flex flex-row items-center justify-between">
               <CardTitle className="text-xs font-display flex items-center gap-2">

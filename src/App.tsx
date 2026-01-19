@@ -15,7 +15,6 @@ import { Toaster } from "@/components/ui/sonner";
 import { useEffect, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/layout/Navbar";
-import { Footer } from "./components/layout/Footer";
 import { useLanguage } from "./context/LanguageContext";
 
 import { SharePage } from "./components/SharePage";
@@ -55,7 +54,7 @@ function App() {
   if (!isLoaded) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50/30 font-sans">
+    <div className="h-screen flex flex-col bg-slate-50/30 font-sans overflow-hidden">
       <Toaster position="top-center" />
 
       <Routes>
@@ -105,7 +104,7 @@ function App() {
                   onRestoreArchitect={() => setMakerStep(lastArchitectStep)}
                 />
 
-                <main className="container max-w-6xl mx-auto px-4 py-12">
+                <main className="flex-1 min-h-0 overflow-hidden">
                   <Routes>
                     <Route
                       path="/"
@@ -120,8 +119,6 @@ function App() {
                     <Route path="/admin" element={<AdminDashboard />} />
                   </Routes>
                 </main>
-
-                <Footer />
               </>
             )
           }

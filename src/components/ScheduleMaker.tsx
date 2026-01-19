@@ -463,12 +463,12 @@ export function ScheduleMaker({
   };
 
   return (
-    <div className="pb-20 space-y-8">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col lg:flex-row gap-6 md:gap-10">
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-row overflow-hidden">
+        <div className="flex flex-1 flex-col lg:flex-row min-h-0 overflow-hidden">
           {/* Sidebar Step Indicator (Desktop) / Top Flow (Mobile) */}
           {step !== "archive" && (
-            <aside className="lg:w-56 shrink-0 h-fit lg:sticky lg:top-24">
+            <aside className="lg:w-64 shrink-0 h-full border-r bg-white/50 backdrop-blur-sm p-6 overflow-y-auto">
               <div className="flex flex-col gap-6">
                 <div className="hidden lg:flex items-center gap-2 px-2">
                   <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
@@ -567,7 +567,7 @@ export function ScheduleMaker({
           )}
 
           {/* Main Content Area */}
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 h-full overflow-hidden p-6">
             {step === "config" && (
               <ScheduleConfig
                 sessionProfile={sessionProfile}

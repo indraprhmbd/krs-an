@@ -105,7 +105,7 @@ export function Footer() {
   );
 }
 
-function HowToUseDialog() {
+export function HowToUseDialog() {
   const { t } = useLanguage();
   return (
     <Dialog>
@@ -220,7 +220,7 @@ function SocialIcon({
   );
 }
 
-function AboutDialog() {
+export function AboutDialog() {
   const { t } = useLanguage();
   return (
     <Dialog>
@@ -297,7 +297,7 @@ function AboutDialog() {
   );
 }
 
-function DonateDialog() {
+export function DonateDialog() {
   const { t } = useLanguage();
   return (
     <Dialog>
