@@ -106,10 +106,10 @@ export function SharePage() {
               <ChevronLeft size={20} />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-sm md:text-md font-bold text-slate-900 truncate pr-4">
+              <h1 className="text-sm md:text-lg font-bold text-slate-900 truncate max-w-[120px] md:max-w-none pr-4">
                 {sharedPlan.name}
               </h1>
-              <p className="text-[10px] text-slate-400 font-mono tracking-tight uppercase">
+              <p className="text-[10px] text-slate-400 font-mono tracking-tight uppercase hidden md:block">
                 SHARED KRS PLAN • {sharedPlan.data.courses.length} MATKUL
               </p>
             </div>
@@ -118,29 +118,35 @@ export function SharePage() {
           <div className="flex items-center gap-2">
             {!isSignedIn ? (
               <SignInButton mode="modal">
-                <Button className="h-9 px-4 rounded-xl text-xs font-bold bg-blue-700 hover:bg-blue-800 text-white gap-2">
+                <Button className="h-9 px-3 md:px-4 rounded-xl text-xs font-bold bg-blue-700 hover:bg-blue-800 text-white gap-2">
                   <LogIn size={14} />
-                  Login to Import
+                  <span className="hidden md:inline">Login to Import</span>
+                  <span className="md:hidden">Login</span>
                 </Button>
               </SignInButton>
             ) : (
               <Button
                 onClick={handleImport}
                 disabled={isImporting}
-                className="h-9 px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-lg shadow-emerald-200"
+                className="h-9 px-3 md:px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-lg shadow-emerald-200"
               >
                 <BookmarkPlus size={14} />
-                {isImporting ? "Importing..." : "Add to My Archive"}
+                <span className="hidden md:inline">
+                  {isImporting ? "Importing..." : "Add to My Archive"}
+                </span>
+                <span className="md:hidden">
+                  {isImporting ? "..." : "Import"}
+                </span>
               </Button>
             )}
           </div>
         </div>
       </div>
 
-      <main className="container max-w-5xl mx-auto px-4 py-8 space-y-8">
+      <main className="container max-w-5xl mx-auto px-4 py-4 md:py-8 space-y-4 md:space-y-8">
         {/* Banner */}
         {sharedPlan.isSmartGenerated && (
-          <div className="bg-violet-600 rounded-3xl p-6 text-white relative overflow-hidden shadow-xl shadow-violet-200">
+          <div className="bg-violet-600 rounded-3xl p-4 md:p-6 text-white relative overflow-hidden shadow-xl shadow-violet-200">
             <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
@@ -191,7 +197,7 @@ export function SharePage() {
           </div>
         )}
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-4 md:gap-8">
           <div className="lg:col-span-2 space-y-6">
             <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-xl shadow-blue-900/5 overflow-hidden">
               <ScheduleGrid courses={sharedPlan.data.courses} />

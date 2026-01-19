@@ -41,7 +41,7 @@ export function ShareDialog({
         className="sm:max-w-md bg-white rounded-3xl overflow-hidden p-0 border-none shadow-2xl"
       >
         <DialogHeader className="p-0">
-          <div className="bg-slate-900 p-8 text-white relative overflow-hidden">
+          <div className="bg-slate-900 p-6 md:p-8 text-white relative overflow-hidden">
             <div className="relative z-10">
               <DialogTitle className="text-2xl font-display font-black mb-1 flex items-center gap-2">
                 <Share2 className="w-5 h-5 text-blue-500" />
@@ -51,14 +51,14 @@ export function ShareDialog({
                 {planName}
               </DialogDescription>
             </div>
-            <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
+            <DialogClose className="absolute right-4 top-4 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
               <X size={20} className="text-white" />
             </DialogClose>
             <Share2 className="absolute -bottom-6 -right-6 w-32 h-32 text-blue-500/10 -rotate-12" />
           </div>
         </DialogHeader>
 
-        <div className="p-8 space-y-6 bg-white">
+        <div className="p-5 md:p-8 space-y-6 bg-white">
           <div className="space-y-4">
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 space-y-3">
               <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
