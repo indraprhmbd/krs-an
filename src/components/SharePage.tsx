@@ -92,9 +92,9 @@ export function SharePage() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50/50">
+    <div className="h-full flex flex-col bg-slate-50/50">
       {/* Dynamic Header */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-50">
+      <div className="bg-white border-b border-slate-200 shrink-0">
         <div className="container max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-4 min-w-0">
             <Button
@@ -143,157 +143,160 @@ export function SharePage() {
         </div>
       </div>
 
-      <main className="container max-w-5xl mx-auto px-4 py-4 md:py-8 space-y-4 md:space-y-8">
-        {/* Banner */}
-        {sharedPlan.isSmartGenerated && (
-          <div className="bg-violet-600 rounded-3xl p-4 md:p-6 text-white relative overflow-hidden shadow-xl shadow-violet-200">
-            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Sparkles size={16} className="text-violet-200" />
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-violet-200">
-                    AI Optimized Schedule
-                  </span>
-                </div>
-                <p className="text-lg font-display font-medium max-w-md">
-                  This schedule was generated using{" "}
-                  <strong>Architect Engine</strong> for maximum time efficiency.
-                </p>
-              </div>
-              <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center border-t md:border-t-0 md:border-l border-white/20 pt-4 md:pt-0 md:pl-8">
-                <span className="text-[10px] uppercase font-bold text-violet-200">
-                  Total Accumulation
-                </span>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-3xl font-display font-black">
-                    {totalSKS}
-                  </span>
-                  <span className="text-sm font-bold opacity-70">SKS</span>
-                </div>
-              </div>
-            </div>
-            <Sparkles className="absolute -bottom-10 -right-10 w-48 h-48 text-white/5 opacity-50" />
-          </div>
-        )}
-
-        {!sharedPlan.isSmartGenerated && (
-          <div className="bg-slate-900 rounded-3xl p-6 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-lg font-display font-medium">
-                Manual KRS Plan
-              </h3>
-              <p className="text-slate-400 text-xs">
-                Curated by a fellow student
-              </p>
-            </div>
-            <div className="flex gap-4">
-              <div className="text-right">
-                <p className="text-[10px] uppercase text-slate-500 font-bold">
-                  Total SKS
-                </p>
-                <p className="text-2xl font-display font-black">{totalSKS}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        <div className="grid lg:grid-cols-3 gap-4 md:gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-xl shadow-blue-900/5 overflow-hidden">
-              <ScheduleGrid courses={sharedPlan.data.courses} />
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <Card className="border-slate-200 shadow-sm overflow-hidden rounded-3xl">
-              <CardHeader className="bg-slate-50/50 py-4 px-6 border-b border-slate-200 flex flex-row items-center justify-between">
+      <div className="flex-1 overflow-y-auto w-full">
+        <main className="container max-w-5xl mx-auto px-4 py-4 md:py-8 space-y-4 md:space-y-8">
+          {/* Banner */}
+          {sharedPlan.isSmartGenerated && (
+            <div className="bg-violet-600 rounded-3xl p-4 md:p-6 text-white relative overflow-hidden shadow-xl shadow-violet-200">
+              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <CardTitle className="text-sm font-display">
-                    Inventory
-                  </CardTitle>
-                  <p className="text-[10px] text-slate-400">
-                    {sharedPlan.data.courses.length} courses total
+                  <div className="flex items-center gap-2 mb-2">
+                    <Sparkles size={16} className="text-violet-200" />
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-violet-200">
+                      AI Optimized Schedule
+                    </span>
+                  </div>
+                  <p className="text-lg font-display font-medium max-w-md">
+                    This schedule was generated using{" "}
+                    <strong>Architect Engine</strong> for maximum time
+                    efficiency.
                   </p>
                 </div>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => window.print()}
-                  className="no-print h-8 rounded-xl text-[10px] font-bold bg-white"
-                >
-                  Print Report
-                </Button>
-              </CardHeader>
-              <CardContent className="p-0">
-                <div className="divide-y divide-slate-100 max-h-[500px] overflow-y-auto">
-                  {sharedPlan.data.courses.map((c: any, i: number) => (
-                    <div
-                      key={i}
-                      className="p-4 hover:bg-slate-50/50 transition-colors"
-                    >
-                      <div className="flex justify-between items-start mb-1">
-                        <span className="text-[9px] font-mono text-slate-400 uppercase">
-                          {c.code} • {c.class}
-                        </span>
-                        <Badge
-                          variant="outline"
-                          className="text-[8px] h-4 border-slate-200"
-                        >
-                          {c.sks} SKS
-                        </Badge>
-                      </div>
-                      <p className="font-bold text-slate-900 text-xs leading-tight mb-1">
-                        {c.name}
-                      </p>
-                      <p className="text-[9px] font-bold text-slate-500 mt-1 truncate">
-                        {c.lecturer}
-                      </p>
-                    </div>
-                  ))}
+                <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center border-t md:border-t-0 md:border-l border-white/20 pt-4 md:pt-0 md:pl-8">
+                  <span className="text-[10px] uppercase font-bold text-violet-200">
+                    Total Accumulation
+                  </span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-3xl font-display font-black">
+                      {totalSKS}
+                    </span>
+                    <span className="text-sm font-bold opacity-70">SKS</span>
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-
-            <div className="bg-blue-50 border border-blue-100 rounded-3xl p-6 space-y-3">
-              <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
-                <History size={20} />
               </div>
-              <h4 className="font-bold text-blue-900">
-                Want to make your own?
-              </h4>
-              <p className="text-xs text-blue-700 leading-relaxed">
-                Join 1,000+ students using KRSan to eliminate conflicts and
-                maximize academic efficiency.
-              </p>
-              <Button
-                variant="ghost"
-                className="w-full justify-start p-0 text-blue-600 font-bold text-xs hover:bg-transparent"
-                onClick={() => navigate("/")}
-              >
-                Get Started for Free →
-              </Button>
+              <Sparkles className="absolute -bottom-10 -right-10 w-48 h-48 text-white/5 opacity-50" />
+            </div>
+          )}
+
+          {!sharedPlan.isSmartGenerated && (
+            <div className="bg-slate-900 rounded-3xl p-6 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h3 className="text-lg font-display font-medium">
+                  Manual KRS Plan
+                </h3>
+                <p className="text-slate-400 text-xs">
+                  Curated by a fellow student
+                </p>
+              </div>
+              <div className="flex gap-4">
+                <div className="text-right">
+                  <p className="text-[10px] uppercase text-slate-500 font-bold">
+                    Total SKS
+                  </p>
+                  <p className="text-2xl font-display font-black">{totalSKS}</p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="grid lg:grid-cols-3 gap-4 md:gap-8">
+            <div className="lg:col-span-2 space-y-6 min-w-0">
+              <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-xl shadow-blue-900/5 overflow-x-auto">
+                <ScheduleGrid courses={sharedPlan.data.courses} />
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              <Card className="border-slate-200 shadow-sm overflow-hidden rounded-3xl">
+                <CardHeader className="bg-slate-50/50 py-4 px-6 border-b border-slate-200 flex flex-row items-center justify-between">
+                  <div>
+                    <CardTitle className="text-sm font-display">
+                      Inventory
+                    </CardTitle>
+                    <p className="text-[10px] text-slate-400">
+                      {sharedPlan.data.courses.length} courses total
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => window.print()}
+                    className="no-print h-8 rounded-xl text-[10px] font-bold bg-white"
+                  >
+                    Print Report
+                  </Button>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <div className="divide-y divide-slate-100 max-h-[500px] overflow-y-auto">
+                    {sharedPlan.data.courses.map((c: any, i: number) => (
+                      <div
+                        key={i}
+                        className="p-4 hover:bg-slate-50/50 transition-colors"
+                      >
+                        <div className="flex justify-between items-start mb-1">
+                          <span className="text-[9px] font-mono text-slate-400 uppercase">
+                            {c.code} • {c.class}
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className="text-[8px] h-4 border-slate-200"
+                          >
+                            {c.sks} SKS
+                          </Badge>
+                        </div>
+                        <p className="font-bold text-slate-900 text-xs leading-tight mb-1">
+                          {c.name}
+                        </p>
+                        <p className="text-[9px] font-bold text-slate-500 mt-1 truncate">
+                          {c.lecturer}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <div className="bg-blue-50 border border-blue-100 rounded-3xl p-6 space-y-3">
+                <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
+                  <History size={20} />
+                </div>
+                <h4 className="font-bold text-blue-900">
+                  Want to make your own?
+                </h4>
+                <p className="text-xs text-blue-700 leading-relaxed">
+                  Join 1,000+ students using KRSan to eliminate conflicts and
+                  maximize academic efficiency.
+                </p>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start p-0 text-blue-600 font-bold text-xs hover:bg-transparent"
+                  onClick={() => navigate("/")}
+                >
+                  Get Started for Free →
+                </Button>
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
 
-      <footer className="container max-w-5xl mx-auto px-4 py-12 border-t border-slate-100">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
-          <div className="flex items-center gap-3">
-            <img
-              src="/assets/logo.webp"
-              alt="Logo"
-              className="w-8 h-8 object-contain"
-            />
-            <span className="font-display font-black text-slate-900 tracking-tighter">
-              KRSan
-            </span>
+        <footer className="container max-w-5xl mx-auto px-4 py-12 border-t border-slate-100">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
+            <div className="flex items-center gap-3">
+              <img
+                src="/assets/logo.webp"
+                alt="Logo"
+                className="w-8 h-8 object-contain"
+              />
+              <span className="font-display font-black text-slate-900 tracking-tighter">
+                KRSan
+              </span>
+            </div>
+            <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
+              © 2026 Academic Optimization Systems
+            </p>
           </div>
-          <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
-            © 2026 Academic Optimization Systems
-          </p>
-        </div>
-      </footer>
+        </footer>
+      </div>
     </div>
   );
 }
