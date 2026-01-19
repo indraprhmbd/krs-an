@@ -121,6 +121,9 @@ const translations: Record<Language, Record<string, string>> = {
     "help.expand_title": "Eksplorasi (Expand)",
     "help.expand_desc":
       "Gunakan Expand untuk mencari lebih banyak variasi kombinasi jadwal yang mungkin belum muncul sebelumnya.",
+    "help.ai_smart_generate_title": "Smart Generate (AI)",
+    "help.ai_smart_generate_desc":
+      "Fitur premium yang menggunakan AI untuk mencari jadwal paling optimal berdasarkan preferensi spesifik Anda.",
   },
   EN: {
     "nav.architect": "Architect",
@@ -233,6 +236,9 @@ const translations: Record<Language, Record<string, string>> = {
     "help.expand_title": "Exploration (Expand)",
     "help.expand_desc":
       "Use Expand to find more possible schedule combinations that haven't appeared yet.",
+    "help.ai_smart_generate_title": "Smart Generate (AI)",
+    "help.ai_smart_generate_desc":
+      "Premium feature using AI to find the most optimal schedule based on your specific preferences.",
   },
 };
 

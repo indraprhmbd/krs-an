@@ -166,30 +166,25 @@ export function ScheduleSelector({
           </div>
 
           {onSmartGenerate && (
-            <div className="flex items-center">
+            <div className="flex items-center gap-1">
               <Button
                 onClick={onSmartGenerate}
                 disabled={isSmartGenerating || cooldown?.active || isGenerating}
                 size="sm"
-                className="h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white font-display text-[9px] font-bold rounded-l-lg rounded-r-none transition-all"
+                variant="outline"
+                className="h-8 px-3 border border-slate-200 hover:border-blue-200 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-display text-[9px] font-bold rounded-lg transition-all"
               >
                 <div className="flex items-center gap-1.5">
                   <Sparkles
                     className={`w-3.5 h-3.5 ${isSmartGenerating ? "animate-spin" : ""}`}
                   />
-                  AI Generate
+                  Smart Generate
                 </div>
               </Button>
               <div className="hidden sm:block">
                 <HelpTooltip
-                  titleKey="help.ai_generate_title"
-                  descKey="help.ai_generate_desc"
-                />
-              </div>
-              <div className="h-8 px-1.5 flex items-center bg-blue-700 border-l border-white/20 rounded-r-lg">
-                <HelpTooltip
-                  titleKey="help.smart_generate_title"
-                  descKey="help.smart_generate_desc"
+                  titleKey="help.ai_smart_generate_title"
+                  descKey="help.ai_smart_generate_desc"
                 />
               </div>
             </div>
