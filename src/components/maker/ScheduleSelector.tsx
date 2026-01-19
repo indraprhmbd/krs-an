@@ -192,7 +192,7 @@ export function ScheduleSelector({
       {/* Manual Builder Flash Card */}
       {currentManualCombination.length > 0 && (
         <div
-          className={`px-4 py-2 rounded-2xl border transition-all animate-in slide-in-from-top-2 flex items-center justify-between gap-3 ${
+          className={`px-4 py-2 rounded-2xl border transition-all animate-in slide-in-from-top-2 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar ${
             !isManualValid
               ? "bg-red-50 border-red-100"
               : isManualComplete
@@ -200,7 +200,7 @@ export function ScheduleSelector({
                 : "bg-blue-50/30 border-blue-100"
           }`}
         >
-          <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-2 min-w-fit shrink-0">
             <div
               className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                 !isManualValid
