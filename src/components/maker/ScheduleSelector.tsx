@@ -138,6 +138,12 @@ export function ScheduleSelector({
             <Plus className="w-3.5 h-3.5 mr-1.5" />
             Add
           </Button>
+          <div className="hidden sm:block">
+            <HelpTooltip
+              titleKey="help.master_catalog_title"
+              descKey="help.master_catalog_desc"
+            />
+          </div>
           <div className="hidden sm:block w-px h-5 bg-slate-200 mx-0.5" />
 
           <Button
@@ -152,6 +158,12 @@ export function ScheduleSelector({
             />
             Quick Build
           </Button>
+          <div className="hidden sm:block">
+            <HelpTooltip
+              titleKey="help.quick_build_title"
+              descKey="help.quick_build_desc"
+            />
+          </div>
 
           {onSmartGenerate && (
             <div className="flex items-center">
@@ -165,9 +177,15 @@ export function ScheduleSelector({
                   <Sparkles
                     className={`w-3.5 h-3.5 ${isSmartGenerating ? "animate-spin" : ""}`}
                   />
-                  AI Intelligence
+                  AI Generate
                 </div>
               </Button>
+              <div className="hidden sm:block">
+                <HelpTooltip
+                  titleKey="help.ai_generate_title"
+                  descKey="help.ai_generate_desc"
+                />
+              </div>
               <div className="h-8 px-1.5 flex items-center bg-blue-700 border-l border-white/20 rounded-r-lg">
                 <HelpTooltip
                   titleKey="help.smart_generate_title"
@@ -186,6 +204,12 @@ export function ScheduleSelector({
             <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
             Plotter
           </Button>
+          <div className="hidden sm:block">
+            <HelpTooltip
+              titleKey="help.plotter_title"
+              descKey="help.plotter_desc"
+            />
+          </div>
         </div>
       </div>
 

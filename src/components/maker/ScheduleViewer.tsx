@@ -37,6 +37,7 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
+import { HelpTooltip } from "../ui/HelpTooltip";
 
 interface ScheduleViewerProps {
   plans: Plan[];
@@ -394,37 +395,87 @@ export function ScheduleViewer({
 
           {!isManualEdit && onShuffle && (
             <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onShuffle}
-                disabled={isGenerating}
-                className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-slate-200 text-slate-600 hover:text-blue-600"
-              >
-                <RefreshCw
-                  className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : ""}`}
-                />
-                <span className="hidden sm:inline ml-1.5 text-[9px] font-bold uppercase tracking-wider">
-                  Shuffle
-                </span>
-              </Button>
-
-              {onExpand && planLimit < 36 && (
+              <div className="flex items-center gap-1">
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={onExpand}
+                  onClick={onShuffle}
                   disabled={isGenerating}
-                  className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-slate-200 text-slate-600 hover:text-violet-600"
+                  className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-slate-200 text-slate-600 hover:text-blue-600"
                 >
-                  <Sparkles
-                    className={`w-3.5 h-3.5 ${isGenerating ? "animate-pulse" : ""}`}
+                  <RefreshCw
+                    className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : ""}`}
                   />
                   <span className="hidden sm:inline ml-1.5 text-[9px] font-bold uppercase tracking-wider">
-                    Expand
+                    Shuffle
                   </span>
                 </Button>
+                <div className="hidden sm:block">
+                  <HelpTooltip
+                    titleKey="help.shuffle_title"
+                    descKey="help.shuffle_desc"
+                  />
+                </div>
+              </div>
+
+              {onExpand && planLimit < 36 && (
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onExpand}
+                    disabled={isGenerating}
+                    className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-slate-200 text-slate-600 hover:text-violet-600"
+                  >
+                    <Sparkles
+                      className={`w-3.5 h-3.5 ${isGenerating ? "animate-pulse" : ""}`}
+                    />
+                    <span className="hidden sm:inline ml-1.5 text-[9px] font-bold uppercase tracking-wider">
+                      Expand
+                    </span>
+                  </Button>
+                  <div className="hidden sm:block">
+                    <HelpTooltip
+                      titleKey="help.expand_title"
+                      descKey="help.expand_desc"
+                    />
+                  </div>
+                </div>
               )}
+            </div>
+          )}
+
+          {isManualEdit && (
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleQuickFix}
+                className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-slate-200 text-slate-600 hover:text-blue-600"
+              >
+                <Wand2 className="w-3.5 h-3.5 text-blue-500" />
+                <span className="hidden sm:inline ml-1.5 text-[9px] font-bold uppercase tracking-wider">
+                  Fix Conflicts
+                </span>
+              </Button>
+              <div className="hidden sm:block">
+                <HelpTooltip
+                  titleKey="help.quick_fix_title"
+                  descKey="help.quick_fix_desc"
+                />
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleReset}
+                className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-slate-200 text-slate-600 hover:text-red-600"
+              >
+                <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
+                <span className="hidden sm:inline ml-1.5 text-[9px] font-bold uppercase tracking-wider">
+                  Reset
+                </span>
+              </Button>
             </div>
           )}
         </div>
@@ -528,26 +579,6 @@ export function ScheduleViewer({
                   />
                   {isSaving ? "Saving..." : isManualEdit ? "Commit" : "Save"}
                 </Button>
-                {isManualEdit && (
-                  <>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={handleReset}
-                      className="h-7 w-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
-                    >
-                      <RotateCcw className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={handleQuickFix}
-                      className="h-7 w-7 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50"
-                    >
-                      <Wand2 className="h-3.5 w-3.5" />
-                    </Button>
-                  </>
-                )}
                 <Button
                   size="sm"
                   variant="outline"

@@ -32,7 +32,7 @@ export function ScheduleConfig({
 }: ScheduleConfigProps) {
   const { t } = useLanguage();
   return (
-    <div className="max-w-6xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4 md:px-6">
+    <div className="max-w-6xl mx-auto space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700 px-4 md:px-6">
       <div className="flex flex-col lg:grid lg:grid-cols-12 gap-8 lg:gap-12 items-start">
         {/* Left Column: Context & Identity */}
         <div className="lg:col-span-5 space-y-6 md:space-y-8 py-2 md:py-4">
@@ -80,7 +80,7 @@ export function ScheduleConfig({
 
         {/* Right Column: The "Configuration" Card */}
         <div className="lg:col-span-7">
-          <div className="bg-white p-8 sm:p-10 rounded-[32px] border border-slate-200 shadow-2xl shadow-blue-100/20 space-y-1 transition-all hover:shadow-blue-100/30">
+          <div className="bg-white p-6 sm:p-8 rounded-[32px] border border-slate-200 shadow-2xl shadow-blue-100/20 space-y-1 transition-all hover:shadow-blue-100/30">
             <div className="space-y-0.5">
               <h1 className="text-xl font-display font-bold text-slate-900 uppercase tracking-widest">
                 {t("config.card_title")}
@@ -88,7 +88,7 @@ export function ScheduleConfig({
               <div className="h-1 w-12 bg-blue-700 rounded-full" />
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="space-y-3">
                 <Label className="text-[10px] font-mono uppercase tracking-[0.2em] text-slate-400">
                   {t("config.univ_label")}
@@ -210,7 +210,7 @@ export function ScheduleConfig({
           </div>
         </div>
       </div>
-      <p className="text-center text-[9px] font-mono text-slate-400 uppercase tracking-[0.4em] pt-4">
+      <p className="text-center text-[9px] font-mono text-slate-400 uppercase tracking-[0.4em] pt-2">
         {t("config.footer")}
       </p>
     </div>
