@@ -357,16 +357,24 @@ export function ScheduleMaker({
     );
   };
 
-  const handleAddMasterCourse = (masterCourse: any) => {
-    const newCourse = {
-      ...masterCourse,
-      id: masterCourse._id || `${masterCourse.code}-${masterCourse.class}`,
-    };
-    setCourses((prev) => [...prev, newCourse]);
-    if (!selectedCodes.includes(masterCourse.code)) {
-      setSelectedCodes((prev) => [...prev, masterCourse.code]);
+  const handleAddMultipleMasterCourses = (masterCourses: any[]) => {
+    const newCourses = masterCourses.map((mc) => ({
+      ...mc,
+      id: mc._id || `${mc.code}-${mc.class}`,
+    }));
+
+    setCourses((prev) => [...prev, ...newCourses]);
+
+    // Update selectedCodes for any new unique course codes
+    const uniqueNewCodes = [
+      ...new Set(masterCourses.map((mc) => mc.code)),
+    ].filter((code) => !selectedCodes.includes(code));
+
+    if (uniqueNewCodes.length > 0) {
+      setSelectedCodes((prev) => [...prev, ...uniqueNewCodes]);
     }
-    toast.success(`${masterCourse.name} added to session.`);
+
+    toast.success(`${masterCourses.length} courses added to session.`);
     setIsMasterSearchOpen(false);
   };
 
@@ -548,7 +556,7 @@ export function ScheduleMaker({
         isOpen={isMasterSearchOpen}
         onOpenChange={setIsMasterSearchOpen}
         allMasterCourses={allMasterCourses}
-        onAddCourse={handleAddMasterCourse}
+        onAddCourses={handleAddMultipleMasterCourses}
       />
 
       <SmartGenerateDialog
