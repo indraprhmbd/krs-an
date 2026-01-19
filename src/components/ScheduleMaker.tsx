@@ -376,9 +376,8 @@ export function ScheduleMaker({
         .map((code) => {
           const variations = courses.filter((c) => c.code === code);
           const lockedIds = lockedCourses[code] || [];
-          return (
-            variations.find((v) => lockedIds.includes(v.id)) || variations[0]
-          );
+          // Only return the variations if they are explicitly locked, otherwise null (unselected)
+          return variations.find((v) => lockedIds.includes(v.id)) || null;
         })
         .filter(Boolean);
 

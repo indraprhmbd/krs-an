@@ -9,6 +9,10 @@ import {
   RefreshCw,
   AlertTriangle,
   ClipboardCheck,
+  RotateCcw,
+  Wand2,
+  Check,
+  ChevronsUpDown,
 } from "lucide-react";
 import { ScheduleGrid } from "../ScheduleGrid";
 import { HelpTooltip } from "../ui/HelpTooltip";
@@ -25,7 +29,8 @@ import {
   CommandGroup,
   CommandItem,
 } from "@/components/ui/command";
-import { ChevronsUpDown, Check } from "lucide-react";
+import { toast } from "sonner";
+import { useMemo } from "react";
 
 interface ScheduleViewerProps {
   plans: Plan[];
@@ -70,22 +75,58 @@ export function ScheduleViewer({
     currentPlan.courses,
   );
 
-  const groupedVariations =
-    allPossibleCourses?.reduce(
-      (acc, c) => {
-        acc[c.code] = acc[c.code] || [];
-        acc[c.code].push(c);
-        return acc;
-      },
-      {} as Record<string, Course[]>,
-    ) || {};
+  const groupedVariations = useMemo(() => {
+    return (
+      allPossibleCourses?.reduce(
+        (acc, c) => {
+          acc[c.code] = acc[c.code] || [];
+          acc[c.code].push(c);
+          return acc;
+        },
+        {} as Record<string, Course[]>,
+      ) || {}
+    );
+  }, [allPossibleCourses]);
+
+  const uniqueCodes = useMemo(() => {
+    return Array.from(new Set(allPossibleCourses?.map((ac) => ac.code) || []));
+  }, [allPossibleCourses]);
 
   const handleUpdateCourse = (code: string, newVariation: Course) => {
     if (!onUpdatePlan) return;
-    const nextCourses = currentPlan.courses.map((c) =>
-      c.code === code ? newVariation : c,
-    );
+    const nextCourses = currentPlan.courses.filter((c) => c.code !== code);
+    nextCourses.push(newVariation);
     onUpdatePlan(nextCourses);
+  };
+
+  const handleReset = () => {
+    if (!onUpdatePlan) return;
+    onUpdatePlan([]);
+    toast.info("Selections cleared. Start fresh!");
+  };
+
+  const handleQuickFix = () => {
+    if (!onUpdatePlan || !allPossibleCourses) return;
+
+    // Simple greedy fix
+    const fixedCombo: Course[] = [];
+
+    for (const code of uniqueCodes) {
+      const variations = groupedVariations[code] || [];
+      // Find first that doesn't conflict with already picked
+      const best =
+        variations.find((v) => {
+          const { valid } = checkConflicts([...fixedCombo, v]);
+          return valid;
+        }) || variations[0];
+
+      if (best) {
+        fixedCombo.push(best);
+      }
+    }
+
+    onUpdatePlan(fixedCombo);
+    toast.success("Applied quick fix for conflicts!");
   };
 
   return (
@@ -135,7 +176,6 @@ export function ScheduleViewer({
           </div>
         </div>
 
-        {/* Right-aligned Total SKS Column - Stable */}
         <div className="flex items-center gap-3 pl-4 md:border-l border-slate-100 h-10 shrink-0">
           <div className="text-right min-w-[100px]">
             <p className="text-[8px] font-mono text-slate-400 uppercase tracking-tighter leading-none mb-1">
@@ -151,10 +191,8 @@ export function ScheduleViewer({
         </div>
       </div>
 
-      {/* Unified Floating Controller */}
       <div className="flex items-center justify-center no-print sticky top-20 z-50 w-full px-2">
         <div className="inline-flex flex-wrap items-center justify-center gap-1 md:gap-2 bg-white/95 backdrop-blur-sm border border-slate-200/80 p-1.5 md:p-2 rounded-[2rem] shadow-xl shadow-blue-900/5 max-w-full overflow-hidden">
-          {/* Save Button */}
           <Button
             variant="ghost"
             size="sm"
@@ -186,7 +224,6 @@ export function ScheduleViewer({
 
           <div className="hidden sm:block w-px h-6 bg-slate-200" />
 
-          {/* Slider Core */}
           <div className="flex items-center gap-2 px-2">
             <Button
               variant="ghost"
@@ -280,48 +317,134 @@ export function ScheduleViewer({
 
       <div
         id="printable-area"
-        className="flex flex-col lg:flex-row gap-6 items-start"
+        className="grid grid-cols-1 lg:grid-cols-[1.2fr_380px] gap-8 items-start mb-12"
       >
-        <div className="flex-1 w-full">
+        <div className="w-full">
           <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-xl shadow-blue-900/5 overflow-hidden">
             <ScheduleGrid courses={currentPlan.courses} />
           </div>
         </div>
 
-        <div className="w-full lg:w-96 shrink-0 self-stretch">
-          <Card className="border-slate-200 shadow-sm overflow-hidden rounded-3xl flex flex-col h-full bg-slate-50/30">
+        <div className="w-full shrink-0 lg:sticky lg:top-36 h-full">
+          <Card className="border-slate-200 shadow-xl shadow-blue-900/5 overflow-hidden rounded-[2.5rem] flex flex-col h-full bg-white/80 backdrop-blur-sm border-2">
             <CardHeader className="bg-slate-50/50 py-3 border-b border-slate-200 flex flex-row items-center justify-between">
               <CardTitle className="text-xs font-display flex items-center gap-2">
                 <span>Course Inventory</span>
                 <Badge
                   variant="secondary"
-                  className="text-[9px] font-mono bg-white"
+                  className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none px-2 py-0.5 rounded-full"
                 >
                   {currentPlan.courses.length}
                 </Badge>
               </CardTitle>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 no-print">
+                {isManualEdit && (
+                  <>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={handleReset}
+                      title="Reset all"
+                      className="h-7 w-7 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50"
+                    >
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    </Button>
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={handleQuickFix}
+                      title="Quick Fix Conflicts"
+                      className="h-7 w-7 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                    >
+                      <Wand2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </>
+                )}
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => window.print()}
-                  className="no-print h-7 px-3 font-mono text-[9px] uppercase tracking-widest bg-white hover:bg-slate-50 border-slate-200"
+                  className="h-7 px-2 font-mono text-[8px] uppercase tracking-widest bg-white hover:bg-slate-50 border-slate-200 rounded-lg"
                 >
-                  Generate Report
+                  Report
                 </Button>
               </div>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent className="p-0 overflow-y-auto max-h-[calc(100vh-320px)] custom-scrollbar">
               <div className="divide-y divide-slate-100/80 text-[11px]">
-                {currentPlan.courses.map((c, i) => {
-                  const variations = groupedVariations[c.code] || [];
-                  const isConflicted = conflictMessages.some(
-                    (m) => m.includes(c.name) && m.includes(c.class),
-                  );
+                {uniqueCodes.map((code) => {
+                  const variations = groupedVariations[code] || [];
+                  const c = currentPlan.courses.find((cp) => cp.code === code);
+                  const isConflicted = c
+                    ? conflictMessages.some(
+                        (m) => m.includes(c.name) && m.includes(c.class),
+                      )
+                    : false;
+
+                  if (!c) {
+                    return (
+                      <div
+                        key={code}
+                        className="p-4 bg-slate-50/50 border-l-4 border-l-slate-200 transition-all hover:bg-slate-100/50"
+                      >
+                        <div className="flex justify-between items-start mb-2">
+                          <span className="text-[9px] font-mono text-slate-400 uppercase font-black tracking-widest">
+                            {code}
+                          </span>
+                          <Badge
+                            variant="outline"
+                            className="text-[7px] h-3.5 px-1 border-slate-200 text-slate-400 font-black"
+                          >
+                            UNSELECTED
+                          </Badge>
+                        </div>
+                        <h4 className="font-bold text-slate-400 text-[10px] uppercase tracking-tight mb-3">
+                          Variation Pending...
+                        </h4>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="w-full h-8 text-[10px] font-black uppercase tracking-widest border-2 border-dashed border-slate-200 text-slate-400 hover:border-blue-400 hover:text-blue-600 rounded-xl bg-white shadow-sm"
+                            >
+                              Select Class
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent
+                            className="w-[280px] p-0 bg-white shadow-2xl rounded-2xl border-none"
+                            align="end"
+                          >
+                            <Command className="rounded-2xl">
+                              <CommandGroup className="max-h-[250px] overflow-auto p-1.5">
+                                {variations.map((v) => (
+                                  <CommandItem
+                                    key={v.id}
+                                    value={v.id}
+                                    onSelect={() => handleUpdateCourse(code, v)}
+                                    className="rounded-xl px-3 py-2 cursor-pointer aria-selected:bg-blue-50"
+                                  >
+                                    <div className="flex flex-col min-w-0">
+                                      <span className="font-bold text-[11px] text-slate-900">
+                                        Class {v.class}
+                                      </span>
+                                      <span className="text-slate-500 text-[9px] font-medium truncate italic">
+                                        {v.lecturer}
+                                      </span>
+                                    </div>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    );
+                  }
 
                   return (
                     <div
-                      key={i}
+                      key={code}
                       className={`p-4 transition-colors group flex flex-col gap-2 ${
                         isConflicted ? "bg-red-50" : "hover:bg-slate-50/50"
                       }`}
@@ -436,7 +559,6 @@ export function ScheduleViewer({
         </div>
       </div>
 
-      {/* Conflict Banner - Full Width at Bottom */}
       {!valid && isManualEdit && (
         <div className="p-5 bg-red-50 border-2 border-red-100 rounded-3xl flex flex-col md:flex-row items-center gap-6 animate-in slide-in-from-bottom-5 duration-500 shadow-lg shadow-red-900/5">
           <div className="w-12 h-12 bg-red-100 rounded-2xl flex items-center justify-center shrink-0">
