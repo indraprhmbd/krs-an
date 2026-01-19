@@ -24,6 +24,7 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import type { Course } from "@/types";
 
@@ -362,82 +363,86 @@ export function ScheduleSelector({
                             </Button>
                           </PopoverTrigger>
                           <PopoverContent
-                            className="w-[200px] md:w-[300px] p-0 bg-white"
+                            className="w-[200px] md:w-[300px] p-0 bg-white shadow-2xl rounded-2xl border-none max-h-[300px] overflow-hidden flex flex-col"
                             align="start"
+                            onOpenAutoFocus={(e) => e.preventDefault()}
                           >
-                            <Command>
+                            <Command className="flex-1 overflow-hidden flex flex-col">
                               <CommandEmpty>No class found.</CommandEmpty>
-                              <CommandGroup className="max-h-[200px] overflow-auto">
-                                <CommandItem
-                                  value="all"
-                                  onSelect={() => {
-                                    setLockedCourses((prev: any) => {
-                                      const newLocked = { ...prev };
-                                      delete newLocked[code];
-                                      return newLocked;
-                                    });
-                                  }}
-                                  className="text-xs font-bold text-blue-700"
-                                >
-                                  <div
-                                    className={`mr-2 flex h-3 w-3 items-center justify-center rounded-sm border border-primary ${!currentLocked || currentLocked.length === 0 ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
+                              <CommandList className="flex-1 overflow-y-auto px-1 py-1 custom-scrollbar">
+                                <CommandGroup>
+                                  <CommandItem
+                                    value="all"
+                                    onSelect={() => {
+                                      setLockedCourses((prev: any) => {
+                                        const newLocked = { ...prev };
+                                        delete newLocked[code];
+                                        return newLocked;
+                                      });
+                                    }}
+                                    className="text-xs font-bold text-blue-700 rounded-lg"
                                   >
-                                    <Check className="h-3 w-3" />
-                                  </div>
-                                  Auto-Optimize (Any Class)
-                                </CommandItem>
-                                {variations.map((v) => {
-                                  const isChecked = currentLocked?.includes(
-                                    v.id,
-                                  );
-                                  return (
-                                    <CommandItem
-                                      key={v.id}
-                                      value={v.id}
-                                      onSelect={() => {
-                                        setLockedCourses((prev: any) => {
-                                          const newLocked = { ...prev };
-                                          const current = newLocked[code] || [];
-                                          if (current.includes(v.id)) {
-                                            newLocked[code] = current.filter(
-                                              (id: string) => id !== v.id,
-                                            );
-                                            if (newLocked[code].length === 0)
-                                              delete newLocked[code];
-                                          } else {
-                                            newLocked[code] = [
-                                              ...current,
-                                              v.id,
-                                            ];
-                                          }
-                                          return newLocked;
-                                        });
-                                      }}
-                                      className="text-xs"
+                                    <div
+                                      className={`mr-2 flex h-3 w-3 items-center justify-center rounded-sm border border-primary ${!currentLocked || currentLocked.length === 0 ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
                                     >
-                                      <div
-                                        className={`mr-2 flex h-3 w-3 items-center justify-center rounded-sm border border-primary ${isChecked ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
+                                      <Check className="h-3 w-3" />
+                                    </div>
+                                    Auto-Optimize (Any Class)
+                                  </CommandItem>
+                                  {variations.map((v) => {
+                                    const isChecked = currentLocked?.includes(
+                                      v.id,
+                                    );
+                                    return (
+                                      <CommandItem
+                                        key={v.id}
+                                        value={v.id}
+                                        onSelect={() => {
+                                          setLockedCourses((prev: any) => {
+                                            const newLocked = { ...prev };
+                                            const current =
+                                              newLocked[code] || [];
+                                            if (current.includes(v.id)) {
+                                              newLocked[code] = current.filter(
+                                                (id: string) => id !== v.id,
+                                              );
+                                              if (newLocked[code].length === 0)
+                                                delete newLocked[code];
+                                            } else {
+                                              newLocked[code] = [
+                                                ...current,
+                                                v.id,
+                                              ];
+                                            }
+                                            return newLocked;
+                                          });
+                                        }}
+                                        className="text-xs rounded-lg"
                                       >
-                                        <Check className="h-3 w-3" />
-                                      </div>
-                                      <div className="flex flex-col w-full min-w-0">
-                                        <div className="flex items-center justify-between w-full">
-                                          <span className="font-bold">
-                                            Class {v.class}
-                                          </span>
-                                          <span className="text-[9px] text-slate-400 font-mono">
-                                            {v.schedule[0]?.day}{" "}
-                                            {v.schedule[0]?.start}
+                                        <div
+                                          className={`mr-2 flex h-3 w-3 items-center justify-center rounded-sm border border-primary ${isChecked ? "bg-primary text-primary-foreground" : "opacity-50 [&_svg]:invisible"}`}
+                                        >
+                                          <Check className="h-3 w-3" />
+                                        </div>
+                                        <div className="flex flex-col w-full min-w-0">
+                                          <div className="flex items-center justify-between w-full">
+                                            <span className="font-bold">
+                                              Class {v.class}
+                                            </span>
+                                            <span className="text-[9px] text-slate-400 font-mono">
+                                              {v.schedule[0]?.day}{" "}
+                                              {v.schedule[0]?.start}
+                                            </span>
+                                          </div>
+                                          <span className="text-slate-500 text-[10px] truncate w-full block">
+                                            {v.lecturer.split(",")[0]}
                                           </span>
                                         </div>
-                                        <span className="text-slate-500 text-[10px] truncate w-full block">
-                                          {v.lecturer.split(",")[0]}
-                                        </span>
-                                      </div>
-                                    </CommandItem>
-                                  );
-                                })}
-                              </CommandGroup>
+                                      </CommandItem>
+                                    );
+                                  })}
+                                </CommandGroup>
+                              </CommandList>
                             </Command>
                           </PopoverContent>
                         </Popover>

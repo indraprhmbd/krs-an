@@ -176,11 +176,12 @@ export function ScheduleViewer({
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent
-                  className="w-[280px] p-0 bg-white shadow-2xl rounded-2xl border-none"
+                  className="w-[280px] p-0 bg-white shadow-2xl rounded-2xl border-none max-h-[300px] overflow-hidden flex flex-col"
                   align="end"
+                  onOpenAutoFocus={(e) => e.preventDefault()}
                 >
-                  <Command className="rounded-2xl">
-                    <CommandList className="max-h-[250px] overflow-auto px-1.5 py-1 scrollbar-thin">
+                  <Command className="rounded-2xl h-full flex flex-col">
+                    <CommandList className="flex-1 overflow-y-auto px-1.5 py-1 custom-scrollbar scroll-smooth">
                       <CommandGroup>
                         {variations.map((v) => (
                           <CommandItem
@@ -267,12 +268,13 @@ export function ScheduleViewer({
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
-                    className="w-[240px] p-0 bg-white shadow-2xl rounded-2xl border-none"
+                    className="w-[240px] p-0 bg-white shadow-2xl rounded-2xl border-none max-h-[300px] overflow-hidden flex flex-col"
                     align="end"
+                    onOpenAutoFocus={(e) => e.preventDefault()}
                   >
-                    <Command className="rounded-2xl">
+                    <Command className="rounded-2xl h-full flex flex-col">
                       <CommandEmpty>No variations found.</CommandEmpty>
-                      <CommandList className="max-h-[250px] overflow-auto px-1.5 py-1 scrollbar-thin">
+                      <CommandList className="flex-1 overflow-y-auto px-1.5 py-1 custom-scrollbar scroll-smooth">
                         <CommandGroup>
                           {variations.map((v) => (
                             <CommandItem
