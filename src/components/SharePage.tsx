@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { useState } from "react";
 import { SignInButton, useUser } from "@clerk/clerk-react";
+import { getProdiConfig } from "../lib/prodi";
 
 export function SharePage() {
   const { shareId } = useParams<{ shareId: string }>();
@@ -28,6 +29,10 @@ export function SharePage() {
   });
 
   const savePlanMutation = useMutation(api.plans.savePlan);
+
+  const isCourseCentric = sharedPlan?.data?.courses?.[0]?.prodi
+    ? getProdiConfig(sharedPlan.data.courses[0].prodi).isCourseCentric
+    : false;
 
   const handleImport = async () => {
     if (!sharedPlan) return;
@@ -202,7 +207,10 @@ export function SharePage() {
           <div className="grid lg:grid-cols-3 gap-4 md:gap-8">
             <div className="lg:col-span-2 space-y-6 min-w-0">
               <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-xl shadow-blue-900/5 overflow-x-auto">
-                <ScheduleGrid courses={sharedPlan.data.courses} />
+                <ScheduleGrid
+                  courses={sharedPlan.data.courses}
+                  isCourseCentric={isCourseCentric}
+                />
               </div>
             </div>
 
@@ -235,7 +243,8 @@ export function SharePage() {
                       >
                         <div className="flex justify-between items-start mb-1">
                           <span className="text-[9px] font-mono text-slate-400 uppercase">
-                            {c.code} • {c.class}
+                            {c.code} •{" "}
+                            {isCourseCentric ? `Class ${c.class}` : c.class}
                           </span>
                           <Badge
                             variant="outline"
@@ -245,11 +254,20 @@ export function SharePage() {
                           </Badge>
                         </div>
                         <p className="font-bold text-slate-900 text-xs leading-tight mb-1">
-                          {c.name}
+                          {isCourseCentric
+                            ? `${c.schedule[0]?.day} ${c.schedule[0]?.start} @ ${c.room || "TBA"}`
+                            : c.name}
                         </p>
-                        <p className="text-[9px] font-bold text-slate-500 mt-1 truncate">
-                          {c.lecturer}
-                        </p>
+                        {isCourseCentric && (
+                          <p className="text-[10px] font-bold text-slate-700 leading-tight">
+                            {c.name}
+                          </p>
+                        )}
+                        {!isCourseCentric && (
+                          <p className="text-[9px] font-bold text-slate-500 mt-1 truncate">
+                            {c.lecturer}
+                          </p>
+                        )}
                       </div>
                     ))}
                   </div>

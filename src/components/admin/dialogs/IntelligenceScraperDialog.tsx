@@ -244,7 +244,7 @@ export function IntelligenceScraperDialog({
               }
               placeholder={
                 scraperMode === "manual"
-                  ? "Paste spreadsheet rows here (Tab separated)...\nOrder: Prodi [TAB] Kode [TAB] Nama [TAB] Kelas [TAB] SKS [TAB] Jumlah [TAB] Jadwal [TAB] Ruang\n(Nama Dosen di baris baru setelah setiap data)"
+                  ? "Manual Format (Tab Separated):\nProdi [TAB] Kode [TAB] Nama [TAB] Kelas [TAB] SKS [TAB] Kapasitas [TAB] Jadwal [TAB] Ruang\n\nExample:\nTeknik Pertambangan\tESDC\tESDC\tA\t2\t40\tSenin 07:00-09:00\tAL-C-D-1\nDr. Jane Doe (Lecturer on new line)"
                   : "Paste messy schedule text here... AI will analyze and structure it automatically."
               }
               className="min-h-[350px] bg-slate-50 border-none rounded-2xl p-6 font-mono text-xs leading-relaxed focus-visible:ring-blue-700 transition-all group-focus-within:bg-white group-focus-within:shadow-inner"

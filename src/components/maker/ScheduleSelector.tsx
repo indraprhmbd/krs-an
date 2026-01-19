@@ -21,12 +21,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Course } from "@/types";
+import { getProdiConfig } from "../../lib/prodi";
 
 interface ScheduleSelectorProps {
   courses: Course[];
   selectedCodes: string[];
   lockedCourses: Record<string, string[]>;
-  sessionProfile: { maxSks: number; semester: number; [key: string]: any };
+  sessionProfile: {
+    maxSks: number;
+    semester: number;
+    prodi: string;
+    [key: string]: any;
+  };
   toggleCourse: (code: string) => void;
   setLockedCourses: (updater: (prev: any) => any) => void;
   handleDeleteCourse: (e: React.MouseEvent, id: string) => void;
@@ -58,6 +64,8 @@ export function ScheduleSelector({
   cooldown,
 }: ScheduleSelectorProps) {
   const { t } = useLanguage();
+  const prodiConfig = getProdiConfig(sessionProfile.prodi);
+
   const grouped = courses.reduce(
     (acc, c) => {
       acc[c.code] = acc[c.code] || [];
@@ -357,9 +365,18 @@ export function ScheduleSelector({
                             <SelectValue>
                               {lockedIds && lockedIds.length > 0
                                 ? lockedIds.length === 1
-                                  ? `Class ${variations.find((v) => v.id === lockedIds[0])?.class}`
-                                  : `${lockedIds.length} Classes`
-                                : "Auto (All)"}
+                                  ? prodiConfig.isCourseCentric
+                                    ? (() => {
+                                        const v = variations.find(
+                                          (v) => v.id === lockedIds[0],
+                                        );
+                                        return `${v?.schedule[0]?.day} ${v?.schedule[0]?.start} @ ${v?.room || "TBA"}`;
+                                      })()
+                                    : `Class ${variations.find((v) => v.id === lockedIds[0])?.class}`
+                                  : `${lockedIds.length} Options`
+                                : prodiConfig.isCourseCentric
+                                  ? "Auto-Assigned"
+                                  : "Auto (All)"}
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent className="rounded-2xl border-none shadow-2xl">
@@ -367,7 +384,9 @@ export function ScheduleSelector({
                               value="all"
                               className="text-xs font-bold text-blue-700 rounded-lg focus:bg-blue-50"
                             >
-                              Auto-Optimize (Any Class)
+                              {prodiConfig.isCourseCentric
+                                ? "Auto-Select Day"
+                                : "Auto-Optimize (Any Class)"}
                             </SelectItem>
                             {variations.map((v) => {
                               const isChecked = currentLocked?.includes(v.id);
@@ -399,17 +418,33 @@ export function ScheduleSelector({
                                   </div>
                                   <div className="flex flex-col w-full min-w-0 py-2">
                                     <div className="flex items-center justify-between w-full">
-                                      <span className="font-bold text-xs">
-                                        Class {v.class}
+                                      <span
+                                        className={`font-bold text-xs ${prodiConfig.isCourseCentric ? "text-slate-900" : "text-slate-700"}`}
+                                      >
+                                        {prodiConfig.isCourseCentric
+                                          ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
+                                          : `Class ${v.class}`}
                                       </span>
-                                      <span className="text-[9px] text-slate-400 font-mono">
-                                        {v.schedule[0]?.day}{" "}
-                                        {v.schedule[0]?.start}
-                                      </span>
+                                      {!prodiConfig.isCourseCentric && (
+                                        <span className="text-[9px] text-slate-400 font-mono">
+                                          {v.schedule[0]?.day}{" "}
+                                          {v.schedule[0]?.start}
+                                        </span>
+                                      )}
+                                      {prodiConfig.isCourseCentric && (
+                                        <span className="text-[9px] text-slate-400 font-mono">
+                                          {prodiConfig.isFloatingDay
+                                            ? "Original"
+                                            : "Class"}{" "}
+                                          {v.class}
+                                        </span>
+                                      )}
                                     </div>
-                                    <span className="text-slate-500 text-[10px] truncate w-full block">
-                                      {v.lecturer.split(",")[0]}
-                                    </span>
+                                    {!prodiConfig.isCourseCentric && (
+                                      <span className="text-slate-500 text-[10px] truncate w-full block">
+                                        {v.lecturer.split(",")[0]}
+                                      </span>
+                                    )}
                                   </div>
                                 </div>
                               );

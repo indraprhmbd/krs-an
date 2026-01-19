@@ -6,6 +6,7 @@ import type { Course, Plan, ArchivedPlan } from "@/types";
 import { toast } from "sonner";
 import { useLanguage } from "../context/LanguageContext";
 import { HelpTooltip } from "./ui/HelpTooltip";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 
 // Refactored Components
 import { ScheduleConfig } from "./maker/ScheduleConfig";
@@ -41,13 +42,13 @@ export function ScheduleMaker({
 
   const step = externalStep || internalStep;
   const setStep = onStepChange || setInternalStep;
-  const [sessionProfile, setSessionProfile] = useState<{
+  const [sessionProfile, setSessionProfile] = useLocalStorage<{
     university: string;
     prodi: string;
     semester: number;
     maxSks: number;
     useMaster: boolean;
-  }>({
+  }>("krs-session-profile", {
     university: "UPN_VETERAN_YOGYAKARTA",
     prodi: "INFORMATIKA",
     semester: 2,
@@ -56,10 +57,13 @@ export function ScheduleMaker({
   });
 
   const [courses, setCourses] = useState<Course[]>([]);
-  const [selectedCodes, setSelectedCodes] = useState<string[]>([]);
-  const [lockedCourses, setLockedCourses] = useState<Record<string, string[]>>(
-    {},
+  const [selectedCodes, setSelectedCodes] = useLocalStorage<string[]>(
+    "krs-selected-codes",
+    [],
   );
+  const [lockedCourses, setLockedCourses] = useLocalStorage<
+    Record<string, string[]>
+  >("krs-locked-courses", {});
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlanIndex, setCurrentPlanIndex] = useState(0);
   const [viewSource, setViewSource] = useState<"live" | "archive">("live");
@@ -638,6 +642,7 @@ export function ScheduleMaker({
                 }
                 planLimit={planLimit}
                 isGenerating={isGenerating}
+                prodi={sessionProfile.prodi}
               />
             )}
 

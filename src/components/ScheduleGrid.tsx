@@ -7,7 +7,13 @@ const START_HOUR = 7;
 const END_HOUR = 18; // 6 PM
 const ROWS_PER_HOUR = 2; // 30 min slots
 
-export function ScheduleGrid({ courses }: { courses: Course[] }) {
+export function ScheduleGrid({
+  courses,
+  isCourseCentric,
+}: {
+  courses: Course[];
+  isCourseCentric?: boolean;
+}) {
   const slots = (END_HOUR - START_HOUR) * ROWS_PER_HOUR;
   const { messages: conflictMessages } = checkConflicts(courses);
 
@@ -163,14 +169,20 @@ export function ScheduleGrid({ courses }: { courses: Course[] }) {
                             <span className="font-bold text-slate-800 leading-[1] line-clamp-1 mt-0.5">
                               {c.name}
                             </span>
-                            <div className="mt-auto flex items-center justify-between text-[7px] text-slate-500 font-bold font-mono">
-                              <span className="truncate">
-                                {c.lecturer.split(",")[0].split(" ")[0] ===
-                                "Dosen"
-                                  ? c.lecturer.split(",")[0]
-                                  : c.lecturer.split(",")[0]}
-                              </span>
-                            </div>
+                            {!isCourseCentric && (
+                              <div className="mt-auto flex items-center justify-between text-[7px] text-slate-500 font-bold font-mono">
+                                <span className="truncate">
+                                  {c.lecturer.split(",")[0]}
+                                </span>
+                              </div>
+                            )}
+                            {isCourseCentric && (
+                              <div className="mt-auto flex items-center justify-between text-[7px] text-blue-600 font-bold font-mono">
+                                <span className="truncate">
+                                  RM: {c.room || "TBA"}
+                                </span>
+                              </div>
+                            )}
                           </div>
                         );
                       });

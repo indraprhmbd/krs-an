@@ -32,6 +32,7 @@ import {
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import { HelpTooltip } from "../ui/HelpTooltip";
+import { getProdiConfig } from "../../lib/prodi";
 
 interface ScheduleViewerProps {
   plans: Plan[];
@@ -47,6 +48,7 @@ interface ScheduleViewerProps {
   onShuffle?: () => void;
   planLimit: number;
   isGenerating?: boolean;
+  prodi?: string;
 }
 
 export function ScheduleViewer({
@@ -63,8 +65,10 @@ export function ScheduleViewer({
   onShuffle,
   planLimit,
   isGenerating,
+  prodi,
 }: ScheduleViewerProps) {
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
+  const prodiConfig = getProdiConfig(prodi || "");
   const currentPlan = plans[currentPlanIndex];
   const totalSKS = currentPlan.courses.reduce(
     (sum, c) => sum + (c.sks || 0),
@@ -172,20 +176,32 @@ export function ScheduleViewer({
                     <SelectItem
                       key={v.id}
                       value={v.id}
-                      textValue={`Class ${v.class} • ${v.lecturer.split(",")[0]} • ${v.schedule[0]?.day} ${v.schedule[0]?.start}`}
+                      textValue={
+                        prodiConfig.isCourseCentric
+                          ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
+                          : `Class ${v.class} • ${v.lecturer.split(",")[0]} • ${v.schedule[0]?.day} ${v.schedule[0]?.start}`
+                      }
                       className="rounded-xl px-3 py-2 cursor-pointer focus:bg-blue-50"
                     >
                       <div className="flex flex-col min-w-0">
                         <span className="font-bold text-[11px] text-slate-900">
-                          Class {v.class}
+                          {prodiConfig.isCourseCentric
+                            ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
+                            : `Class ${v.class}`}
                         </span>
-                        <span className="text-slate-500 text-[9px] font-medium truncate italic">
-                          {v.lecturer}
-                        </span>
-                        <span className="text-blue-600 text-[8px] font-mono font-bold mt-0.5">
-                          {v.schedule
-                            .map((s: any) => `${s.day} ${s.start}`)
-                            .join(", ")}
+                        {!prodiConfig.isCourseCentric && (
+                          <span className="text-slate-500 text-[9px] font-medium truncate italic">
+                            {v.lecturer}
+                          </span>
+                        )}
+                        <span
+                          className={`text-blue-600 text-[8px] font-mono font-bold mt-0.5 ${prodiConfig.isCourseCentric ? "text-slate-400" : ""}`}
+                        >
+                          {prodiConfig.isCourseCentric
+                            ? `Class ${v.class}`
+                            : v.schedule
+                                .map((s: any) => `${s.day} ${s.start}`)
+                                .join(", ")}
                         </span>
                       </div>
                     </SelectItem>
@@ -221,9 +237,11 @@ export function ScheduleViewer({
                 <h4 className="font-bold text-slate-900 group-hover:text-blue-700 transition-colors text-[11px] leading-tight line-clamp-2">
                   {c.name}
                 </h4>
-                <p className="text-[10px] font-medium text-slate-500 mt-1 truncate italic">
-                  {c.lecturer || "No Lecturer"}
-                </p>
+                {!prodiConfig.isCourseCentric && (
+                  <p className="text-[10px] font-medium text-slate-500 mt-1 truncate italic">
+                    {c.lecturer || "No Lecturer"}
+                  </p>
+                )}
               </div>
               <Badge
                 variant="outline"
@@ -254,8 +272,9 @@ export function ScheduleViewer({
                 >
                   <SelectTrigger className="h-7 text-[10px] font-bold px-3 border-slate-200 bg-white hover:bg-slate-50 rounded-lg w-full min-w-[100px]">
                     <span className="truncate w-full text-left block">
-                      Class {c.class} • {c.lecturer.split(",")[0]} •{" "}
-                      {c.schedule[0]?.day} {c.schedule[0]?.start}
+                      {prodiConfig.isCourseCentric
+                        ? `${c.schedule[0]?.day} ${c.schedule[0]?.start} @ ${c.room || "TBA"}`
+                        : `Class ${c.class} • ${c.lecturer.split(",")[0]} • ${c.schedule[0]?.day} ${c.schedule[0]?.start}`}
                     </span>
                   </SelectTrigger>
                   <SelectContent className="rounded-2xl border-none shadow-2xl">
@@ -271,21 +290,33 @@ export function ScheduleViewer({
                       <SelectItem
                         key={v.id}
                         value={v.id}
-                        textValue={`Class ${v.class} • ${v.lecturer.split(",")[0]} • ${v.schedule[0]?.day} ${v.schedule[0]?.start}`}
+                        textValue={
+                          prodiConfig.isCourseCentric
+                            ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
+                            : `Class ${v.class} • ${v.lecturer.split(",")[0]} • ${v.schedule[0]?.day} ${v.schedule[0]?.start}`
+                        }
                         className="rounded-xl px-3 py-2 cursor-pointer focus:bg-blue-50"
                       >
                         <div className="flex items-center justify-between w-full gap-2">
                           <div className="flex flex-col min-w-0 flex-1">
                             <span className="font-bold text-[11px] text-slate-900">
-                              Class {v.class}
+                              {prodiConfig.isCourseCentric
+                                ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
+                                : `Class ${v.class}`}
                             </span>
-                            <span className="text-slate-500 text-[9px] font-medium truncate">
-                              {v.lecturer}
-                            </span>
-                            <span className="text-blue-600 text-[8px] font-mono font-bold mt-0.5">
-                              {v.schedule
-                                .map((s: any) => `${s.day} ${s.start}`)
-                                .join(", ")}
+                            {!prodiConfig.isCourseCentric && (
+                              <span className="text-slate-500 text-[9px] font-medium truncate">
+                                {v.lecturer}
+                              </span>
+                            )}
+                            <span
+                              className={`text-blue-600 text-[8px] font-mono font-bold mt-0.5 ${prodiConfig.isCourseCentric ? "text-slate-400" : ""}`}
+                            >
+                              {prodiConfig.isCourseCentric
+                                ? `Class ${v.class}`
+                                : v.schedule
+                                    .map((s: any) => `${s.day} ${s.start}`)
+                                    .join(", ")}
                             </span>
                           </div>
                         </div>
@@ -528,7 +559,10 @@ export function ScheduleViewer({
       >
         <div className="w-full bg-white p-1 rounded-2xl md:p-2 md:rounded-3xl border border-slate-200 shadow-sm overflow-auto custom-scrollbar flex flex-col flex-1">
           <div className="flex-1 min-h-0">
-            <ScheduleGrid courses={currentPlan.courses} />
+            <ScheduleGrid
+              courses={currentPlan.courses}
+              isCourseCentric={prodiConfig.isCourseCentric}
+            />
           </div>
         </div>
 

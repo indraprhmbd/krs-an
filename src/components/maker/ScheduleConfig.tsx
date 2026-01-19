@@ -12,6 +12,8 @@ import { Button } from "@/components/ui/button";
 import { Brain } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 import { HelpTooltip } from "../ui/HelpTooltip";
+import { clearKRSSession } from "../../hooks/useLocalStorage";
+import { RotateCcw } from "lucide-react";
 
 interface ScheduleConfigProps {
   sessionProfile: {
@@ -209,6 +211,24 @@ export function ScheduleConfig({
               className="w-full mt-8 bg-blue-700 hover:bg-blue-800 text-white h-14 rounded-2xl font-display font-bold text-base shadow-xl shadow-blue-100 transition-all hover:scale-[1.01] active:scale-[0.99]"
             >
               {t("config.btn_init")}
+            </Button>
+
+            <Button
+              onClick={() => {
+                if (
+                  confirm(
+                    "Clear all saved session data? This will reset your configuration and selections.",
+                  )
+                ) {
+                  clearKRSSession();
+                  window.location.reload();
+                }
+              }}
+              variant="ghost"
+              className="w-full mt-2 text-slate-500 hover:text-slate-700 h-10 rounded-xl font-medium text-sm"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Clear Saved Session
             </Button>
           </div>
         </div>
