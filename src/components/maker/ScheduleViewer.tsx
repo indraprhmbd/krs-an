@@ -27,6 +27,7 @@ import {
   CommandEmpty,
   CommandGroup,
   CommandItem,
+  CommandList,
 } from "@/components/ui/command";
 import {
   Dialog,
@@ -179,30 +180,32 @@ export function ScheduleViewer({
                   align="end"
                 >
                   <Command className="rounded-2xl">
-                    <CommandGroup className="max-h-[250px] overflow-auto p-1.5">
-                      {variations.map((v) => (
-                        <CommandItem
-                          key={v.id}
-                          value={v.id}
-                          onSelect={() => handleUpdateCourse(code, v)}
-                          className="rounded-xl px-3 py-2 cursor-pointer aria-selected:bg-blue-50"
-                        >
-                          <div className="flex flex-col min-w-0">
-                            <span className="font-bold text-[11px] text-slate-900">
-                              Class {v.class}
-                            </span>
-                            <span className="text-slate-500 text-[9px] font-medium truncate italic text-wrap">
-                              {v.lecturer}
-                            </span>
-                            <span className="text-blue-600 text-[8px] font-mono font-bold mt-0.5">
-                              {v.schedule
-                                .map((s: any) => `${s.day} ${s.start}`)
-                                .join(", ")}
-                            </span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
+                    <CommandList className="max-h-[250px] overflow-auto px-1.5 py-1 scrollbar-thin">
+                      <CommandGroup>
+                        {variations.map((v) => (
+                          <CommandItem
+                            key={v.id}
+                            value={v.id}
+                            onSelect={() => handleUpdateCourse(code, v)}
+                            className="rounded-xl px-3 py-2 cursor-pointer aria-selected:bg-blue-50"
+                          >
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-bold text-[11px] text-slate-900">
+                                Class {v.class}
+                              </span>
+                              <span className="text-slate-500 text-[9px] font-medium truncate italic text-wrap">
+                                {v.lecturer}
+                              </span>
+                              <span className="text-blue-600 text-[8px] font-mono font-bold mt-0.5">
+                                {v.schedule
+                                  .map((s: any) => `${s.day} ${s.start}`)
+                                  .join(", ")}
+                              </span>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
                   </Command>
                 </PopoverContent>
               </Popover>
@@ -269,43 +272,45 @@ export function ScheduleViewer({
                   >
                     <Command className="rounded-2xl">
                       <CommandEmpty>No variations found.</CommandEmpty>
-                      <CommandGroup className="max-h-[250px] overflow-auto p-1.5">
-                        {variations.map((v) => (
-                          <CommandItem
-                            key={v.id}
-                            value={v.id}
-                            onSelect={() => handleUpdateCourse(c.code, v)}
-                            className="rounded-xl px-3 py-2 cursor-pointer aria-selected:bg-blue-50"
-                          >
-                            <div className="flex items-start gap-2 w-full">
-                              <div
-                                className={`mt-0.5 shrink-0 w-4 h-4 rounded-full flex items-center justify-center border ${
-                                  v.id === c.id
-                                    ? "bg-blue-600 border-blue-600 text-white"
-                                    : "border-slate-200"
-                                }`}
-                              >
-                                {v.id === c.id && (
-                                  <Check className="h-2.5 w-2.5" />
-                                )}
+                      <CommandList className="max-h-[250px] overflow-auto px-1.5 py-1 scrollbar-thin">
+                        <CommandGroup>
+                          {variations.map((v) => (
+                            <CommandItem
+                              key={v.id}
+                              value={v.id}
+                              onSelect={() => handleUpdateCourse(c.code, v)}
+                              className="rounded-xl px-3 py-2 cursor-pointer aria-selected:bg-blue-50"
+                            >
+                              <div className="flex items-start gap-2 w-full">
+                                <div
+                                  className={`mt-0.5 shrink-0 w-4 h-4 rounded-full flex items-center justify-center border ${
+                                    v.id === c.id
+                                      ? "bg-blue-600 border-blue-600 text-white"
+                                      : "border-slate-200"
+                                  }`}
+                                >
+                                  {v.id === c.id && (
+                                    <Check className="h-2.5 w-2.5" />
+                                  )}
+                                </div>
+                                <div className="flex flex-col min-w-0">
+                                  <span className="font-bold text-[11px] text-slate-900">
+                                    Class {v.class}
+                                  </span>
+                                  <span className="text-slate-500 text-[9px] font-medium truncate text-wrap">
+                                    {v.lecturer}
+                                  </span>
+                                  <span className="text-blue-600 text-[8px] font-mono font-bold mt-0.5">
+                                    {v.schedule
+                                      .map((s: any) => `${s.day} ${s.start}`)
+                                      .join(", ")}
+                                  </span>
+                                </div>
                               </div>
-                              <div className="flex flex-col min-w-0">
-                                <span className="font-bold text-[11px] text-slate-900">
-                                  Class {v.class}
-                                </span>
-                                <span className="text-slate-500 text-[9px] font-medium truncate text-wrap">
-                                  {v.lecturer}
-                                </span>
-                                <span className="text-blue-600 text-[8px] font-mono font-bold mt-0.5">
-                                  {v.schedule
-                                    .map((s: any) => `${s.day} ${s.start}`)
-                                    .join(", ")}
-                                </span>
-                              </div>
-                            </div>
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
                     </Command>
                   </PopoverContent>
                 </Popover>
