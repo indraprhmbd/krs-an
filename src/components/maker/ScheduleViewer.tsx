@@ -172,6 +172,7 @@ export function ScheduleViewer({
                     <SelectItem
                       key={v.id}
                       value={v.id}
+                      textValue={`Class ${v.class} • ${v.lecturer.split(",")[0]} • ${v.schedule[0]?.day} ${v.schedule[0]?.start}`}
                       className="rounded-xl px-3 py-2 cursor-pointer focus:bg-blue-50"
                     >
                       <div className="flex flex-col min-w-0">
@@ -237,6 +238,16 @@ export function ScheduleViewer({
                 <Select
                   value={c.id}
                   onValueChange={(value) => {
+                    if (value === "remove") {
+                      if (onUpdatePlan) {
+                        const nextCourses = currentPlan.courses.filter(
+                          (curr: any) => curr.code !== c.code,
+                        );
+                        onUpdatePlan(nextCourses);
+                        toast.success(`Removed ${c.code} from schedule`);
+                      }
+                      return;
+                    }
                     const variation = variations.find((v) => v.id === value);
                     if (variation) handleUpdateCourse(c.code, variation);
                   }}
@@ -245,14 +256,23 @@ export function ScheduleViewer({
                     <SelectValue placeholder="" />
                   </SelectTrigger>
                   <SelectContent className="rounded-2xl border-none shadow-2xl">
+                    <SelectItem
+                      value="remove"
+                      className="rounded-xl px-3 py-2 cursor-pointer focus:bg-red-50 text-red-500 font-bold text-[11px]"
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>Minify / Remove Selection</span>
+                      </div>
+                    </SelectItem>
                     {variations.map((v) => (
                       <SelectItem
                         key={v.id}
                         value={v.id}
+                        textValue={`Class ${v.class} • ${v.lecturer.split(",")[0]} • ${v.schedule[0]?.day} ${v.schedule[0]?.start}`}
                         className="rounded-xl px-3 py-2 cursor-pointer focus:bg-blue-50"
                       >
-                        <div className="flex items-start gap-2 w-full">
-                          <div className="flex flex-col min-w-0">
+                        <div className="flex items-center justify-between w-full gap-2">
+                          <div className="flex flex-col min-w-0 flex-1">
                             <span className="font-bold text-[11px] text-slate-900">
                               Class {v.class}
                             </span>
