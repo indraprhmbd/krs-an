@@ -106,6 +106,21 @@ const translations: Record<Language, Record<string, string>> = {
     "help.slider_title": "Micro Adjustment (Slider)",
     "help.slider_desc":
       "Gunakan penggeser untuk melihat variasi detail dari struktur jadwal yang sudah ada. Ini adalah penyesuaian skala kecil untuk membandingkan pilihan kelas secara spesifik.",
+    "help.master_catalog_title": "Katalog Global (Master)",
+    "help.master_catalog_desc":
+      "Cari dan tambahkan mata kuliah dari seluruh database universitas, termasuk dari program studi lain.",
+    "help.quick_build_title": "Penyusunan Cepat (Quick Build)",
+    "help.quick_build_desc":
+      "Sistem akan mencoba menyusun jadwal secara otomatis berdasarkan mata kuliah yang telah Anda pilih jika memungkinkan.",
+    "help.plotter_title": "Manual Plotter",
+    "help.plotter_desc":
+      "Gunakan plotter untuk menyusun jadwal secara manual satu per satu dengan kontrol penuh atas pemilihan kelas.",
+    "help.quick_fix_title": "Perbaikan Konflik",
+    "help.quick_fix_desc":
+      "Sistem akan mencoba mencari variasi kelas lain secara otomatis untuk menyelesaikan konflik jadwal yang ada.",
+    "help.expand_title": "Eksplorasi (Expand)",
+    "help.expand_desc":
+      "Gunakan Expand untuk mencari lebih banyak variasi kombinasi jadwal yang mungkin belum muncul sebelumnya.",
   },
   EN: {
     "nav.architect": "Architect",
@@ -203,6 +218,21 @@ const translations: Record<Language, Record<string, string>> = {
     "help.slider_title": "Micro Adjustment (Slider)",
     "help.slider_desc":
       "Use the slider to see detailed variations of the existing schedule structure. This is a small-scale adjustment to compare specific class options.",
+    "help.master_catalog_title": "Global Catalog (Master)",
+    "help.master_catalog_desc":
+      "Search and add courses from the entire university database, including from other study programs.",
+    "help.quick_build_title": "Quick Build",
+    "help.quick_build_desc":
+      "The system will attempt to automatically assemble a schedule based on your selected courses if possible.",
+    "help.plotter_title": "Manual Plotter",
+    "help.plotter_desc":
+      "Use the plotter to assemble your schedule manually one by one with full control over class selection.",
+    "help.quick_fix_title": "Conflict Fixer",
+    "help.quick_fix_desc":
+      "The system will automatically find alternative class variations to resolve existing schedule conflicts.",
+    "help.expand_title": "Exploration (Expand)",
+    "help.expand_desc":
+      "Use Expand to find more possible schedule combinations that haven't appeared yet.",
   },
 };
 
