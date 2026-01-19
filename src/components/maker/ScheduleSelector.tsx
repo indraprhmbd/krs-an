@@ -4,7 +4,6 @@ import {
   Plus,
   PlusCircle,
   Trash,
-  ChevronsUpDown,
   Check,
   ChevronLeft,
   Brain,
@@ -13,11 +12,6 @@ import {
 } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 import { checkConflicts } from "../../lib/rules";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { HelpTooltip } from "@/components/ui/HelpTooltip";
 import {
   Select,

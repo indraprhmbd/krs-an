@@ -9,26 +9,12 @@ import {
   ClipboardCheck,
   RotateCcw,
   Wand2,
-  Check,
-  ChevronsUpDown,
   LayoutList,
   Printer,
 } from "lucide-react";
 import { ScheduleGrid } from "../ScheduleGrid";
 import type { Plan, Course } from "@/types";
 import { checkConflicts } from "../../lib/rules";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 import {
   Dialog,
   DialogContent,
