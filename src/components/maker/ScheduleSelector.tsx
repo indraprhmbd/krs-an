@@ -171,8 +171,7 @@ export function ScheduleSelector({
                 onClick={onSmartGenerate}
                 disabled={isSmartGenerating || cooldown?.active || isGenerating}
                 size="sm"
-                variant="outline"
-                className="h-8 px-3 border border-slate-200 hover:border-blue-200 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-display text-[9px] font-bold rounded-lg transition-all"
+                className="h-8 px-3 bg-violet-600 hover:bg-violet-700 text-white font-display text-[9px] font-bold rounded-lg transition-all shadow-md shadow-violet-100"
               >
                 <div className="flex items-center gap-1.5">
                   <Sparkles
