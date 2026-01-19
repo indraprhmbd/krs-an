@@ -149,6 +149,9 @@ export function ScheduleConfig({
                       TEKNIK INDUSTRI
                     </SelectItem>
                     <SelectItem value="TEKNIK KIMIA">TEKNIK KIMIA</SelectItem>
+                    <SelectItem value="TEKNIK PERTAMBANGAN">
+                      TEKNIK PERTAMBANGAN
+                    </SelectItem>
                     <SelectItem value="TEKNIK ELEKTRO" disabled>
                       TEKNIK ELEKTRO (Coming Soon)
                     </SelectItem>
