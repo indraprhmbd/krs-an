@@ -342,8 +342,8 @@ export function ScheduleViewer({
         }}
       />
 
-      <div className="flex items-center gap-2 bg-white p-2 md:p-3 rounded-2xl border border-slate-200 shadow-sm no-print shrink-0 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm no-print shrink-0 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 shrink-0">
           <Button
             variant="outline"
             size="icon"
@@ -352,8 +352,8 @@ export function ScheduleViewer({
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
-          <div className="min-w-0 hidden sm:block">
-            <h2 className="text-sm font-bold font-display text-slate-900 truncate">
+          <div className="min-w-0 hidden xs:block max-w-[120px] sm:max-w-none">
+            <h2 className="text-[10px] sm:text-sm font-bold font-display text-slate-900 truncate">
               {currentPlan.name}
             </h2>
           </div>
@@ -449,7 +449,7 @@ export function ScheduleViewer({
                 <LayoutList className="w-4 h-4" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="p-0 sm:max-w-[425px] h-[80vh] flex flex-col overflow-hidden sm:rounded-2xl">
+            <DialogContent className="p-0 sm:max-w-[425px] h-[80vh] flex flex-col overflow-hidden rounded-t-[2rem] sm:rounded-2xl bg-white border-none">
               <DialogHeader className="p-4 border-b shrink-0">
                 <DialogTitle className="text-sm font-display flex items-center justify-between pr-8">
                   <div className="flex items-center gap-2">
@@ -498,8 +498,8 @@ export function ScheduleViewer({
         </div>
 
         <div className="hidden lg:flex w-full shrink-0 flex-col h-full min-h-0">
-          <Card className="border-slate-200 shadow-xl shadow-blue-900/5 overflow-hidden rounded-[2.5rem] flex flex-col h-full bg-white/80 backdrop-blur-sm border-2">
-            <CardHeader className="bg-slate-50/50 py-3 border-b border-slate-200 flex flex-row items-center justify-between">
+          <Card className="border-slate-200 shadow-xl shadow-blue-900/5 overflow-hidden rounded-[2.5rem] flex flex-col h-full bg-white border-2">
+            <CardHeader className="bg-slate-50 py-3 border-b border-slate-200 flex flex-row items-center justify-between">
               <CardTitle className="text-xs font-display flex items-center gap-2">
                 <span>Course Inventory</span>
                 <Badge

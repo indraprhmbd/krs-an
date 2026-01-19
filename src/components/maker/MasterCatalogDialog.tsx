@@ -105,7 +105,7 @@ export function MasterCatalogDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl bg-white rounded-3xl p-6 border-none shadow-2xl overflow-hidden flex flex-col h-[85vh] max-h-[85vh]">
+      <DialogContent className="max-w-2xl w-[95vw] sm:w-full bg-white rounded-[2rem] sm:rounded-3xl p-4 sm:p-6 border-none shadow-2xl overflow-hidden flex flex-col h-[85vh] max-h-[85vh]">
         <DialogHeader className="mb-4 shrink-0">
           <DialogTitle className="text-xl font-display font-bold text-slate-900 flex items-center gap-2">
             <Search className="w-5 h-5 text-blue-700" />
@@ -229,28 +229,28 @@ export function MasterCatalogDialog({
           )}
         </div>
 
-        <DialogFooter className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between sm:justify-between w-full">
+        <DialogFooter className="mt-4 sm:mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
           <div className="flex items-center gap-2">
             {selectedClassIds.size > 0 && (
-              <Badge className="bg-blue-600 text-white font-mono text-[10px] px-2 py-1">
+              <Badge className="bg-blue-600 text-white font-mono text-[9px] px-2 py-1">
                 {selectedClassIds.size} CLASSES SELECTED
               </Badge>
             )}
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Button
               variant="ghost"
               onClick={() => onOpenChange(false)}
-              className="font-bold text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-600"
+              className="flex-1 sm:flex-none font-bold text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-600"
             >
               Cancel
             </Button>
             <Button
               disabled={selectedClassIds.size === 0}
               onClick={handleAddSelected}
-              className="bg-blue-700 hover:bg-blue-800 text-white font-bold text-[10px] uppercase tracking-widest px-6 rounded-xl shadow-lg shadow-blue-200 transition-all disabled:opacity-50 disabled:shadow-none"
+              className="flex-1 sm:flex-none bg-blue-700 hover:bg-blue-800 text-white font-bold text-[10px] uppercase tracking-widest px-6 rounded-xl shadow-lg shadow-blue-200 transition-all disabled:opacity-50 disabled:shadow-none"
             >
-              Add to session
+              Add
             </Button>
           </div>
         </DialogFooter>

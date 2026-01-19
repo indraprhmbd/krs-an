@@ -92,8 +92,8 @@ export function ScheduleSelector({
   return (
     <div className="h-full flex flex-col gap-3 md:gap-4 animate-in fade-in duration-500 overflow-hidden">
       {/* Header Section */}
-      <div className="shrink-0 bg-white/90 backdrop-blur-md p-2 md:p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3 min-w-0">
+      <div className="shrink-0 bg-white/90 backdrop-blur-md p-2 md:p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4">
+        <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
           {onBack && (
             <Button
               variant="outline"
@@ -104,12 +104,12 @@ export function ScheduleSelector({
               <ChevronLeft className="w-4 h-4" />
             </Button>
           )}
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h2 className="text-base md:text-lg font-bold font-display text-slate-900 truncate">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2 mb-0.5">
+              <h2 className="text-sm md:text-lg font-bold font-display text-slate-900 whitespace-nowrap shrink-0">
                 Course Catalog
               </h2>
-              <div className="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded-md text-[9px] font-mono font-bold border border-blue-100 shrink-0">
+              <div className="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded-md text-[9px] font-mono font-bold border border-blue-100 shrink-0 w-fit">
                 {Object.entries(grouped)
                   .filter(([code]) => selectedCodes.includes(code))
                   .reduce((sum, [code, variations]) => {
@@ -123,13 +123,13 @@ export function ScheduleSelector({
                 / {sessionProfile.maxSks} SKS
               </div>
             </div>
-            <p className="text-[8px] text-slate-400 font-mono uppercase tracking-widest hidden sm:block">
-              Semester {sessionProfile.semester} • 2024/2025
+            <p className="text-[8px] text-slate-400 font-mono uppercase tracking-widest leading-none">
+              Semester {sessionProfile.semester} • 2025/2026
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
           <Button
             onClick={onAddSubject}
             size="sm"
