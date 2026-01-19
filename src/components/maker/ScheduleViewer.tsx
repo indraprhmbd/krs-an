@@ -136,21 +136,21 @@ export function ScheduleViewer({
       `,
         }}
       />
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-4 md:p-5 rounded-2xl border border-slate-200 shadow-sm no-print shrink-0">
-        <div className="flex items-center gap-4 min-w-0 flex-1">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-3 bg-white p-3 md:p-4 rounded-2xl border border-slate-200 shadow-sm no-print shrink-0">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <Button
             variant="outline"
             size="icon"
             onClick={onBack}
-            className="w-10 h-10 shrink-0 rounded-xl border-slate-200 hover:bg-slate-50 hover:text-blue-700"
+            className="w-9 h-9 shrink-0 rounded-xl border-slate-200 hover:bg-slate-50 hover:text-blue-700"
           >
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl md:text-2xl font-bold font-display text-slate-900 truncate pr-4">
+            <h2 className="text-lg md:text-xl font-bold font-display text-slate-900 truncate pr-4">
               {currentPlan.name}
             </h2>
-            <p className="text-slate-500 font-mono text-[9px] tracking-widest uppercase truncate mt-0.5">
+            <p className="text-slate-500 font-mono text-[8px] tracking-widest uppercase truncate mt-0.5">
               {isManualEdit
                 ? "MANUAL ASSEMBLER MODE • VISUAL DRAFT"
                 : `PLAN ${currentPlanIndex + 1} OF ${plans.length} • OPTIMIZED BY AI`}
@@ -158,16 +158,16 @@ export function ScheduleViewer({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 pl-4 md:border-l border-slate-100 h-10 shrink-0">
-          <div className="text-right min-w-[100px]">
-            <p className="text-[8px] font-mono text-slate-400 uppercase tracking-tighter leading-none mb-1">
-              TOTAL ACCUMULATION
+        <div className="flex items-center gap-2 pl-3 md:border-l border-slate-100 h-9 shrink-0">
+          <div className="text-right min-w-[80px]">
+            <p className="text-[7px] font-mono text-slate-400 uppercase tracking-tighter leading-none mb-1">
+              ACCUMULATION
             </p>
             <div className="flex items-baseline gap-1 justify-end">
-              <span className="text-2xl md:text-3xl font-display font-black text-blue-600 leading-none">
+              <span className="text-xl md:text-2xl font-display font-black text-blue-600 leading-none">
                 {totalSKS}
               </span>
-              <span className="text-[10px] font-bold text-slate-400">SKS</span>
+              <span className="text-[9px] font-bold text-slate-400">SKS</span>
             </div>
           </div>
         </div>
