@@ -105,7 +105,7 @@ export const ensureUser = mutation({
     }
 
     // DATA SAFETY NET: If tokenIdentifier not found (e.g. after migration to production domain)
-    // Check if user exists with the same email
+    // Step 1: Check if user exists with the same email
     if (identity.email) {
       const existingUserByEmail = await ctx.db
         .query("users")
@@ -113,14 +113,35 @@ export const ensureUser = mutation({
         .unique();
 
       if (existingUserByEmail) {
-        // Link the old record to the new production identity
+        // Link via Email
         await ctx.db.patch(existingUserByEmail._id, {
           tokenIdentifier: identity.tokenIdentifier,
-          // Sync reset while we're at it
           credits: 5,
           lastResetDate: wibDate,
         });
         return existingUserByEmail._id;
+      }
+    }
+
+    // Step 2: Fallback for imported data without email (Check Clerk User ID / Subject)
+    // The tokenIdentifier format is "issuer|subject"
+    // We can look for any user whose existing tokenIdentifier ENDS with the same subject
+    const subject = identity.tokenIdentifier.split("|").pop();
+    if (subject) {
+      const allUsers = await ctx.db.query("users").collect();
+      const existingUserBySubject = allUsers.find((u) =>
+        u.tokenIdentifier.endsWith(`|${subject}`),
+      );
+
+      if (existingUserBySubject) {
+        // Link via stable Clerk User ID (subject)
+        await ctx.db.patch(existingUserBySubject._id, {
+          tokenIdentifier: identity.tokenIdentifier,
+          email: identity.email, // Populate email while we're at it
+          credits: 5,
+          lastResetDate: wibDate,
+        });
+        return existingUserBySubject._id;
       }
     }
 
