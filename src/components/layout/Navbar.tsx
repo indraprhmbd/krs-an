@@ -58,6 +58,8 @@ export function Navbar({
               <img
                 src="/assets/logo.webp"
                 alt="KRSan Logo"
+                width="96"
+                height="36"
                 className="h-full w-full object-contain"
               />
             </div>
@@ -130,6 +132,8 @@ export function Navbar({
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt pointer-events-none"></div>
                   <img
                     src={user?.imageUrl}
+                    width="32"
+                    height="32"
                     className="relative w-8 h-8 rounded-full border-2 border-white object-cover"
                     alt="Profile"
                   />
