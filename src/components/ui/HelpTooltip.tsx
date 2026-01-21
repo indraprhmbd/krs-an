@@ -20,6 +20,7 @@ export function HelpTooltip({ titleKey, descKey }: HelpTooltipProps) {
         <span
           role="button"
           tabIndex={0}
+          aria-label={t(titleKey)}
           className="text-slate-400 hover:text-blue-600 transition-colors inline-flex items-center align-middle ml-1 cursor-pointer outline-none"
         >
           <HelpCircle size={12} />

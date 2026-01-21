@@ -1,11 +1,11 @@
-import * as pdfjsLib from "pdfjs-dist";
-
-// Use UNPKG for worker to avoid build/bundler headaches in MVP
-// Logic: simpler than configuring workers manually in Vite
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+// Use dynamic import to avoid bundling pdfjs-dist in the main chunk
+// import * as pdfjsLib from "pdfjs-dist";
 
 export async function extractTextFromPDF(file: File): Promise<string> {
   try {
+    const pdfjsLib = await import("pdfjs-dist");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
+
     const arrayBuffer = await file.arrayBuffer();
     const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
     let fullText = "";

@@ -123,14 +123,17 @@ export function Navbar({
           ) : (
             <Popover>
               <PopoverTrigger asChild>
-                <div className="relative group cursor-pointer">
+                <button
+                  className="relative group cursor-pointer bg-transparent border-0 p-0 outline-none"
+                  type="button"
+                >
                   <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200 animate-tilt pointer-events-none"></div>
                   <img
                     src={user?.imageUrl}
                     className="relative w-8 h-8 rounded-full border-2 border-white object-cover"
                     alt="Profile"
                   />
-                </div>
+                </button>
               </PopoverTrigger>
               <PopoverContent
                 className="w-72 p-0 mr-4 mt-2 bg-white"
