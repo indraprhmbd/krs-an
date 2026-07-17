@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { BookOpen, Copy, Loader2, AlertCircle } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import {
   Select,
   SelectContent,
@@ -67,7 +67,6 @@ export function CurriculumImportDialog({
         await addCurriculum({
           prodi: importProdi,
           semester: importSemester,
-          term: importSemester % 2 === 0 ? "Even" : "Odd",
           code: cols[0],
           name: cols[1],
           sks: parseInt(cols[2]) || 0,
@@ -88,32 +87,32 @@ export function CurriculumImportDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto bg-white rounded-3xl p-8 border-none shadow-2xl custom-scrollbar">
+      <DialogContent size="3xl" className="custom-scrollbar">
         <DialogHeader className="mb-6">
           <div className="space-y-1">
-            <DialogTitle className="text-2xl font-display font-bold text-slate-900 italic flex items-center gap-3">
-              <BookOpen className="w-6 h-6 text-blue-700" />
+            <DialogTitle className="text-headline text-foreground italic flex items-center gap-3">
+              <Icon name="database" className="text-primary" size={24} />
               Curriculum Batch Importer
             </DialogTitle>
-            <DialogDescription className="text-[11px] font-mono text-slate-400 uppercase tracking-widest pt-2">
+            <DialogDescription className="text-caps font-mono text-muted-foreground uppercase pt-2">
               Define mandatory courses for a specific semester profile.
             </DialogDescription>
           </div>
         </DialogHeader>
 
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-[10px] uppercase font-mono tracking-widest text-slate-400">
+              <Label className="text-muted-foreground">
                 Target Prodi
               </Label>
               <Select value={importProdi} onValueChange={setImportProdi}>
-                <SelectTrigger className="bg-slate-50 border-none rounded-xl h-10 text-xs">
+                <SelectTrigger className="bg-muted rounded-control h-10">
                   <SelectValue placeholder="Select Prodi" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                <SelectContent className="rounded-control border-border shadow-card">
                   {prodis.map((p) => (
-                    <SelectItem key={p} value={p} className="text-xs font-mono">
+                    <SelectItem key={p} value={p} className="text-caption font-mono">
                       {p}
                     </SelectItem>
                   ))}
@@ -121,22 +120,24 @@ export function CurriculumImportDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <Label className="text-[10px] uppercase font-mono tracking-widest text-slate-400">
+              <Label className="text-muted-foreground">
                 Target Semester
               </Label>
               <Select
                 value={importSemester.toString()}
                 onValueChange={(val) => setImportSemester(parseInt(val))}
               >
-                <SelectTrigger className="bg-slate-50 border-none rounded-xl h-10 text-xs">
+                <SelectTrigger className="bg-muted rounded-control h-10">
                   <SelectValue placeholder="Select Semester" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-slate-100 shadow-xl">
+                <SelectContent className="rounded-control border-border shadow-card">
+                  {/* All 8, deliberately: an admin imports next term's
+                      curriculum before that term starts. Not validSemesters(). */}
                   {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                     <SelectItem
                       key={s}
                       value={s.toString()}
-                      className="text-xs font-mono"
+                      className="text-caption font-mono"
                     >
                       SEMESTER {s}
                     </SelectItem>
@@ -147,7 +148,7 @@ export function CurriculumImportDialog({
           </div>
 
           <div className="space-y-2">
-            <Label className="text-[10px] uppercase font-mono tracking-widest text-slate-400 italic">
+            <Label className="text-muted-foreground italic">
               Course Data Block
             </Label>
             <div className="relative group">
@@ -155,7 +156,7 @@ export function CurriculumImportDialog({
                 value={curriculumRawText}
                 onChange={(e) => setCurriculumRawText(e.target.value)}
                 placeholder="Paste here: Kode [TAB] Nama [TAB] SKS\nExample:\n123210082	Statistika	3"
-                className="min-h-[250px] bg-slate-50 border-none rounded-2xl p-6 font-mono text-xs leading-relaxed focus-visible:ring-blue-700 transition-all group-focus-within:bg-white group-focus-within:shadow-inner"
+                className="min-h-[250px] bg-muted rounded-card p-6 font-mono text-caption focus-visible:ring-ring transition-all group-focus-within:bg-card"
               />
               <div className="absolute top-4 right-4">
                 <Button
@@ -166,18 +167,18 @@ export function CurriculumImportDialog({
                     navigator.clipboard.writeText(template);
                     toast.success("Curriculum template copied");
                   }}
-                  className="h-7 px-3 text-[9px] font-mono uppercase tracking-widest text-slate-400 hover:text-blue-700 hover:bg-blue-50"
+                  className="h-7 px-3 text-caps font-mono uppercase text-muted-foreground hover:text-primary hover:bg-muted"
                 >
-                  <Copy className="w-3 h-3 mr-2" />
+                  <Icon name="copy" className="mr-2" size={12} />
                   Copy Format
                 </Button>
               </div>
             </div>
           </div>
 
-          <div className="p-4 bg-amber-50 rounded-xl border border-amber-100 flex gap-3 text-amber-700">
-            <AlertCircle className="w-4 h-4 mt-0.5" />
-            <p className="text-[10px] leading-relaxed">
+          <div className="p-4 bg-muted rounded-control border border-border flex gap-3 text-foreground">
+            <Icon name="alert" className="mt-0.5" />
+            <p className="text-caption">
               <strong>Important:</strong> Pasting items will add them to the
               selection. If you want to replace existing data, remove the
               entries from the table first. Total SKS should be verified after
@@ -186,22 +187,22 @@ export function CurriculumImportDialog({
           </div>
         </div>
 
-        <DialogFooter className="mt-8 pt-6 border-t border-slate-100">
+        <DialogFooter className="mt-8 pt-6 border-t border-border">
           <Button
             variant="ghost"
             onClick={onClose}
-            className="font-mono text-[10px] uppercase tracking-widest text-slate-400"
+            className="font-mono text-caps uppercase text-muted-foreground"
           >
             Discard
           </Button>
           <Button
             onClick={handleCurriculumBatchImport}
             disabled={isImporting || !curriculumRawText.trim()}
-            className="bg-blue-700 hover:bg-blue-800 text-white font-display font-medium px-8 rounded-xl shadow-lg shadow-blue-100 min-w-[200px]"
+            className="bg-primary text-primary-foreground font-medium px-8 rounded-control shadow-card min-w-[200px]"
           >
             {isImporting ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Icon name="spinner" className="mr-2 animate-spin" />
                 Syncing Blueprint...
               </>
             ) : (

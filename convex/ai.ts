@@ -1,17 +1,23 @@
-import { action, query, mutation } from "./_generated/server";
-import { api } from "./_generated/api";
+import {
+  action,
+  query,
+  mutation,
+  internalQuery,
+  internalMutation,
+} from "./_generated/server";
+import type { QueryCtx, MutationCtx } from "./_generated/server";
+import { api, internal } from "./_generated/api";
+import { checkAdmin } from "./admin";
 import { v } from "convex/values";
-import { ChatGroq } from "@langchain/groq";
+import Groq from "groq-sdk";
 import { z } from "zod";
-import { ChatPromptTemplate } from "@langchain/core/prompts";
 import MD5 from "crypto-js/md5";
 
-// Polyfill for LangChain in Convex Runtime
-if (!globalThis.performance) {
-  globalThis.performance = {
-    now: () => Date.now(),
-  } as any;
-}
+// Groq shut down llama-3.3-70b-versatile and llama-3.1-8b-instant on
+// 2026-08-16. Both replacements below are production tier. Keep primary and
+// fallback in different size classes so a fallback is actually meaningful.
+const PRIMARY_MODEL = "openai/gpt-oss-120b";
+const FALLBACK_MODEL = "openai/gpt-oss-20b";
 
 // Schema for Structured Output
 const SchedulePlanSchema = z.object({
@@ -29,32 +35,54 @@ const SchedulePlanSchema = z.object({
     .describe("Exactly 3 distinct schedule variations"),
 });
 
-export const checkCache = query({
+async function readCache(ctx: QueryCtx, hash: string) {
+  const cached = await ctx.db
+    .query("ai_cache")
+    .withIndex("by_hash", (q) => q.eq("hash", hash))
+    .first();
+  return cached ? cached.response : null;
+}
+
+async function writeCache(ctx: MutationCtx, hash: string, response: unknown) {
+  // Avoid duplicates if two callers write the same hash concurrently.
+  const existing = await ctx.db
+    .query("ai_cache")
+    .withIndex("by_hash", (q) => q.eq("hash", hash))
+    .first();
+
+  if (!existing) {
+    await ctx.db.insert("ai_cache", { hash, response });
+  }
+}
+
+// Internal cache access for the smartGenerate action below. Not reachable
+// from the client.
+export const checkCache = internalQuery({
+  args: { hash: v.string() },
+  handler: async (ctx, args) => readCache(ctx, args.hash),
+});
+
+export const saveCache = internalMutation({
+  args: { hash: v.string(), response: v.any() },
+  handler: async (ctx, args) => writeCache(ctx, args.hash, args.response),
+});
+
+// Public cache access for the Intelligence Scraper, which caches results from
+// the external AI cleanup service. Admin-gated: an unauthenticated writer could
+// otherwise poison ai_cache for every user.
+export const checkScraperCache = query({
   args: { hash: v.string() },
   handler: async (ctx, args) => {
-    const cached = await ctx.db
-      .query("ai_cache")
-      .withIndex("by_hash", (q) => q.eq("hash", args.hash))
-      .first();
-    return cached ? cached.response : null;
+    await checkAdmin(ctx);
+    return readCache(ctx, args.hash);
   },
 });
 
-export const saveCache = mutation({
+export const saveScraperCache = mutation({
   args: { hash: v.string(), response: v.any() },
   handler: async (ctx, args) => {
-    // Basic check to avoid duplicates if multiple clients write same cache
-    const existing = await ctx.db
-      .query("ai_cache")
-      .withIndex("by_hash", (q) => q.eq("hash", args.hash))
-      .first();
-
-    if (!existing) {
-      await ctx.db.insert("ai_cache", {
-        hash: args.hash,
-        response: args.response,
-      });
-    }
+    await checkAdmin(ctx);
+    return writeCache(ctx, args.hash, args.response);
   },
 });
 
@@ -156,7 +184,7 @@ export const smartGenerate = action({
     let aiResult: any;
 
     // 4. Check Cache
-    const cachedResponse = await ctx.runQuery(api.ai.checkCache, {
+    const cachedResponse = await ctx.runQuery(internal.ai.checkCache, {
       hash: cacheHash,
     });
 
@@ -168,35 +196,48 @@ export const smartGenerate = action({
         throw new Error("Gemini is currently unavailable. Please use Groq.");
       }
 
-      // 5. LangChain Execution Strategy with Fallback
-      // Primary: High Intelligence (70b)
-      // Fallback: High Speed/Low Cost (8b)
+      // 5. Groq execution with fallback.
+      // Primary: high intelligence. Fallback: faster and cheaper.
+      const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
       const runChain = async (modelName: string) => {
-        const model = new ChatGroq({
+        const completion = await groq.chat.completions.create({
           model: modelName,
           temperature: 0.6,
-          apiKey: process.env.GROQ_API_KEY,
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: userInput },
+          ],
+          response_format: {
+            type: "json_schema",
+            json_schema: {
+              name: "schedule_plans",
+              schema: z.toJSONSchema(SchedulePlanSchema) as Record<
+                string,
+                unknown
+              >,
+            },
+          },
         });
-        const structuredModel = model.withStructuredOutput(SchedulePlanSchema);
-        const promptTemplate = ChatPromptTemplate.fromMessages([
-          ["system", systemPrompt],
-          ["human", "{input}"],
-        ]);
-        const chain = promptTemplate.pipe(structuredModel);
-        return await chain.invoke({ input: userInput });
+
+        const raw = completion.choices[0]?.message?.content;
+        if (!raw) throw new Error("Model returned an empty response");
+
+        // Parse through zod rather than trusting the model. Combined with the
+        // courseId reconstruction below, a malformed plan is dropped, not used.
+        return SchedulePlanSchema.parse(JSON.parse(raw));
       };
 
       try {
-        console.log("Attempting generation with llama-3.3-70b-versatile...");
-        aiResult = await runChain("llama-3.3-70b-versatile");
+        console.log(`Attempting generation with ${PRIMARY_MODEL}...`);
+        aiResult = await runChain(PRIMARY_MODEL);
       } catch (primaryError: any) {
         console.warn(
-          "Primary model failed, attempting fallback to 8b...",
+          `Primary model failed, falling back to ${FALLBACK_MODEL}...`,
           primaryError.message,
         );
         try {
-          aiResult = await runChain("llama-3.1-8b-instant");
+          aiResult = await runChain(FALLBACK_MODEL);
         } catch (fallbackError: any) {
           console.error("Fallback model also failed:", fallbackError);
           throw new Error(
@@ -207,7 +248,7 @@ export const smartGenerate = action({
 
       // Save to cache if successful (regardless of which model won)
       if (aiResult) {
-        await ctx.runMutation(api.ai.saveCache, {
+        await ctx.runMutation(internal.ai.saveCache, {
           hash: cacheHash,
           response: aiResult,
         });

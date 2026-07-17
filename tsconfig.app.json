@@ -23,8 +23,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true,
 
-    /* Paths */
-    "baseUrl": ".",
+    /* Paths. No baseUrl: deprecated in TS 6, removed in TS 7. Path mappings
+       resolve relative to this file, which sits at the project root. */
     "paths": {
       "@/*": ["./src/*"]
     }

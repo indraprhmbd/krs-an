@@ -1,11 +1,60 @@
 import { Badge } from "@/components/ui/badge";
-import type { Course, DayOfWeek } from "../types";
+import type { Course, DayOfWeek, TimeSlot } from "../types";
 import { checkConflicts } from "../lib/rules";
 
 const DAYS: DayOfWeek[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const START_HOUR = 7;
 const END_HOUR = 18; // 6 PM
 const ROWS_PER_HOUR = 2; // 30 min slots
+
+/**
+ * Height of one 30-minute row, in rem.
+ *
+ * This value was written out three times: the grid track definition and the
+ * two expressions computing a block's `top` and `height`. All three must agree
+ * or blocks land at the wrong time, and nothing would catch the drift, so it
+ * is one constant. The track is a fixed size, which is what keeps the absolute
+ * positioning honest: content cannot stretch a row.
+ */
+const ROW_REM = 1.75;
+
+/**
+ * Source data mixes English and Indonesian day names, in full and abbreviated
+ * form. This was inlined three times; it is one function now.
+ */
+const DAY_ALIASES: Record<string, string> = {
+  mon: "mon",
+  senin: "mon",
+  tue: "tue",
+  selasa: "tue",
+  wed: "wed",
+  rabu: "wed",
+  thu: "thu",
+  kamis: "thu",
+  fri: "fri",
+  jumat: "fri",
+  "jum'at": "fri",
+  jum: "fri",
+  sat: "sat",
+  sabtu: "sat",
+};
+
+function normalizeDay(raw: string): string {
+  const lower = (raw || "").toLowerCase().trim();
+  return (
+    DAY_ALIASES[lower] ||
+    DAY_ALIASES[lower.slice(0, 3)] ||
+    (lower.includes("jum") ? "fri" : lower.slice(0, 3))
+  );
+}
+
+const slotIsOnDay = (slot: TimeSlot, day: DayOfWeek) =>
+  normalizeDay(slot.day) === day.toLowerCase();
+
+const toMinutes = (t: string) => {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+};
 
 export function ScheduleGrid({
   courses,
@@ -22,18 +71,33 @@ export function ScheduleGrid({
     conflictMessages.some((m) => m.includes(c.name) && m.includes(c.class));
 
   return (
-    <div className="bg-slate-50/50 rounded-xl border border-slate-200 shadow-inner p-1 h-full flex flex-col">
-      <div className="bg-white rounded-lg border border-slate-100 shadow-2xl shadow-blue-50/50 flex-1 relative overflow-auto custom-scrollbar">
+    <div className="flex h-full flex-col">
+      {/*
+        Below md the time grid is unusable: six columns at a readable width
+        needs ~700px, which meant every phone got horizontal scrolling. Small
+        screens get a day-grouped agenda instead, which is the same information
+        in a shape that fits. Breakpoints alone cannot fix a grid that does not
+        fit; it needs a different layout.
+      */}
+      <div className="min-h-0 flex-1 overflow-y-auto custom-scrollbar md:hidden">
+        <Agenda
+          courses={courses}
+          isConflicted={isConflicted}
+          isCourseCentric={isCourseCentric}
+        />
+      </div>
+
+      <div className="hidden min-h-0 flex-1 overflow-auto rounded-card border border-border bg-card custom-scrollbar md:block">
         <div
-          className="grid grid-cols-[50px_repeat(6,minmax(100px,1fr))] md:grid-cols-[60px_repeat(6,1fr)] min-w-[700px] md:min-w-0"
-          style={{ gridTemplateRows: `auto repeat(${slots}, 1.5rem)` }}
+          className="grid grid-cols-[60px_repeat(6,1fr)]"
+          style={{ gridTemplateRows: `auto repeat(${slots}, ${ROW_REM}rem)` }}
         >
           {/* Header */}
-          <div className="p-1.5 border-b border-r bg-slate-50 sticky top-0 left-0 z-30 grid-col-1 grid-row-1"></div>
+          <div className="sticky left-0 top-0 z-30 border-b border-r border-border bg-muted p-1.5"></div>
           {DAYS.map((d, i) => (
             <div
               key={d}
-              className="p-1.5 border-b border-r font-display font-bold text-center bg-slate-50 text-slate-500 text-[9px] uppercase tracking-wider sticky top-0 z-20"
+              className="sticky top-0 z-20 border-b border-r border-border bg-muted p-1.5 text-center text-caps uppercase text-muted-foreground"
               style={{ gridColumn: i + 2, gridRow: 1 }}
             >
               {d}
@@ -42,7 +106,7 @@ export function ScheduleGrid({
 
           {/* Time Column */}
           <div
-            className="grid sticky left-0 z-20 bg-white"
+            className="sticky left-0 z-20 grid bg-card"
             style={{
               gridTemplateRows: `repeat(${slots}, 1fr)`,
               gridColumn: 1,
@@ -55,7 +119,8 @@ export function ScheduleGrid({
               return (
                 <div
                   key={i}
-                  className="border-b border-r px-1 text-[8px] text-right text-slate-400 font-mono flex items-center justify-end h-6"
+                  style={{ height: `${ROW_REM}rem` }}
+                  className="flex items-center justify-end border-b border-r border-border px-1 text-right font-mono text-grid text-muted-foreground"
                 >
                   {m === "00" ? `${String(h).padStart(2, "0")}:00` : ""}
                 </div>
@@ -64,134 +129,174 @@ export function ScheduleGrid({
           </div>
 
           {/* Days Columns */}
-          {DAYS.map((day, dayIdx) => {
-            const dayMap: Record<string, string> = {
-              mon: "mon",
-              senin: "mon",
-              tue: "tue",
-              selasa: "tue",
-              wed: "wed",
-              rabu: "wed",
-              thu: "thu",
-              kamis: "thu",
-              fri: "fri",
-              jumat: "fri",
-              "jum'at": "fri",
-              jum: "fri",
-              sat: "sat",
-              sabtu: "sat",
-            };
+          {DAYS.map((day, dayIdx) => (
+            <div
+              key={day}
+              className="relative"
+              style={{
+                gridRow: `2 / span ${slots}`,
+                gridColumn: dayIdx + 2,
+              }}
+            >
+              {/* Vertical border per column */}
+              <div className="absolute inset-y-0 right-0 z-0 w-px bg-border"></div>
 
-            return (
+              {/* Grid lines */}
               <div
-                key={day}
-                className="relative"
-                style={{
-                  gridRow: `2 / span ${slots}`,
-                  gridColumn: dayIdx + 2,
-                }}
+                className="absolute inset-0 z-0 grid"
+                style={{ gridTemplateRows: `repeat(${slots}, 1fr)` }}
               >
-                {/* Vertical border per column */}
-                <div className="absolute inset-y-0 right-0 w-px bg-slate-100 z-0"></div>
-
-                {/* Grid lines */}
-                <div
-                  className="absolute inset-0 grid z-0"
-                  style={{ gridTemplateRows: `repeat(${slots}, 1fr)` }}
-                >
-                  {Array.from({ length: slots }).map((_, i) => (
-                    <div
-                      key={i}
-                      className={`border-b h-6 ${i % 2 === 1 ? "border-slate-50/50" : "border-slate-100"}`}
-                    ></div>
-                  ))}
-                </div>
-
-                {/* Courses */}
-                {courses
-                  .filter((c) =>
-                    c.schedule.some((s) => {
-                      const lower = (s.day || "").toLowerCase().trim();
-                      const normalized =
-                        dayMap[lower] ||
-                        dayMap[lower.slice(0, 3)] ||
-                        (lower.includes("jum") ? "fri" : lower.slice(0, 3));
-                      return normalized === day.toLowerCase();
-                    }),
-                  )
-                  .map((c) => {
-                    return c.schedule
-                      .filter((s) => {
-                        const lower = (s.day || "").toLowerCase().trim();
-                        const normalized =
-                          dayMap[lower] ||
-                          dayMap[lower.slice(0, 3)] ||
-                          (lower.includes("jum") ? "fri" : lower.slice(0, 3));
-                        return normalized === day.toLowerCase();
-                      })
-                      .map((s, idx) => {
-                        const startMin =
-                          (Number(s.start.split(":")[0]) - START_HOUR) * 60 +
-                          Number(s.start.split(":")[1]);
-                        const durationMin =
-                          Number(s.end.split(":")[0]) * 60 +
-                          Number(s.end.split(":")[1]) -
-                          (Number(s.start.split(":")[0]) * 60 +
-                            Number(s.start.split(":")[1]));
-
-                        const top = (startMin / 30) * 1.5;
-                        const height = (durationMin / 30) * 1.5;
-                        const conflicted = isConflicted(c);
-
-                        return (
-                          <div
-                            key={`${c.id}-${idx}`}
-                            className={`absolute left-[1px] right-[1px] rounded-[2px] p-1 text-[8px] border shadow-sm flex flex-col justify-start overflow-hidden hover:z-40 transition-all ${
-                              conflicted
-                                ? "bg-red-50 border-red-200 border-l-2 border-l-red-600"
-                                : "bg-white hover:bg-blue-50 border-blue-200 border-l-2 border-l-blue-600"
-                            }`}
-                            style={{ top: `${top}rem`, height: `${height}rem` }}
-                          >
-                            <div className="flex justify-between items-start mb-0 overflow-hidden leading-none">
-                              <span
-                                className={`font-mono font-bold truncate mr-0.5 scale-90 origin-left ${conflicted ? "text-red-700" : "text-blue-700"}`}
-                              >
-                                {c.code}
-                              </span>
-                              <Badge
-                                variant="outline"
-                                className="text-[6px] h-2.5 px-0.5 shrink-0 rounded-[1px] border-blue-100"
-                              >
-                                {c.class}
-                              </Badge>
-                            </div>
-                            <span className="font-bold text-slate-800 leading-[1] line-clamp-1 mt-0.5">
-                              {c.name}
-                            </span>
-                            {!isCourseCentric && (
-                              <div className="mt-auto flex items-center justify-between text-[7px] text-slate-500 font-bold font-mono">
-                                <span className="truncate">
-                                  {c.lecturer.split(",")[0]}
-                                </span>
-                              </div>
-                            )}
-                            {isCourseCentric && (
-                              <div className="mt-auto flex items-center justify-between text-[7px] text-blue-600 font-bold font-mono">
-                                <span className="truncate">
-                                  RM: {c.room || "TBA"}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      });
-                  })}
+                {Array.from({ length: slots }).map((_, i) => (
+                  <div
+                    key={i}
+                    style={{ height: `${ROW_REM}rem` }}
+                    className={`border-b ${i % 2 === 1 ? "border-border/40" : "border-border"}`}
+                  ></div>
+                ))}
               </div>
-            );
-          })}
+
+              {/* Courses */}
+              {courses
+                .filter((c) => c.schedule.some((s) => slotIsOnDay(s, day)))
+                .map((c) =>
+                  c.schedule
+                    .filter((s) => slotIsOnDay(s, day))
+                    .map((s, idx) => {
+                      const startMin = toMinutes(s.start) - START_HOUR * 60;
+                      const durationMin = toMinutes(s.end) - toMinutes(s.start);
+
+                      const top = (startMin / 30) * ROW_REM;
+                      const height = (durationMin / 30) * ROW_REM;
+                      const conflicted = isConflicted(c);
+
+                      return (
+                        <div
+                          key={`${c.id}-${idx}`}
+                          className={`absolute left-[1px] right-[1px] flex flex-col justify-start overflow-hidden rounded-[3px] border border-l-2 p-1 text-grid transition-colors hover:z-40 ${
+ conflicted
+ ? "border-destructive/40 border-l-destructive bg-destructive/10"
+ : "border-border border-l-primary bg-card hover:bg-accent"
+ }`}
+                          style={{ top: `${top}rem`, height: `${height}rem` }}
+                        >
+                          <div className="mb-0 flex items-start justify-between overflow-hidden">
+                            <span
+                              className={`mr-0.5 truncate font-mono ${conflicted ? "text-destructive" : "text-primary"}`}
+                            >
+                              {c.code}
+                            </span>
+                            <Badge
+                              variant="outline"
+                              className="h-3.5 shrink-0 rounded-[2px] border-transparent bg-muted px-1 text-grid-meta text-muted-foreground"
+                            >
+                              {c.class}
+                            </Badge>
+                          </div>
+                          <span className="mt-0.5 line-clamp-1 font-bold text-foreground">
+                            {c.name}
+                          </span>
+                          <div className="mt-auto flex items-center justify-between font-mono text-grid-meta font-bold text-muted-foreground">
+                            <span className="truncate">
+                              {isCourseCentric
+                                ? `RM: ${c.room || "TBA"}`
+                                : c.lecturer.split(",")[0]}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    }),
+                )}
+            </div>
+          ))}
         </div>
       </div>
+    </div>
+  );
+}
+
+/** Mobile view: the same schedule grouped by day, in reading order. */
+function Agenda({
+  courses,
+  isConflicted,
+  isCourseCentric,
+}: {
+  courses: Course[];
+  isConflicted: (c: Course) => boolean;
+  isCourseCentric?: boolean;
+}) {
+  const byDay = DAYS.map((day) => {
+    const entries = courses
+      .flatMap((course) =>
+        course.schedule
+          .filter((slot) => slotIsOnDay(slot, day))
+          .map((slot) => ({ course, slot })),
+      )
+      .sort((a, b) => toMinutes(a.slot.start) - toMinutes(b.slot.start));
+    return { day, entries };
+  }).filter((d) => d.entries.length > 0);
+
+  if (byDay.length === 0) {
+    return (
+      <p className="py-12 text-center text-body text-muted-foreground">
+        No classes scheduled.
+      </p>
+    );
+  }
+
+  return (
+    <div className="space-y-3 pb-2">
+      {byDay.map(({ day, entries }) => (
+        <section key={day}>
+          <h3 className="sticky top-0 z-10 mb-1.5 bg-background py-1 text-caps uppercase text-muted-foreground">
+            {day}
+          </h3>
+          <ul className="space-y-1.5">
+            {entries.map(({ course, slot }, idx) => {
+              const conflicted = isConflicted(course);
+              return (
+                <li
+                  key={`${course.id}-${idx}`}
+                  className={`flex gap-2.5 rounded-card border border-l-2 bg-card p-2.5 ${
+ conflicted
+ ? "border-destructive/40 border-l-destructive"
+ : "border-border border-l-primary"
+ }`}
+                >
+                  <div className="shrink-0 font-mono text-caption text-muted-foreground">
+                    <div className="font-bold text-foreground">{slot.start}</div>
+                    <div>{slot.end}</div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline gap-1.5">
+                      <span
+                        className={`font-mono text-caption font-bold ${conflicted ? "text-destructive" : "text-primary"}`}
+                      >
+                        {course.code}
+                      </span>
+                      <Badge variant="outline" className="h-4 px-1 text-caption">
+                        {course.class}
+                      </Badge>
+                    </div>
+                    <p className="truncate text-caption font-semibold text-foreground">
+                      {course.name}
+                    </p>
+                    <p className="truncate font-mono text-caption text-muted-foreground">
+                      {isCourseCentric
+                        ? `RM: ${course.room || "TBA"}`
+                        : course.lecturer.split(",")[0]}
+                    </p>
+                  </div>
+                  {conflicted && (
+                    <span className="shrink-0 self-center font-mono text-caption font-bold uppercase text-destructive">
+                      Clash
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      ))}
     </div>
   );
 }

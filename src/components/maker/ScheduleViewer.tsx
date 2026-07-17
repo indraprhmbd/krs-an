@@ -1,17 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  ChevronLeft,
-  ChevronRight,
-  RefreshCw,
-  Sparkles,
-  ClipboardCheck,
-  RotateCcw,
-  Wand2,
-  LayoutList,
-  Printer,
-} from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { ScheduleGrid } from "../ScheduleGrid";
 import type { Plan, Course } from "@/types";
 import { checkConflicts } from "../../lib/rules";
@@ -33,6 +23,7 @@ import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import { HelpTooltip } from "../ui/HelpTooltip";
 import { getProdiConfig } from "../../lib/prodi";
+import { useLanguage } from "../../context/LanguageContext";
 
 interface ScheduleViewerProps {
   plans: Plan[];
@@ -67,6 +58,7 @@ export function ScheduleViewer({
   isGenerating,
   prodi,
 }: ScheduleViewerProps) {
+  const { t } = useLanguage();
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
   const prodiConfig = getProdiConfig(prodi || "");
   const currentPlan = plans[currentPlanIndex];
@@ -106,7 +98,7 @@ export function ScheduleViewer({
   const handleReset = () => {
     if (!onUpdatePlan) return;
     onUpdatePlan([]);
-    toast.info("Selections cleared. Start fresh!");
+    toast.info(t("toast.selections_cleared"));
   };
 
   const handleQuickFix = () => {
@@ -127,11 +119,11 @@ export function ScheduleViewer({
     }
 
     onUpdatePlan(fixedCombo);
-    toast.success("Applied quick fix for conflicts!");
+    toast.success(t("toast.quick_fix"));
   };
 
   const renderInventory = () => (
-    <div className="divide-y divide-slate-100/80 text-[11px]">
+    <div className="divide-y divide-border/80 text-caption">
       {uniqueCodes.map((code) => {
         const variations = groupedVariations[code] || [];
         const c = currentPlan.courses.find((cp) => cp.code === code);
@@ -146,20 +138,20 @@ export function ScheduleViewer({
           return (
             <div
               key={code}
-              className="p-4 bg-slate-50/50 border-l-4 border-l-slate-200 transition-all hover:bg-slate-100/50"
+              className="p-4 bg-muted/50 border-l-4 border-l-border transition-all hover:bg-accent/50"
             >
               <div className="flex justify-between items-start mb-1">
-                <span className="text-[9px] font-mono text-slate-400 uppercase font-black tracking-widest">
+                <span className="text-caps font-mono text-muted-foreground uppercase">
                   {code}
                 </span>
                 <Badge
                   variant="outline"
-                  className="text-[7px] h-3.5 px-0.5 border-slate-200 text-slate-400 font-extrabold rounded-[2px] tracking-tighter"
+                  className="text-grid-meta h-3.5 px-0.5 border-border text-muted-foreground rounded-[2px] tracking-tighter"
                 >
                   UNSELECTED
                 </Badge>
               </div>
-              <h4 className="font-bold text-slate-500 text-[11px] leading-tight line-clamp-2 mb-3">
+              <h4 className="font-bold text-muted-foreground text-caption line-clamp-2 mb-3">
                 {sampleCourse?.name || "Unknown Course"}
               </h4>
               <Select
@@ -168,10 +160,10 @@ export function ScheduleViewer({
                   if (variation) handleUpdateCourse(code, variation);
                 }}
               >
-                <SelectTrigger className="w-full h-8 text-[10px] font-black uppercase tracking-widest border-2 border-dashed border-slate-200 text-slate-400 hover:border-blue-400 hover:text-blue-600 rounded-xl bg-white shadow-sm">
+                <SelectTrigger className="w-full h-8 border-2 border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary rounded-xl bg-card">
                   <SelectValue placeholder="+" />
                 </SelectTrigger>
-                <SelectContent className="rounded-2xl border-none shadow-2xl">
+                <SelectContent>
                   {variations.map((v) => (
                     <SelectItem
                       key={v.id}
@@ -179,23 +171,23 @@ export function ScheduleViewer({
                       textValue={
                         prodiConfig.isCourseCentric
                           ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
-                          : `Class ${v.class} • ${v.lecturer.split(",")[0]} • ${v.schedule[0]?.day} ${v.schedule[0]?.start}`
+                          : `Class ${v.class} | ${v.lecturer.split(",")[0]} | ${v.schedule[0]?.day} ${v.schedule[0]?.start}`
                       }
-                      className="rounded-xl px-3 py-2 cursor-pointer focus:bg-blue-50"
+                      className="rounded-xl px-3 py-2 cursor-pointer focus:bg-muted"
                     >
                       <div className="flex flex-col min-w-0">
-                        <span className="font-bold text-[11px] text-slate-900">
+                        <span className="font-bold text-caption text-foreground">
                           {prodiConfig.isCourseCentric
                             ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
                             : `Class ${v.class}`}
                         </span>
                         {!prodiConfig.isCourseCentric && (
-                          <span className="text-slate-500 text-[9px] font-medium truncate italic">
+                          <span className="text-muted-foreground text-caption font-medium truncate italic">
                             {v.lecturer}
                           </span>
                         )}
                         <span
-                          className={`text-blue-600 text-[8px] font-mono font-bold mt-0.5 ${prodiConfig.isCourseCentric ? "text-slate-400" : ""}`}
+                          className={`text-primary text-grid font-mono font-bold mt-0.5 ${prodiConfig.isCourseCentric ? "text-muted-foreground" : ""}`}
                         >
                           {prodiConfig.isCourseCentric
                             ? `Class ${v.class}`
@@ -216,43 +208,43 @@ export function ScheduleViewer({
           <div
             key={code}
             className={`p-4 transition-colors group flex flex-col gap-2 ${
-              isConflicted ? "bg-red-50" : "hover:bg-slate-50/50"
-            }`}
+ isConflicted ? "bg-destructive/10" : "hover:bg-muted/50"
+ }`}
           >
             <div className="flex justify-between items-start">
               <div className="flex flex-col min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-[9px] font-mono text-slate-500 uppercase font-bold">
+                  <span className="text-caption font-mono text-muted-foreground uppercase font-bold">
                     {c.code}
                   </span>
                   {isConflicted && (
                     <Badge
                       variant="destructive"
-                      className="text-[8px] h-3.5 px-1.5 font-bold"
+                      className="text-grid h-3.5 px-1.5 font-bold"
                     >
                       CONFLICT
                     </Badge>
                   )}
                 </div>
-                <h4 className="font-bold text-slate-900 group-hover:text-blue-700 transition-colors text-[11px] leading-tight line-clamp-2">
+                <h4 className="font-bold text-foreground group-hover:text-primary transition-colors text-caption line-clamp-2">
                   {c.name}
                 </h4>
                 {!prodiConfig.isCourseCentric && (
-                  <p className="text-[10px] font-medium text-slate-500 mt-1 truncate italic">
+                  <p className="text-caption font-medium text-muted-foreground mt-1 truncate italic">
                     {c.lecturer || "No Lecturer"}
                   </p>
                 )}
               </div>
               <Badge
                 variant="outline"
-                className="text-[8px] h-4 px-1.5 font-mono border-slate-200 text-slate-600 bg-white shrink-0 ml-3 font-bold"
+                className="text-grid h-4 px-1.5 font-mono border-border text-muted-foreground bg-card shrink-0 ml-3 font-bold"
               >
                 {c.sks} SKS
               </Badge>
             </div>
 
             {isManualEdit && (
-              <div className="pt-1 mt-1 border-t border-slate-100/50">
+              <div className="pt-1 mt-1 border-t border-border/50">
                 <Select
                   value={c.id}
                   onValueChange={(value) => {
@@ -262,7 +254,7 @@ export function ScheduleViewer({
                           (curr: any) => curr.code !== c.code,
                         );
                         onUpdatePlan(nextCourses);
-                        toast.success(`Removed ${c.code} from schedule`);
+                        toast.success(t("toast.course_removed_code", { code: c.code }));
                       }
                       return;
                     }
@@ -270,17 +262,17 @@ export function ScheduleViewer({
                     if (variation) handleUpdateCourse(c.code, variation);
                   }}
                 >
-                  <SelectTrigger className="h-7 text-[10px] font-bold px-3 border-slate-200 bg-white hover:bg-slate-50 rounded-lg w-full min-w-[100px]">
+                  <SelectTrigger className="h-7 px-3 border-border bg-card hover:bg-accent rounded-lg w-full min-w-[100px]">
                     <span className="truncate w-full text-left block">
                       {prodiConfig.isCourseCentric
                         ? `${c.schedule[0]?.day} ${c.schedule[0]?.start} @ ${c.room || "TBA"}`
-                        : `Class ${c.class} • ${c.lecturer.split(",")[0]} • ${c.schedule[0]?.day} ${c.schedule[0]?.start}`}
+                        : `Class ${c.class} | ${c.lecturer.split(",")[0]} | ${c.schedule[0]?.day} ${c.schedule[0]?.start}`}
                     </span>
                   </SelectTrigger>
-                  <SelectContent className="rounded-2xl border-none shadow-2xl">
+                  <SelectContent>
                     <SelectItem
                       value="remove"
-                      className="rounded-xl px-3 py-2 cursor-pointer focus:bg-red-50 text-red-500 font-bold text-[11px]"
+                      className="rounded-xl px-3 py-2 cursor-pointer focus:bg-destructive/10 text-destructive font-bold text-caption"
                     >
                       <div className="flex items-center gap-2">
                         <span>Minify / Remove Selection</span>
@@ -293,24 +285,24 @@ export function ScheduleViewer({
                         textValue={
                           prodiConfig.isCourseCentric
                             ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
-                            : `Class ${v.class} • ${v.lecturer.split(",")[0]} • ${v.schedule[0]?.day} ${v.schedule[0]?.start}`
+                            : `Class ${v.class} | ${v.lecturer.split(",")[0]} | ${v.schedule[0]?.day} ${v.schedule[0]?.start}`
                         }
-                        className="rounded-xl px-3 py-2 cursor-pointer focus:bg-blue-50"
+                        className="rounded-xl px-3 py-2 cursor-pointer focus:bg-muted"
                       >
                         <div className="flex items-center justify-between w-full gap-2">
                           <div className="flex flex-col min-w-0 flex-1">
-                            <span className="font-bold text-[11px] text-slate-900">
+                            <span className="font-bold text-caption text-foreground">
                               {prodiConfig.isCourseCentric
                                 ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
                                 : `Class ${v.class}`}
                             </span>
                             {!prodiConfig.isCourseCentric && (
-                              <span className="text-slate-500 text-[9px] font-medium truncate">
+                              <span className="text-muted-foreground text-caption font-medium truncate">
                                 {v.lecturer}
                               </span>
                             )}
                             <span
-                              className={`text-blue-600 text-[8px] font-mono font-bold mt-0.5 ${prodiConfig.isCourseCentric ? "text-slate-400" : ""}`}
+                              className={`text-primary text-grid font-mono font-bold mt-0.5 ${prodiConfig.isCourseCentric ? "text-muted-foreground" : ""}`}
                             >
                               {prodiConfig.isCourseCentric
                                 ? `Class ${v.class}`
@@ -349,27 +341,38 @@ export function ScheduleViewer({
             margin: 0;
           }
           .no-print { display: none !important; }
-          .bg-slate-50, .bg-slate-50/50, .bg-slate-50\/50 { background-color: white !important; }
-          .shadow-xl, .shadow-sm, .shadow-2xl { box-shadow: none !important; }
-          .border { border-color: #e2e8f0 !important; }
-          .rounded-2xl { border-radius: 8px !important; }
+          /*
+            Flatten for ink by moving the tokens, not by naming utilities. The
+            rules here used to target .bg-slate-50 / .shadow-xl / .rounded-2xl,
+            none of which the app emits any more. Because @theme inline compiles
+            bg-card to var(--card), re-pointing the token reaches every surface.
+          */
+          :root {
+            --background: #fff;
+            --card: #fff;
+            --muted: #fff;
+            --accent: #fff;
+            --border: #cbd5e1;
+            --foreground: #000;
+          }
+          .shadow-card, .shadow-overlay { box-shadow: none !important; }
         }
       `,
         }}
       />
 
-      <div className="flex items-center gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm no-print shrink-0 overflow-x-auto no-scrollbar">
+      <div className="flex items-center gap-2 bg-card p-2 rounded-panel border border-border no-print shrink-0 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-1.5 shrink-0">
           <Button
             variant="outline"
             size="icon"
             onClick={onBack}
-            className="w-8 h-8 shrink-0 rounded-lg border-slate-200 hover:bg-slate-50"
+            className="w-8 h-8 shrink-0 rounded-lg border-border hover:bg-accent"
           >
-            <ChevronLeft className="w-4 h-4" />
+            <Icon name="chevron-left" />
           </Button>
           <div className="min-w-0 hidden xs:block max-w-[120px] sm:max-w-none">
-            <h2 className="text-[10px] sm:text-sm font-bold font-display text-slate-900 truncate">
+            <h2 className="text-caption sm:text-body font-bold text-foreground truncate">
               {currentPlan.name}
             </h2>
           </div>
@@ -377,7 +380,7 @@ export function ScheduleViewer({
 
         <div className="flex items-center gap-1.5 no-print ml-auto">
           {!isManualEdit && plans.length > 1 && (
-            <div className="flex items-center bg-slate-50 rounded-lg p-0.5 gap-0.5">
+            <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
               <Button
                 variant="ghost"
                 size="icon"
@@ -388,9 +391,9 @@ export function ScheduleViewer({
                   )
                 }
               >
-                <ChevronLeft className="w-3 h-3" />
+                <Icon name="chevron-left" size={12} />
               </Button>
-              <span className="text-[9px] font-bold font-mono px-1">
+              <span className="text-caption font-bold font-mono px-1">
                 {currentPlanIndex + 1}/{plans.length}
               </span>
               <Button
@@ -403,7 +406,7 @@ export function ScheduleViewer({
                   )
                 }
               >
-                <ChevronRight className="w-3 h-3" />
+                <Icon name="chevron-right" size={12} />
               </Button>
             </div>
           )}
@@ -416,12 +419,10 @@ export function ScheduleViewer({
                   size="sm"
                   onClick={onShuffle}
                   disabled={isGenerating}
-                  className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-slate-200 text-slate-600 hover:text-blue-600"
+                  className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-border text-muted-foreground hover:text-primary"
                 >
-                  <RefreshCw
-                    className={`w-3.5 h-3.5 ${isGenerating ? "animate-spin" : ""}`}
-                  />
-                  <span className="hidden sm:inline ml-1.5 text-[9px] font-bold uppercase tracking-wider">
+                  <Icon name="refresh" className={isGenerating ? "animate-spin" : ""} size={14} />
+                  <span className="hidden sm:inline ml-1.5 text-caps uppercase">
                     Shuffle
                   </span>
                 </Button>
@@ -440,12 +441,10 @@ export function ScheduleViewer({
                     size="sm"
                     onClick={onExpand}
                     disabled={isGenerating}
-                    className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-slate-200 text-slate-600 hover:text-violet-600"
+                    className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-border text-muted-foreground hover:text-primary"
                   >
-                    <Sparkles
-                      className={`w-3.5 h-3.5 ${isGenerating ? "animate-pulse" : ""}`}
-                    />
-                    <span className="hidden sm:inline ml-1.5 text-[9px] font-bold uppercase tracking-wider">
+                    <Icon name="sparkles" className={isGenerating ? "animate-pulse" : ""} size={14} />
+                    <span className="hidden sm:inline ml-1.5 text-caps uppercase">
                       Expand
                     </span>
                   </Button>
@@ -466,10 +465,10 @@ export function ScheduleViewer({
                 variant="outline"
                 size="sm"
                 onClick={handleQuickFix}
-                className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-slate-200 text-slate-600 hover:text-blue-600"
+                className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-border text-muted-foreground hover:text-primary"
               >
-                <Wand2 className="w-3.5 h-3.5 text-blue-500" />
-                <span className="hidden sm:inline ml-1.5 text-[9px] font-bold uppercase tracking-wider">
+                <Icon name="sparkles" className="text-primary" size={14} />
+                <span className="hidden sm:inline ml-1.5 text-caps uppercase">
                   Fix Conflicts
                 </span>
               </Button>
@@ -484,10 +483,10 @@ export function ScheduleViewer({
                 variant="outline"
                 size="sm"
                 onClick={handleReset}
-                className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-slate-200 text-slate-600 hover:text-red-600"
+                className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-border text-muted-foreground hover:text-destructive"
               >
-                <RotateCcw className="w-3.5 h-3.5 text-slate-400" />
-                <span className="hidden sm:inline ml-1.5 text-[9px] font-bold uppercase tracking-wider">
+                <Icon name="refresh" className="text-muted-foreground" size={14} />
+                <span className="hidden sm:inline ml-1.5 text-caps uppercase">
                   Reset
                 </span>
               </Button>
@@ -495,12 +494,12 @@ export function ScheduleViewer({
           )}
         </div>
 
-        <div className="flex items-center gap-2 pl-2 border-l border-slate-100 h-8 shrink-0">
+        <div className="flex items-center gap-2 pl-2 border-l border-border h-8 shrink-0">
           <div className="text-right min-w-[50px]">
-            <p className="text-[6px] font-mono text-slate-400 uppercase tracking-tighter leading-none mb-0.5">
+            <p className="text-caps font-mono text-muted-foreground uppercase mb-0.5">
               SKS
             </p>
-            <span className="text-lg font-display font-black text-blue-600 leading-none">
+            <span className="text-title text-primary">
               {totalSKS}
             </span>
           </div>
@@ -510,17 +509,17 @@ export function ScheduleViewer({
               <Button
                 variant="outline"
                 size="icon"
-                className="lg:hidden w-8 h-8 rounded-lg bg-blue-50 border-blue-100 text-blue-600 shadow-sm"
+                className="lg:hidden w-8 h-8 rounded-lg bg-muted border-border text-primary"
               >
-                <LayoutList className="w-4 h-4" />
+                <Icon name="list" />
               </Button>
             </DialogTrigger>
-            <DialogContent className="p-0 w-[95vw] sm:max-w-[425px] h-[80vh] flex flex-col overflow-hidden rounded-[2.5rem] sm:rounded-3xl bg-white border-none shadow-2xl">
-              <DialogHeader className="p-4 border-b shrink-0">
-                <DialogTitle className="text-sm font-display flex items-center justify-between pr-8">
+            <DialogContent size="md" padded={false}>
+              <DialogHeader className="p-4 border-b border-border shrink-0">
+                <DialogTitle className="text-body flex items-center justify-between pr-8">
                   <div className="flex items-center gap-2">
                     <span>Course Inventory</span>
-                    <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none px-2 rounded-full text-[10px]">
+                    <Badge className="border-transparent bg-primary/10 px-2 text-caption text-primary">
                       {currentPlan.courses.length}
                     </Badge>
                   </div>
@@ -532,15 +531,13 @@ export function ScheduleViewer({
                       setIsInventoryOpen(false);
                     }}
                     disabled={isSaving || (isManualEdit && !valid)}
-                    className={`h-7 px-3 font-display text-[9px] font-black uppercase rounded-lg transition-all ${
-                      valid
-                        ? "bg-blue-600 text-white hover:bg-blue-700"
-                        : "bg-slate-100 text-slate-400"
-                    }`}
+                    className={`h-7 px-3 text-caption uppercase rounded-lg transition-all ${
+ valid
+ ? "bg-primary text-primary-foreground hover:bg-primary/90"
+ : "bg-muted text-muted-foreground"
+ }`}
                   >
-                    <ClipboardCheck
-                      className={`w-3 h-3 mr-1 ${isSaving ? "animate-pulse" : ""}`}
-                    />
+                    <Icon name="check" className={`mr-1 ${isSaving ? "animate-pulse" : ""}`} size={12} />
                     {isSaving ? "Saving..." : isManualEdit ? "Commit" : "Save"}
                   </Button>
                 </DialogTitle>
@@ -557,7 +554,7 @@ export function ScheduleViewer({
         id="printable-area"
         className="flex lg:grid lg:grid-cols-[1.2fr_380px] gap-4 md:gap-8 items-stretch flex-1 min-h-0 overflow-hidden pb-4"
       >
-        <div className="w-full bg-white p-1 rounded-2xl md:p-2 md:rounded-3xl border border-slate-200 shadow-sm overflow-auto custom-scrollbar flex flex-col flex-1">
+        <div className="w-full bg-card p-1 rounded-panel md:p-2 md:rounded-panel border border-border overflow-auto custom-scrollbar flex flex-col flex-1">
           <div className="flex-1 min-h-0">
             <ScheduleGrid
               courses={currentPlan.courses}
@@ -567,13 +564,13 @@ export function ScheduleViewer({
         </div>
 
         <div className="hidden lg:flex w-full shrink-0 flex-col h-full min-h-0">
-          <Card className="border-slate-200 shadow-xl shadow-blue-900/5 overflow-hidden rounded-[2.5rem] flex flex-col h-full bg-white border-2">
-            <CardHeader className="bg-slate-50 py-3 border-b border-slate-200 flex flex-row items-center justify-between">
-              <CardTitle className="text-xs font-display flex items-center gap-2">
+          <Card className="border-border shadow-card overflow-hidden rounded-card flex flex-col h-full bg-card">
+            <CardHeader className="bg-muted py-3 border-b border-border flex flex-row items-center justify-between">
+              <CardTitle className="text-caption flex items-center gap-2">
                 <span>Course Inventory</span>
                 <Badge
                   variant="secondary"
-                  className="bg-blue-100 text-blue-700 border-none px-2 py-0.5 rounded-full"
+                  className="border-transparent bg-primary/10 px-2 py-0.5 text-primary"
                 >
                   {currentPlan.courses.length}
                 </Badge>
@@ -586,24 +583,22 @@ export function ScheduleViewer({
                     else onSavePlan(currentPlan);
                   }}
                   disabled={isSaving || (isManualEdit && !valid)}
-                  className={`h-7 px-3 font-display text-[9px] font-black uppercase rounded-lg transition-all ${
-                    valid
-                      ? "bg-blue-600 text-white hover:bg-blue-700"
-                      : "bg-slate-100 text-slate-400"
-                  }`}
+                  className={`h-7 px-3 text-caption uppercase rounded-lg transition-all ${
+ valid
+ ? "bg-primary text-primary-foreground hover:bg-primary/90"
+ : "bg-muted text-muted-foreground"
+ }`}
                 >
-                  <ClipboardCheck
-                    className={`w-3 h-3 mr-1 ${isSaving ? "animate-pulse" : ""}`}
-                  />
+                  <Icon name="check" className={`mr-1 ${isSaving ? "animate-pulse" : ""}`} size={12} />
                   {isSaving ? "Saving..." : isManualEdit ? "Commit" : "Save"}
                 </Button>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => window.print()}
-                  className="h-7 px-2 font-mono text-[8px] uppercase tracking-widest bg-white hover:bg-slate-50 border-slate-200 rounded-lg"
+                  className="h-7 px-2 font-mono text-caps uppercase bg-card hover:bg-accent border-border rounded-lg"
                 >
-                  <Printer className="w-3 h-3 mr-1" />
+                  <Icon name="printer" className="mr-1" size={12} />
                   Print
                 </Button>
               </div>

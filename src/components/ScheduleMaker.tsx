@@ -1,12 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { generatePlans } from "@/lib/scheduler";
-import type { Course, Plan, ArchivedPlan } from "@/types";
+import type { Course, Plan } from "@/types";
 import { toast } from "sonner";
 import { useLanguage } from "../context/LanguageContext";
 import { HelpTooltip } from "./ui/HelpTooltip";
 import { useLocalStorage } from "../hooks/useLocalStorage";
+import { usePlanArchive } from "@/hooks/usePlanArchive";
+import { useRequireAuth } from "@/hooks/useRequireAuth";
 import { useTutorial, TutorialStep } from "@/hooks/useTutorial";
 import { TutorialModal } from "@/components/ui/TutorialModal";
 
@@ -18,6 +20,13 @@ import { ScheduleArchive } from "./maker/ScheduleArchive";
 import { SmartGenerateDialog } from "./maker/SmartGenerateDialog";
 import { MasterCatalogDialog } from "./maker/MasterCatalogDialog";
 import { ShareDialog } from "./maker/ShareDialog";
+import { Icon } from "@/components/ui/icon";
+import { cn } from "@/lib/utils";
+import { DEFAULT_SEMESTER, coerceSemester } from "@/lib/period";
+
+/** The rail's order. `archive` is not a step; it is reached from the Navbar. */
+const STEP_ORDER = ["config", "select", "view"] as const;
+type MakerStep = (typeof STEP_ORDER)[number];
 
 interface ScheduleMakerProps {
   externalStep?: "config" | "select" | "view" | "archive";
@@ -44,6 +53,12 @@ export function ScheduleMaker({
 
   const step = externalStep || internalStep;
   const setStep = onStepChange || setInternalStep;
+
+  const STEPS: { id: MakerStep; label: string }[] = [
+    { id: "config", label: t("maker.step_config") },
+    { id: "select", label: t("maker.step_select") },
+    { id: "view", label: t("maker.step_view") },
+  ];
   const [sessionProfile, setSessionProfile] = useLocalStorage<{
     university: string;
     prodi: string;
@@ -53,10 +68,17 @@ export function ScheduleMaker({
   }>("krs-session-profile", {
     university: "UPN_VETERAN_YOGYAKARTA",
     prodi: "INFORMATIKA",
-    semester: 2,
+    semester: DEFAULT_SEMESTER,
     maxSks: 24,
     useMaster: true,
   });
+
+  // A stored profile predates the current term, so its semester can have the
+  // wrong parity: the default above only applies to first-time visitors. Left
+  // alone, a stored 2 during an Odd term matches no option and Radix renders
+  // the Select empty. Read through a coercion rather than writing back, so a
+  // student who set 2 last term is not silently rewritten by a page load.
+  const semester = coerceSemester(sessionProfile.semester);
 
   const [courses, setCourses] = useState<Course[]>([]);
   const [selectedCodes, setSelectedCodes] = useLocalStorage<string[]>(
@@ -90,16 +112,34 @@ export function ScheduleMaker({
   });
   const curriculum = useQuery(api.admin.listCurriculum, {
     prodi: sessionProfile.prodi,
-    semester: sessionProfile.semester,
+    semester,
   });
 
-  // Plan Archive Queries/Mutations
-  const archived = useQuery(api.plans.listPlans) as ArchivedPlan[] | undefined;
-  const savePlanMutation = useMutation(api.plans.savePlan);
-  const deletePlanMutation = useMutation(api.plans.deletePlan);
+  // Plan archive. Backed by Convex when signed in, localStorage when not.
+  const {
+    plans: archived,
+    isLocal: isLocalArchive,
+    corruptCount,
+    savePlan,
+    deletePlan,
+    renamePlan,
+  } = usePlanArchive();
+
+  // Unreadable rows are dropped rather than crashing the archive, but say so
+  // once instead of letting plans quietly disappear. Keyed to the count so a
+  // re-render does not re-toast.
+  const corruptReported = useRef(0);
+  useEffect(() => {
+    if (corruptCount > 0 && corruptReported.current !== corruptCount) {
+      corruptReported.current = corruptCount;
+      toast.warning(t("toast.plan_corrupt", { count: corruptCount }));
+    }
+  }, [corruptCount, t]);
+
   const createShareLinkMutation = useMutation(api.plans.createShareLink);
   const consumeTokenMutation = useMutation(api.users.generateServiceToken);
   const updatePreferencesMutation = useMutation(api.users.updatePreferences);
+  const requireAuth = useRequireAuth();
 
   const [isSaving, setIsSaving] = useState(false);
   const [maxDailySks, setMaxDailySks] = useState(8);
@@ -109,10 +149,10 @@ export function ScheduleMaker({
   // Handlers
   const handleDeleteArchived = async (planId: string) => {
     try {
-      await deletePlanMutation({ planId: planId as any });
-      toast.success("Plan removed from archive.");
+      await deletePlan(planId);
+      toast.success(t("toast.plan_removed"));
     } catch (err: any) {
-      toast.error("Failed to delete plan: " + err.message);
+      toast.error(t("toast.delete_failed", { error: err.message }));
     }
   };
 
@@ -121,11 +161,10 @@ export function ScheduleMaker({
     setCurrentPlanIndex(index);
     setViewSource("archive");
     setStep("view");
-    toast.info(`Imported ${allPlans.length} plans to grid viewer.`);
+    toast.info(t("toast.imported_to_viewer", { count: allPlans.length }));
   };
 
   const [isSmartGenerating, setIsSmartGenerating] = useState(false);
-  const renamePlanMutation = useMutation(api.plans.renamePlan);
 
   const getCooldownStatus = () => {
     if (!userData?.lastSmartGenerateTime) return { active: false, seconds: 0 };
@@ -141,10 +180,10 @@ export function ScheduleMaker({
 
   const handleRenameArchived = async (planId: string, newName: string) => {
     try {
-      await renamePlanMutation({ planId: planId as any, newName });
-      toast.success("Plan renamed successfully!");
+      await renamePlan(planId, newName);
+      toast.success(t("toast.plan_renamed"));
     } catch (err: any) {
-      toast.error("Failed to rename plan: " + err.message);
+      toast.error(t("toast.rename_failed", { error: err.message }));
     }
   };
 
@@ -236,6 +275,16 @@ export function ScheduleMaker({
     const plan = archived?.find((p) => (p as any)._id === planId);
     if (!plan) return;
 
+    // Sharing needs a server-side row to point the link at, so a local plan
+    // cannot be shared until it has been migrated.
+    if (
+      !requireAuth(
+        "Sharing needs an account so the link has somewhere to live. Your plans will be imported when you sign in.",
+      )
+    ) {
+      return;
+    }
+
     setActiveSharePlanName(plan.name);
 
     if ((plan as any).shareId) {
@@ -258,16 +307,30 @@ export function ScheduleMaker({
   const smartGenerateAction = useAction(api.ai.smartGenerate);
 
   const onInitSmartGenerate = () => {
+    if (
+      !requireAuth(
+        "Smart Generate uses AI and costs 1 of your 5 daily credits, so it needs an account. The regular generator is free and needs no sign-in.",
+      )
+    ) {
+      return;
+    }
+
+    // The button is disabled without a selection, but this is the guard that
+    // matters: Smart Generate spends a credit and burns the 30s rate limit, and
+    // a disabled attribute is not a check.
+    if (selectedCodes.length === 0) {
+      toast.error(t("toast.needs_courses"));
+      return;
+    }
+
     if (!userData || userData.credits <= 0) {
-      toast.error("You need 1 token for Smart Generate");
+      toast.error(t("toast.no_credits"));
       return;
     }
 
     // Quick check: if in cooldown, tell user immediately
     if (cooldown.active) {
-      toast.error(
-        `Please wait ${cooldown.seconds} seconds before generating again`,
-      );
+      toast.error(t("toast.cooldown", { seconds: cooldown.seconds }));
       return;
     }
 
@@ -305,9 +368,7 @@ export function ScheduleMaker({
       await updatePreferencesMutation({ preferredAiModel: preferences.model });
 
       if (result.success) {
-        toast.success(
-          `AI generated ${result.count} optimized schedules! Check Archive.`,
-        );
+        toast.success(t("toast.ai_success", { count: result.count }));
         setIsSmartDialogOpen(false);
         setStep("archive");
       }
@@ -318,12 +379,9 @@ export function ScheduleMaker({
         msg.includes("Token was not consumed") ||
         msg.includes("no valid plans")
       ) {
-        toast.warning(
-          "AI couldn't find a perfect schedule. Try relaxing your constraints (days off/lecturers) or reducing SKS.",
-          { duration: 5000 },
-        );
+        toast.warning(t("toast.ai_no_result"), { duration: 5000 });
       } else {
-        toast.error(msg || "Smart Generate failed");
+        toast.error(t("toast.ai_failed", { error: msg }));
       }
     } finally {
       setIsSmartGenerating(false);
@@ -335,21 +393,28 @@ export function ScheduleMaker({
     let currentLimit = Math.max(planLimit, userData?.planLimit || 12);
 
     if (tokenized) {
+      if (
+        !requireAuth(
+          "Expanding the plan limit costs 1 of your 5 daily credits, so it needs an account.",
+        )
+      ) {
+        return;
+      }
       if (currentLimit >= 36) {
-        toast.error("Maximum limit of 36 plans reached.");
+        toast.error(t("toast.plan_limit"));
         return;
       }
       if (!userData || userData.credits <= 0) {
-        toast.error("Daily limit reached. Come back tomorrow!");
+        toast.error(t("toast.daily_limit"));
         return;
       }
       try {
         await consumeTokenMutation({ type: "expand" });
-        toast.success("Consumed 1 token for +12 expansion.");
+        toast.success(t("toast.token_spent"));
         currentLimit = Math.min((userData?.planLimit || planLimit) + 12, 36);
         setPlanLimit(currentLimit);
       } catch (err: any) {
-        toast.error("Failed to consume token: " + err.message);
+        toast.error(t("toast.token_failed", { error: err.message }));
         return;
       }
     }
@@ -373,9 +438,7 @@ export function ScheduleMaker({
       );
 
       if (generated.length === 0) {
-        toast.error(
-          "No valid schedules found. Try releasing some locked classes to allow more combinations.",
-        );
+        toast.error(t("toast.no_valid_schedules"));
         return;
       }
 
@@ -401,14 +464,10 @@ export function ScheduleMaker({
           .slice(0, 12); // Only add the increment of 12
 
         if (newPlans.length === 0) {
-          toast.info(
-            "No new unique schedule combinations found with this configuration.",
-          );
+          toast.info(t("toast.no_combinations"));
         } else {
           setPlans((prev) => [...prev, ...newPlans]);
-          toast.success(
-            `Discovered ${newPlans.length} new academic combinations!`,
-          );
+          toast.success(t("toast.plans_imported", { count: newPlans.length }));
         }
       } else {
         setPlans(generated);
@@ -430,7 +489,7 @@ export function ScheduleMaker({
   const handleDeleteCourse = (e: React.MouseEvent, courseId: string) => {
     e.stopPropagation();
     setCourses((prev) => prev.filter((c) => c.id !== courseId));
-    toast.success("Academic component removed.");
+    toast.success(t("toast.course_removed"));
   };
 
   const handleAutoLoad = () => {
@@ -471,7 +530,7 @@ export function ScheduleMaker({
       setSelectedCodes((prev) => [...prev, ...uniqueNewCodes]);
     }
 
-    toast.success(`${masterCourses.length} courses added to session.`);
+    toast.success(t("toast.courses_added", { count: masterCourses.length }));
     setIsMasterSearchOpen(false);
   };
 
@@ -520,16 +579,21 @@ export function ScheduleMaker({
             analysis: "Hand-crafted schedule with manual selection",
           };
 
-      const planId = await savePlanMutation({
+      // Anonymous users save to localStorage; this is not gated. The plans are
+      // offered for import on sign-in.
+      const planId = await savePlan({
         name,
-        data: JSON.stringify(payload),
+        plan: payload as Plan,
         isSmartGenerated: isFullPlan,
         generatedBy: isFullPlan
           ? userData?.preferredAiModel || "groq"
           : "manual",
       });
 
-      toast.success(isFullPlan ? "Plan archived!" : "Manual plan saved!");
+      toast.success(
+        t(isFullPlan ? "toast.plan_archived" : "toast.manual_saved"),
+        { description: isLocalArchive ? t("toast.saved_local") : undefined },
+      );
 
       const newPlan = isFullPlan
         ? data
@@ -549,7 +613,7 @@ export function ScheduleMaker({
 
       setStep("view");
     } catch (err: any) {
-      toast.error("Failed to save plan: " + err.message);
+      toast.error(t("toast.save_failed", { error: err.message }));
     } finally {
       setIsSaving(false);
     }
@@ -574,10 +638,10 @@ export function ScheduleMaker({
         <div className="flex flex-1 flex-col lg:flex-row min-h-0 overflow-hidden">
           {/* Sidebar Step Indicator (Desktop) / Top Flow (Mobile) */}
           {step !== "archive" && (
-            <aside className="lg:w-64 shrink-0 h-auto lg:h-full lg:border-r border-b bg-white/50 backdrop-blur-sm p-4 lg:p-6 overflow-y-auto">
-              <div className="flex flex-col gap-6">
-                <div className="hidden lg:flex items-center gap-2 px-2">
-                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.3em]">
+            <aside className="h-auto shrink-0 overflow-y-auto border-b border-border bg-card p-3 lg:h-full lg:w-64 lg:border-b-0 lg:border-r lg:p-4">
+              <div className="flex flex-col gap-4">
+                <div className="hidden items-center gap-2 px-2 lg:flex">
+                  <h3 className="text-caps uppercase text-muted-foreground">
                     Architect Engine
                   </h3>
                   <HelpTooltip
@@ -586,88 +650,64 @@ export function ScheduleMaker({
                   />
                 </div>
 
-                {/* Stepper Container */}
-                <div className="flex lg:flex-col items-center lg:items-start justify-between lg:justify-start gap-0 lg:gap-8 relative lg:pl-4">
-                  {/* Vertical line for desktop */}
-                  <div className="hidden lg:block absolute left-8 top-2 bottom-2 w-0.5 bg-slate-100 -z-10" />
-                  <div
-                    className="hidden lg:block absolute left-8 top-2 w-0.5 bg-blue-600 transition-all duration-700 -z-10"
-                    style={{
-                      height:
-                        step === "config"
-                          ? "0%"
-                          : step === "select"
-                            ? "50%"
-                            : "100%",
-                    }}
-                  />
-
-                  {/* Horizontal line for mobile */}
-                  <div className="lg:hidden absolute left-0 top-1/2 -translate-y-1/2 w-full h-0.5 bg-slate-100 -z-10" />
-                  <div
-                    className="lg:hidden absolute left-0 top-1/2 -translate-y-1/2 h-0.5 bg-blue-600 transition-all duration-500 -z-10"
-                    style={{
-                      width:
-                        step === "config"
-                          ? "0%"
-                          : step === "select"
-                            ? "50%"
-                            : "100%",
-                    }}
-                  />
-
-                  {[
-                    { id: "config", label: t("maker.step_config") },
-                    { id: "select", label: t("maker.step_select") },
-                    { id: "view", label: t("maker.step_view") },
-                  ].map((s, i) => {
+                {/*
+                  The progress rail was two pairs of absolutely positioned divs
+                  (one axis each) whose length was driven by a hardcoded
+                  percentage per step. It is one ordered list now; the rail is a
+                  border on the list itself, so it cannot drift out of sync with
+                  the steps.
+                */}
+                <ol className="relative flex items-center justify-between gap-2 lg:flex-col lg:items-stretch lg:justify-start lg:gap-1">
+                  {STEPS.map((s, i) => {
                     const isActive = step === s.id;
-                    const isPast =
-                      (step === "select" && i === 0) ||
-                      (step === "view" && i <= 1);
+                    const isPast = STEP_ORDER.indexOf(step as MakerStep) > i;
+                    const canNavigate =
+                      s.id === "config" ||
+                      (s.id === "select" && courses.length > 0);
 
                     return (
-                      <div
-                        key={s.id}
-                        className="flex lg:flex-row flex-col items-center gap-2 lg:gap-4 group cursor-pointer transition-all"
-                        onClick={() => {
-                          if (isActive) return;
-                          if (s.id === "config") setStep("config");
-                          if (s.id === "select" && courses.length > 0)
-                            setStep("select");
-                        }}
-                      >
-                        <div
-                          className={`w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-mono font-bold transition-all border-2 relative z-10 ${
-                            isActive
-                              ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-200 scale-110 lg:scale-125"
-                              : isPast
-                                ? "bg-blue-100 border-blue-600 text-blue-600"
-                                : "bg-white border-slate-200 text-slate-400"
-                          }`}
+                      <li key={s.id} className="min-w-0 flex-1 lg:flex-none">
+                        <button
+                          type="button"
+                          disabled={isActive || !canNavigate}
+                          aria-current={isActive ? "step" : undefined}
+                          onClick={() => {
+                            if (isActive || !canNavigate) return;
+                            setStep(s.id);
+                          }}
+                          className={cn(
+                            "flex w-full flex-col items-center gap-2 rounded-control p-2 text-center transition-colors lg:flex-row lg:gap-3 lg:text-left",
+                            canNavigate && !isActive && "hover:bg-accent",
+                            !canNavigate && !isActive && "cursor-default",
+                          )}
                         >
-                          {i + 1}
-                        </div>
-                        <div className="flex flex-col lg:items-start items-center">
                           <span
-                            className={`text-[9px] font-mono uppercase tracking-widest transition-colors ${
+                            className={cn(
+                              "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border font-mono text-caption font-bold transition-colors",
                               isActive
-                                ? "text-blue-700 font-bold"
-                                : "text-slate-400"
-                            }`}
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : isPast
+                                  ? "border-primary bg-card text-primary"
+                                  : "border-border bg-card text-muted-foreground",
+                            )}
+                          >
+                            {isPast ? <Icon name="check" size={12} /> : i + 1}
+                          </span>
+                          <span
+                            className={cn(
+                              "truncate font-mono text-caps uppercase  transition-colors",
+                              isActive
+                                ? "font-bold text-foreground"
+                                : "text-muted-foreground",
+                            )}
                           >
                             {s.label}
                           </span>
-                          {isActive && (
-                            <span className="hidden lg:block text-[8px] text-blue-400 font-medium lowercase italic opacity-80">
-                              currently active
-                            </span>
-                          )}
-                        </div>
-                      </div>
+                        </button>
+                      </li>
                     );
                   })}
-                </div>
+                </ol>
               </div>
             </aside>
           )}
@@ -742,6 +782,7 @@ export function ScheduleMaker({
               <div className="w-full h-full">
                 <ScheduleArchive
                   archived={archived}
+                  isLocal={isLocalArchive}
                   onImport={handleImportArchived}
                   onDelete={handleDeleteArchived}
                   onRename={handleRenameArchived}

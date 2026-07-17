@@ -55,8 +55,16 @@ export default defineSchema({
 
   curriculum: defineTable({
     prodi: v.string(),
-    semester: v.number(), // 1-8
-    term: v.string(), // "odd" | "even"
+    semester: v.number(), // 1-8; parity IS the term (see src/lib/period.ts)
+    // DEPRECATED, do not write. Was `semester % 2` stored as a string, so it
+    // held no fact the semester number did not already carry. It was never
+    // filtered or indexed, only displayed in one admin column, and it wrote
+    // "Odd"/"Even" while this comment claimed "odd"/"even" -- nothing noticed,
+    // because nothing read it.
+    // Optional rather than removed: Convex validates existing documents on
+    // push, and every current row still has this field, so deleting it outright
+    // rejects the deploy. Drop it once the rows are cleaned.
+    term: v.optional(v.string()),
     code: v.string(),
     name: v.string(),
     sks: v.number(),

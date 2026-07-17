@@ -5,15 +5,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import {
-  Github,
-  Linkedin,
-  Mail,
-  Quote,
-  Code,
-  Instagram,
-  X,
-} from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 
 import { AUTHOR_PROFILE } from "@/assets/contact/info";
 
@@ -29,21 +21,18 @@ export function ContactDialog({ trigger }: ContactDialogProps) {
       <DialogTrigger asChild>{trigger}</DialogTrigger>
       <DialogContent
         hideClose
-        className="sm:max-w-[425px] p-0 overflow-hidden bg-white/80 backdrop-blur-xl border-white/20 shadow-2xl rounded-3xl"
+        size="md"
+        padded={false}
       >
         {/* Header Image / Background */}
-        <div className="h-32 bg-gradient-to-br from-blue-600 to-indigo-700 relative">
-          <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-white/10 transition-colors z-[70]">
-            <X size={20} className="text-white" />
+        <div className="h-32 bg-primary relative">
+          <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-primary-foreground/10 transition-colors z-[70]">
+            <Icon name="close" size={20} className="text-primary-foreground" />
           </DialogClose>
 
-          {/* Decoration Container (Clipped) */}
-          <div className="absolute inset-0 overflow-hidden">
-            <Code className="absolute -right-4 -bottom-8 w-48 h-48 text-white/10 rotate-12" />
-          </div>
 
           <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
-            <div className="w-24 h-24 rounded-full border-4 border-white shadow-xl bg-slate-200 overflow-hidden relative z-10">
+            <div className="w-24 h-24 rounded-full border-4 border-border bg-muted overflow-hidden relative z-10">
               <img
                 src={AUTHOR_PROFILE.avatarUrl}
                 alt={AUTHOR_PROFILE.name}
@@ -55,23 +44,19 @@ export function ContactDialog({ trigger }: ContactDialogProps) {
 
         <div className="pt-12 pb-8 px-6 text-center space-y-6">
           <div className="space-y-1">
-            <h2 className="text-2xl font-bold font-display text-slate-800">
+            <h2 className="text-headline text-foreground">
               {AUTHOR_PROFILE.name}
             </h2>
-            <p className="text-sm font-medium text-blue-600 uppercase tracking-widest">
+            <p className="text-body font-medium text-primary uppercase">
               {AUTHOR_PROFILE.role}
             </p>
           </div>
 
-          <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100 text-sm italic text-slate-600 relative mx-2">
-            <Quote
-              size={24}
-              className="text-blue-200 absolute -top-3 -left-2 fill-blue-50"
-            />
+          <div className="bg-muted/50 rounded-card p-4 border border-border text-body italic text-muted-foreground relative mx-2">
             "{AUTHOR_PROFILE.quote}"
           </div>
 
-          <p className="text-sm text-slate-500 leading-relaxed px-2">
+          <p className="text-body text-muted-foreground px-2">
             {AUTHOR_PROFILE.description}
           </p>
 
@@ -84,9 +69,9 @@ export function ContactDialog({ trigger }: ContactDialogProps) {
               <Button
                 size="icon"
                 variant="outline"
-                className="rounded-full hover:bg-blue-50 hover:text-blue-600 border-slate-200"
+                className="rounded-full hover:bg-muted hover:text-primary border-border"
               >
-                <Github size={18} />
+                <Icon name="github" size={18} />
               </Button>
             </a>
             <a
@@ -97,9 +82,9 @@ export function ContactDialog({ trigger }: ContactDialogProps) {
               <Button
                 size="icon"
                 variant="outline"
-                className="rounded-full hover:bg-blue-50 hover:text-blue-600 border-slate-200"
+                className="rounded-full hover:bg-muted hover:text-primary border-border"
               >
-                <Linkedin size={18} />
+                <Icon name="linkedin" size={18} />
               </Button>
             </a>
             <a
@@ -110,18 +95,18 @@ export function ContactDialog({ trigger }: ContactDialogProps) {
               <Button
                 size="icon"
                 variant="outline"
-                className="rounded-full hover:bg-pink-50 hover:text-pink-600 border-slate-200"
+                className="rounded-full hover:bg-muted hover:text-primary border-border"
               >
-                <Instagram size={18} />
+                <Icon name="instagram" size={18} />
               </Button>
             </a>
             <a href={`mailto:${AUTHOR_PROFILE.socials.email}`}>
               <Button
                 size="icon"
                 variant="outline"
-                className="rounded-full hover:bg-blue-50 hover:text-blue-600 border-slate-200"
+                className="rounded-full hover:bg-muted hover:text-primary border-border"
               >
-                <Mail size={18} />
+                <Icon name="mail" size={18} />
               </Button>
             </a>
           </div>

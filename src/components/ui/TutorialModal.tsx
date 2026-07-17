@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { X, ChevronRight, ChevronLeft } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import type { TutorialStep } from "@/hooks/useTutorial";
 
 interface TutorialModalProps {
@@ -34,20 +34,22 @@ export function TutorialModal({
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6">
       {/* Backdrop - Darker for focus */}
       <div
-        className="absolute inset-0 bg-slate-900/70 backdrop-blur-sm transition-opacity duration-300 animate-in fade-in"
+        // Same scrim as DialogOverlay. A scrim is neutral shade, not brand:
+        // bg-primary/70 would wash the whole page blue.
+        className="absolute inset-0 bg-foreground/40 transition-opacity duration-300 animate-in fade-in"
         onClick={onSkip} // Optional: click outside to skip? Maybe safer to not do that for tutorials.
       />
 
       {/* Modal Content */}
       <Card
         className={`
-          relative w-full max-w-lg bg-white shadow-2xl rounded-2xl overflow-hidden border-0 
-          ring-1 ring-white/20 transform transition-all duration-300 ease-out
-          ${isOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4"}
-        `}
+ relative w-full max-w-lg border border-border bg-card shadow-overlay rounded-card overflow-hidden
+ transform transition-all duration-300 ease-out
+ ${isOpen ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4"}
+ `}
       >
         {/* Media Container (16:9 Aspect Ratio) */}
-        <div className="aspect-video w-full bg-slate-100 relative overflow-hidden group">
+        <div className="aspect-video w-full bg-muted relative overflow-hidden group">
           {step.image ? (
             step.image.endsWith(".mp4") ? (
               <video
@@ -68,10 +70,10 @@ export function TutorialModal({
             )
           ) : (
             // Placeholder pattern if no image
-            <div className="w-full h-full flex items-center justify-center bg-slate-50">
+            <div className="w-full h-full flex items-center justify-center bg-muted">
               <div className="grid grid-cols-6 gap-2 opacity-5 scale-150">
                 {Array.from({ length: 24 }).map((_, i) => (
-                  <div key={i} className="w-4 h-4 rounded-full bg-slate-900" />
+                  <div key={i} className="w-4 h-4 rounded-full bg-foreground" />
                 ))}
               </div>
             </div>
@@ -82,34 +84,34 @@ export function TutorialModal({
             variant="ghost"
             size="icon"
             onClick={onSkip}
-            className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/10 hover:bg-black/20 text-white backdrop-blur-sm transition-colors"
+            className="absolute top-2 right-2 h-8 w-8 rounded-full bg-black/10 hover:bg-black/20 text-white transition-colors"
           >
-            <X size={16} />
+            <Icon name="close" size={16} />
           </Button>
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-4">
+        <div className="p-4 space-y-4">
           <div className="space-y-2 text-center sm:text-left">
-            <h2 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-title md:text-headline text-foreground tracking-tight">
               {step.title}
             </h2>
-            <p className="text-sm md:text-base text-slate-500 leading-relaxed">
+            <p className="text-body md:text-body text-muted-foreground">
               {step.description}
             </p>
           </div>
 
           {/* Footer Navigation */}
-          <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-slate-100 mt-2">
+          <div className="pt-4 flex flex-col-reverse sm:flex-row items-center justify-between gap-4 border-t border-border mt-2">
             {/* Progress Indicators */}
             <div className="flex items-center gap-1.5 order-2 sm:order-1">
               {Array.from({ length: totalSteps }).map((_, idx) => (
                 <div
                   key={idx}
                   className={`
-                                h-1.5 rounded-full transition-all duration-300
-                                ${idx === currentStepIndex ? "w-6 bg-blue-600" : "w-1.5 bg-slate-200"}
-                            `}
+ h-1.5 rounded-full transition-all duration-300
+ ${idx === currentStepIndex ? "w-6 bg-primary" : "w-1.5 bg-muted"}
+ `}
                 />
               ))}
             </div>
@@ -120,20 +122,20 @@ export function TutorialModal({
                 <Button
                   variant="ghost"
                   onClick={onPrev}
-                  className="flex-1 sm:flex-none text-slate-500 hover:text-slate-800"
+                  className="flex-1 sm:flex-none text-muted-foreground hover:text-foreground"
                 >
-                  <ChevronLeft size={16} className="mr-1" />
+                  <Icon name="chevron-left" size={16} className="mr-1" />
                   Back
                 </Button>
               )}
 
               <Button
                 onClick={onNext}
-                className="flex-1 sm:flex-none bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-100 rounded-xl px-6"
+                className="flex-1 sm:flex-none bg-primary hover:bg-primary text-primary-foreground rounded-control px-6"
               >
                 {currentStepIndex === totalSteps - 1 ? "Get Started" : "Next"}
                 {currentStepIndex !== totalSteps - 1 && (
-                  <ChevronRight size={16} className="ml-1.5" />
+                  <Icon name="chevron-right" size={16} className="ml-1.5" />
                 )}
               </Button>
             </div>

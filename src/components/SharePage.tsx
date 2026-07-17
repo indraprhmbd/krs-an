@@ -1,27 +1,24 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScheduleGrid } from "./ScheduleGrid";
-import {
-  ChevronLeft,
-  LogIn,
-  BookmarkPlus,
-  Share2,
-  History,
-  Sparkles,
-} from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { toast } from "sonner";
 import { useState } from "react";
-import { SignInButton, useUser } from "@clerk/clerk-react";
+import { SignInButton } from "@clerk/clerk-react";
 import { getProdiConfig } from "../lib/prodi";
+import { useLanguage } from "../context/LanguageContext";
 
 export function SharePage() {
+  const { t } = useLanguage();
   const { shareId } = useParams<{ shareId: string }>();
   const navigate = useNavigate();
-  const { isSignedIn } = useUser();
+  // Clerk's isSignedIn resolves before Convex has an authenticated client, so
+  // importing on it would fire an unauthenticated mutation. See CLAUDE.md.
+  const { isAuthenticated } = useConvexAuth();
   const [isImporting, setIsImporting] = useState(false);
 
   const sharedPlan = useQuery(api.plans.getSharedPlan, {
@@ -45,10 +42,10 @@ export function SharePage() {
         isSmartGenerated: sharedPlan.isSmartGenerated,
         generatedBy: sharedPlan.generatedBy,
       });
-      toast.success("Plan imported to your account! Redirecting...");
+      toast.success(t("toast.share_imported"));
       setTimeout(() => navigate("/"), 1500);
     } catch (err: any) {
-      toast.error("Failed to import: " + err.message);
+      toast.error(t("toast.import_failed", { error: err.message }));
     } finally {
       setIsImporting(false);
     }
@@ -56,10 +53,12 @@ export function SharePage() {
 
   if (sharedPlan === undefined) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin" />
-          <p className="text-slate-500 font-medium">Fetching shared plan...</p>
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-3">
+          <Icon name="spinner" size={28} className="animate-spin text-primary" />
+          <p className="text-body text-muted-foreground">
+            Fetching shared plan...
+          </p>
         </div>
       </div>
     );
@@ -67,22 +66,19 @@ export function SharePage() {
 
   if (sharedPlan === null) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-        <Card className="w-full max-w-md border-none shadow-xl rounded-3xl overflow-hidden">
-          <div className="bg-slate-900 p-8 text-center text-white">
-            <div className="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-4">
-              <Share2 className="w-8 h-8 text-blue-500" />
-            </div>
-            <h1 className="text-2xl font-display font-black">Plan Not Found</h1>
-            <p className="text-slate-400 text-sm mt-2">
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-md overflow-hidden">
+          <div className="bg-primary p-6 text-center text-primary-foreground">
+            <span className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-card bg-primary-foreground/10">
+              <Icon name="share" size={24} />
+            </span>
+            <h1 className="text-headline">Plan Not Found</h1>
+            <p className="mt-1.5 text-body text-primary-foreground/80">
               The link might be expired or incorrect.
             </p>
           </div>
-          <CardContent className="p-8">
-            <Button
-              className="w-full h-12 rounded-xl bg-blue-700 hover:bg-blue-800 text-white font-bold"
-              onClick={() => navigate("/")}
-            >
+          <CardContent className="p-4">
+            <Button className="h-12 w-full font-bold" onClick={() => navigate("/")}>
               Back to Home
             </Button>
           </CardContent>
@@ -97,34 +93,33 @@ export function SharePage() {
   );
 
   return (
-    <div className="h-full flex flex-col bg-slate-50/50">
-      {/* Dynamic Header */}
-      <div className="bg-white border-b border-slate-200 shrink-0">
-        <div className="container max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-4 min-w-0">
+    <div className="flex h-full flex-col bg-background">
+      <div className="shrink-0 border-b border-border bg-card">
+        <div className="container mx-auto flex h-16 max-w-5xl items-center justify-between px-4">
+          <div className="flex min-w-0 items-center gap-3">
             <Button
               variant="ghost"
               size="icon"
+              aria-label="Back to planner"
               onClick={() => navigate("/")}
-              className="w-9 h-9 rounded-xl hover:bg-slate-100"
             >
-              <ChevronLeft size={20} />
+              <Icon name="chevron-left" size={20} />
             </Button>
             <div className="min-w-0">
-              <h1 className="text-sm md:text-lg font-bold text-slate-900 truncate max-w-[120px] md:max-w-none pr-4">
+              <h1 className="truncate pr-4 text-body text-foreground md:text-title">
                 {sharedPlan.name}
               </h1>
-              <p className="text-[10px] text-slate-400 font-mono tracking-tight uppercase hidden md:block">
-                SHARED KRS PLAN • {sharedPlan.data.courses.length} MATKUL
+              <p className="hidden font-mono text-caps uppercase text-muted-foreground md:block">
+                SHARED KRS PLAN | {sharedPlan.data.courses.length} MATKUL
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {!isSignedIn ? (
+            {!isAuthenticated ? (
               <SignInButton mode="modal">
-                <Button className="h-9 px-3 md:px-4 rounded-xl text-xs font-bold bg-blue-700 hover:bg-blue-800 text-white gap-2">
-                  <LogIn size={14} />
+                <Button className="h-9 gap-2 px-3 text-caption font-bold md:px-4">
+                  <Icon name="user" size={14} />
                   <span className="hidden md:inline">Login to Import</span>
                   <span className="md:hidden">Login</span>
                 </Button>
@@ -133,9 +128,9 @@ export function SharePage() {
               <Button
                 onClick={handleImport}
                 disabled={isImporting}
-                className="h-9 px-3 md:px-4 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-2 shadow-lg shadow-emerald-200"
+                className="h-9 gap-2 px-3 text-caption font-bold md:px-4"
               >
-                <BookmarkPlus size={14} />
+                <Icon name="bookmark" size={14} />
                 <span className="hidden md:inline">
                   {isImporting ? "Importing..." : "Add to My Archive"}
                 </span>
@@ -148,65 +143,58 @@ export function SharePage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto w-full">
-        <main className="container max-w-5xl mx-auto px-4 py-4 md:py-8 space-y-4 md:space-y-8">
-          {/* Banner */}
-          {sharedPlan.isSmartGenerated && (
-            <div className="bg-violet-600 rounded-3xl p-4 md:p-6 text-white relative overflow-hidden shadow-xl shadow-violet-200">
-              <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Sparkles size={16} className="text-violet-200" />
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-violet-200">
+      <div className="w-full flex-1 overflow-y-auto">
+        <main className="container mx-auto max-w-5xl space-y-4 px-4 py-4">
+          {/*
+            Two banners, one shape. The AI variant was a violet gradient panel
+            and the manual one a near-black slab; they were rival accents for
+            the same slot.
+          */}
+          <section className="flex flex-col justify-between gap-3 rounded-card border border-border bg-card p-4 md:flex-row md:items-center">
+            <div className="min-w-0">
+              {sharedPlan.isSmartGenerated ? (
+                <>
+                  <div className="mb-1.5 flex items-center gap-2 text-primary">
+                    <Icon name="sparkles" size={14} />
+                    <span className="text-caps uppercase">
                       AI Optimized Schedule
                     </span>
                   </div>
-                  <p className="text-lg font-display font-medium max-w-md">
-                    This schedule was generated using{" "}
-                    <strong>Architect Engine</strong> for maximum time
-                    efficiency.
+                  <p className="max-w-md text-body text-foreground">
+                    Generated with <strong>Architect Engine</strong> for maximum
+                    time efficiency.
                   </p>
-                </div>
-                <div className="flex md:flex-col items-center md:items-end justify-between md:justify-center border-t md:border-t-0 md:border-l border-white/20 pt-4 md:pt-0 md:pl-8">
-                  <span className="text-[10px] uppercase font-bold text-violet-200">
-                    Total Accumulation
-                  </span>
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-3xl font-display font-black">
-                      {totalSKS}
+                </>
+              ) : (
+                <>
+                  <div className="mb-1.5 flex items-center gap-2 text-muted-foreground">
+                    <Icon name="user" size={14} />
+                    <span className="text-caps uppercase">
+                      Manual KRS Plan
                     </span>
-                    <span className="text-sm font-bold opacity-70">SKS</span>
                   </div>
-                </div>
-              </div>
-              <Sparkles className="absolute -bottom-10 -right-10 w-48 h-48 text-white/5 opacity-50" />
-            </div>
-          )}
-
-          {!sharedPlan.isSmartGenerated && (
-            <div className="bg-slate-900 rounded-3xl p-6 text-white flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div>
-                <h3 className="text-lg font-display font-medium">
-                  Manual KRS Plan
-                </h3>
-                <p className="text-slate-400 text-xs">
-                  Curated by a fellow student
-                </p>
-              </div>
-              <div className="flex gap-4">
-                <div className="text-right">
-                  <p className="text-[10px] uppercase text-slate-500 font-bold">
-                    Total SKS
+                  <p className="max-w-md text-body text-foreground">
+                    Curated by a fellow student.
                   </p>
-                  <p className="text-2xl font-display font-black">{totalSKS}</p>
-                </div>
-              </div>
+                </>
+              )}
             </div>
-          )}
+            <div className="flex shrink-0 items-baseline gap-1.5 border-t border-border pt-3 md:border-l md:border-t-0 md:pl-6 md:pt-0">
+              <span className="text-caps uppercase text-muted-foreground">
+                Total
+              </span>
+              <span className="text-display text-foreground">
+                {totalSKS}
+              </span>
+              <span className="text-body font-bold text-muted-foreground">
+                SKS
+              </span>
+            </div>
+          </section>
 
-          <div className="grid lg:grid-cols-3 gap-4 md:gap-8">
-            <div className="lg:col-span-2 space-y-6 min-w-0">
-              <div className="bg-white p-2 rounded-3xl border border-slate-200 shadow-xl shadow-blue-900/5 overflow-x-auto">
+          <div className="grid gap-4 lg:grid-cols-3">
+            <div className="min-w-0 lg:col-span-2">
+              <div className="h-[70vh] rounded-card border border-border bg-card p-2 lg:h-[calc(100vh-16rem)]">
                 <ScheduleGrid
                   courses={sharedPlan.data.courses}
                   isCourseCentric={isCourseCentric}
@@ -214,14 +202,14 @@ export function SharePage() {
               </div>
             </div>
 
-            <div className="space-y-6">
-              <Card className="border-slate-200 shadow-sm overflow-hidden rounded-3xl">
-                <CardHeader className="bg-slate-50/50 py-4 px-6 border-b border-slate-200 flex flex-row items-center justify-between">
+            <div className="space-y-4">
+              <Card className="overflow-hidden">
+                <CardHeader className="flex flex-row items-center justify-between border-b border-border bg-muted px-4 py-3">
                   <div>
-                    <CardTitle className="text-sm font-display">
+                    <CardTitle className="text-body">
                       Inventory
                     </CardTitle>
-                    <p className="text-[10px] text-slate-400">
+                    <p className="text-caption text-muted-foreground">
                       {sharedPlan.data.courses.length} courses total
                     </p>
                   </div>
@@ -229,42 +217,38 @@ export function SharePage() {
                     size="sm"
                     variant="outline"
                     onClick={() => window.print()}
-                    className="no-print h-8 rounded-xl text-[10px] font-bold bg-white"
+                    className="no-print h-8 text-caption font-bold"
                   >
                     Print Report
                   </Button>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <div className="divide-y divide-slate-100 max-h-[500px] overflow-y-auto">
+                  <div className="max-h-[500px] divide-y divide-border overflow-y-auto">
                     {sharedPlan.data.courses.map((c: any, i: number) => (
-                      <div
-                        key={i}
-                        className="p-4 hover:bg-slate-50/50 transition-colors"
-                      >
-                        <div className="flex justify-between items-start mb-1">
-                          <span className="text-[9px] font-mono text-slate-400 uppercase">
-                            {c.code} •{" "}
+                      <div key={i} className="p-3 transition-colors hover:bg-accent">
+                        <div className="mb-1 flex items-start justify-between gap-2">
+                          <span className="font-mono text-caption uppercase text-muted-foreground">
+                            {c.code} |{" "}
                             {isCourseCentric ? `Class ${c.class}` : c.class}
                           </span>
                           <Badge
                             variant="outline"
-                            className="text-[8px] h-4 border-slate-200"
+                            className="h-4 shrink-0 text-grid"
                           >
                             {c.sks} SKS
                           </Badge>
                         </div>
-                        <p className="font-bold text-slate-900 text-xs leading-tight mb-1">
+                        <p className="mb-1 text-caption font-bold text-foreground">
                           {isCourseCentric
                             ? `${c.schedule[0]?.day} ${c.schedule[0]?.start} @ ${c.room || "TBA"}`
                             : c.name}
                         </p>
-                        {isCourseCentric && (
-                          <p className="text-[10px] font-bold text-slate-700 leading-tight">
+                        {isCourseCentric ? (
+                          <p className="text-caption font-bold text-muted-foreground">
                             {c.name}
                           </p>
-                        )}
-                        {!isCourseCentric && (
-                          <p className="text-[9px] font-bold text-slate-500 mt-1 truncate">
+                        ) : (
+                          <p className="truncate text-caption font-bold text-muted-foreground">
                             {c.lecturer}
                           </p>
                         )}
@@ -274,43 +258,43 @@ export function SharePage() {
                 </CardContent>
               </Card>
 
-              <div className="bg-blue-50 border border-blue-100 rounded-3xl p-6 space-y-3">
-                <div className="w-10 h-10 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-blue-200">
-                  <History size={20} />
-                </div>
-                <h4 className="font-bold text-blue-900">
+              <div className="space-y-2 rounded-card border border-border bg-muted p-4">
+                <h4 className="flex items-center gap-2 font-bold text-foreground">
+                  <Icon name="history" className="text-primary" />
                   Want to make your own?
                 </h4>
-                <p className="text-xs text-blue-700 leading-relaxed">
+                <p className="text-caption text-muted-foreground">
                   Join 1,000+ students using KRSan to eliminate conflicts and
                   maximize academic efficiency.
                 </p>
                 <Button
                   variant="ghost"
-                  className="w-full justify-start p-0 text-blue-600 font-bold text-xs hover:bg-transparent"
+                  className="h-auto justify-start p-0 text-caption font-bold text-primary hover:bg-transparent"
                   onClick={() => navigate("/")}
                 >
-                  Get Started for Free →
+                  Get Started for Free
                 </Button>
               </div>
             </div>
           </div>
         </main>
 
-        <footer className="container max-w-5xl mx-auto px-4 py-12 border-t border-slate-100">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6 opacity-50 grayscale hover:grayscale-0 transition-all duration-700">
-            <div className="flex items-center gap-3">
+        <footer className="container mx-auto max-w-5xl border-t border-border px-4 py-8">
+          <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
+            <div className="flex items-center gap-2">
               <img
                 src="/assets/logo.webp"
-                alt="Logo"
-                className="w-8 h-8 object-contain"
+                alt=""
+                width={32}
+                height={32}
+                className="h-8 w-8 object-contain"
               />
-              <span className="font-display font-black text-slate-900 tracking-tighter">
+              <span className="tracking-tighter text-foreground">
                 KRSan
               </span>
             </div>
-            <p className="text-[10px] font-mono text-slate-400 uppercase tracking-widest">
-              © 2026 Academic Optimization Systems
+            <p className="font-mono text-caps uppercase text-muted-foreground">
+              Copyright 2026 Academic Optimization Systems
             </p>
           </div>
         </footer>

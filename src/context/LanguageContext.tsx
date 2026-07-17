@@ -1,11 +1,15 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useCallback, useMemo } from "react";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 type Language = "ID" | "EN";
+
+/** Values interpolated into a `{placeholder}` in a translation string. */
+type TVars = Record<string, string | number>;
 
 interface LanguageContextType {
   lang: Language;
   setLang: (lang: Language) => void;
-  t: (key: string) => string;
+  t: (key: string, vars?: TVars) => string;
 }
 
 const translations: Record<Language, Record<string, string>> = {
@@ -30,12 +34,11 @@ const translations: Record<Language, Record<string, string>> = {
     "maker.step_config": "Konfigurasi",
     "maker.step_select": "Pilih Matkul",
     "maker.step_view": "Lihat Jadwal",
-    "config.academic_year": "Tahun Akademik 2025/2026",
+    "config.academic_year": "Tahun Akademik",
     "config.title": "Rancang Semester",
     "config.title_span": "Anda.",
     "config.sub_title":
       "Tentukan parameter akademik Anda untuk memulai penjadwalan cerdas semester depan.",
-    "config.ai_engine_active": "Mesin Optimasi AI Aktif",
     "config.ai_scrolling":
       "Menyinkronkan database... Mencapai keseimbangan akademik optimal... Mencegah konflik jadwal...",
     "config.card_title": "Konfigurasi Akademik",
@@ -49,15 +52,20 @@ const translations: Record<Language, Record<string, string>> = {
     "config.clear_session": "Hapus Sesi Tersimpan",
     "config.clear_confirm":
       "Hapus semua data sesi yang tersimpan? Ini akan mereset konfigurasi dan pilihan mata kuliah Anda.",
-    "config.footer": "DIDUKUNG OLEH THE CORE ARCHITECT ENGINE",
     "selector.title": "Katalog Mata Kuliah",
     "selector.sub_title": "Pilih mata kuliah yang ingin Anda ambil.",
-    "selector.add_course": "Tambah Matkul",
+    "selector.add_course": "Tambah",
     "selector.generating": "Merencanakan...",
     "selector.generate": "Hasilkan Jadwal",
     "selector.thinking": "Berpikir...",
-    "selector.smart_generate": "Smart Generate (1 Token)",
+    "selector.smart_generate": "Smart Generate",
+    "selector.quick_build": "Susun Cepat",
+    "selector.plotter": "Plotter",
     "selector.back": "Kembali",
+    "selector.no_subjects_title": "Belum ada mata kuliah",
+    "selector.no_subjects_desc":
+      "Muat mata kuliah wajib semester Anda, atau tambah sendiri dari katalog.",
+    "selector.needs_courses": "Tambah mata kuliah dulu sebelum menyusun jadwal.",
     "viewer.title": "Review Jadwal",
     "viewer.sub_title": "Hasil optimasi jadwal terbaik untuk Anda.",
     "viewer.save": "Simpan ke Arsip",
@@ -79,6 +87,54 @@ const translations: Record<Language, Record<string, string>> = {
     "help.master_data_title": "Database Global",
     "help.master_data_desc":
       "Akses basis data mata kuliah dari program studi lain untuk mengambil mata kuliah pilihan atau lintas prodi.",
+
+    // Toasts. These were 41 hardcoded English strings, so switching to
+    // Indonesian changed the page but not a single notification.
+    "toast.needs_courses": "Pilih minimal satu mata kuliah dulu.",
+    "toast.no_credits": "Butuh 1 token untuk Smart Generate.",
+    "toast.cooldown": "Tunggu {seconds} detik sebelum menyusun lagi.",
+    "toast.daily_limit": "Batas harian tercapai. Kembali lagi besok!",
+    "toast.plan_archived": "Jadwal tersimpan di arsip.",
+    "toast.manual_saved": "Jadwal manual tersimpan.",
+    "toast.saved_local":
+      "Tersimpan di perangkat ini. Masuk untuk menyimpannya lintas perangkat dan membagikannya.",
+    "toast.save_failed": "Gagal menyimpan jadwal: {error}",
+    "toast.plan_removed": "Jadwal dihapus dari arsip.",
+    "toast.delete_failed": "Gagal menghapus jadwal: {error}",
+    "toast.plan_renamed": "Nama jadwal diperbarui.",
+    "toast.rename_failed": "Gagal mengganti nama: {error}",
+    "toast.imported_to_viewer": "{count} jadwal dimuat ke penampil.",
+    "toast.plans_imported": "{count} jadwal diimpor.",
+    "toast.import_failed": "Impor gagal: {error}",
+    "toast.import_partial":
+      "{imported} dari {total} jadwal diimpor. Sisanya melebihi batas arsip.",
+    "toast.ai_success": "AI membuat {count} jadwal optimal. Cek Arsip.",
+    "toast.ai_no_result":
+      "AI tidak menemukan jadwal yang cocok. Coba longgarkan batasan Anda (hari kosong/dosen) atau kurangi SKS.",
+    "toast.ai_failed": "Smart Generate gagal: {error}",
+    "toast.ai_cached": "Memakai hasil AI dari cache.",
+    "toast.token_spent": "1 token dipakai untuk tambahan +12 jadwal.",
+    "toast.token_failed": "Gagal memakai token: {error}",
+    "toast.plan_limit": "Batas maksimum 36 jadwal tercapai.",
+    "toast.no_combinations":
+      "Tidak ada kombinasi jadwal baru dengan konfigurasi ini.",
+    "toast.no_valid_schedules":
+      "Tidak ada jadwal yang valid. Coba lepas beberapa kelas yang dikunci.",
+    "toast.selections_cleared": "Pilihan dibersihkan.",
+    "toast.quick_fix": "Perbaikan cepat diterapkan.",
+    "toast.link_copied": "Tautan disalin ke papan klip.",
+    "toast.account_copied": "Nomor rekening berhasil disalin.",
+    "toast.plan_corrupt":
+      "{count} jadwal tersimpan tidak bisa dibaca dan dilewati.",
+    "toast.migrate_title": "Impor jadwal tersimpan Anda?",
+    "toast.migrate_desc":
+      "{count} jadwal yang dibuat sebelum Anda masuk bisa dipindahkan ke akun ini.",
+    "toast.migrate_action": "Impor",
+    "toast.share_imported": "Jadwal diimpor ke akun Anda. Mengalihkan...",
+    "toast.course_removed": "Mata kuliah dihapus.",
+    "toast.course_removed_code": "{code} dihapus dari jadwal.",
+    "toast.courses_added": "{count} mata kuliah ditambahkan ke sesi.",
+
     "footer.howtouse": "Cara Pakai",
     "howtouse.title": "Panduan Penggunaan KRSan",
     "howtouse.step1_title": "1. Konfigurasi Akademik",
@@ -163,12 +219,11 @@ const translations: Record<Language, Record<string, string>> = {
     "maker.step_config": "Configure",
     "maker.step_select": "Select Courses",
     "maker.step_view": "View Schedule",
-    "config.academic_year": "Academic Year 2025/2026",
+    "config.academic_year": "Academic Year",
     "config.title": "Architect Your",
     "config.title_span": "Semester.",
     "config.sub_title":
       "Establish your academic parameters to initialize the intelligent scheduler for the upcoming term.",
-    "config.ai_engine_active": "AI Optimization Engine Active",
     "config.ai_scrolling":
       "Cross-referencing database... Achieve optimal academic balance... Preventing scheduling conflicts...",
     "config.card_title": "Academic Configuration",
@@ -182,14 +237,19 @@ const translations: Record<Language, Record<string, string>> = {
     "config.clear_session": "Clear Saved Session",
     "config.clear_confirm":
       "Clear all saved session data? This will reset your configuration and selections.",
-    "config.footer": "POWERED BY THE CORE ARCHITECT ENGINE",
     "selector.title": "Course Catalog",
     "selector.sub_title": "Select the courses you want to take.",
-    "selector.add_course": "Add Course",
+    "selector.quick_build": "Quick Build",
+    "selector.plotter": "Plotter",
+    "selector.no_subjects_title": "No courses yet",
+    "selector.no_subjects_desc":
+      "Load your semester's required courses, or add your own from the catalog.",
+    "selector.needs_courses": "Add some courses before building a schedule.",
+    "selector.add_course": "Add",
     "selector.generating": "Planning...",
-    "selector.generate": "Generate Docs",
+    "selector.generate": "Generate Schedule",
     "selector.thinking": "Thinking...",
-    "selector.smart_generate": "Smart Generate (1 Token)",
+    "selector.smart_generate": "Smart Generate",
     "selector.back": "Back",
     "viewer.title": "Review Schedules",
     "viewer.sub_title": "The best schedule optimization results for you.",
@@ -212,6 +272,51 @@ const translations: Record<Language, Record<string, string>> = {
     "help.master_data_title": "Global Database",
     "help.master_data_desc":
       "Access course databases from other study programs to take elective or cross-major courses.",
+
+    "toast.needs_courses": "Select at least one course first.",
+    "toast.no_credits": "You need 1 token for Smart Generate.",
+    "toast.cooldown": "Wait {seconds} seconds before generating again.",
+    "toast.daily_limit": "Daily limit reached. Come back tomorrow!",
+    "toast.plan_archived": "Plan saved to your archive.",
+    "toast.manual_saved": "Manual plan saved.",
+    "toast.saved_local":
+      "Saved on this device. Sign in to keep it across devices and share it.",
+    "toast.save_failed": "Failed to save plan: {error}",
+    "toast.plan_removed": "Plan removed from archive.",
+    "toast.delete_failed": "Failed to delete plan: {error}",
+    "toast.plan_renamed": "Plan renamed.",
+    "toast.rename_failed": "Failed to rename plan: {error}",
+    "toast.imported_to_viewer": "Loaded {count} plans into the viewer.",
+    "toast.plans_imported": "Imported {count} plans.",
+    "toast.import_failed": "Import failed: {error}",
+    "toast.import_partial":
+      "Imported {imported} of {total} plans. The rest exceed the archive limit.",
+    "toast.ai_success": "AI generated {count} optimized schedules. Check Archive.",
+    "toast.ai_no_result":
+      "AI couldn't find a schedule that fits. Try relaxing your constraints (days off/lecturers) or reducing SKS.",
+    "toast.ai_failed": "Smart Generate failed: {error}",
+    "toast.ai_cached": "Using cached AI result.",
+    "toast.token_spent": "Spent 1 token for +12 more plans.",
+    "toast.token_failed": "Failed to spend token: {error}",
+    "toast.plan_limit": "Maximum of 36 plans reached.",
+    "toast.no_combinations":
+      "No new schedule combinations found with this configuration.",
+    "toast.no_valid_schedules":
+      "No valid schedules found. Try releasing some locked classes.",
+    "toast.selections_cleared": "Selections cleared.",
+    "toast.quick_fix": "Applied quick fix for conflicts.",
+    "toast.link_copied": "Link copied to clipboard.",
+    "toast.account_copied": "Account number copied.",
+    "toast.plan_corrupt": "{count} saved plans could not be read and were skipped.",
+    "toast.migrate_title": "Import your saved plans?",
+    "toast.migrate_desc":
+      "{count} plans from before you signed in can be moved into your account.",
+    "toast.migrate_action": "Import",
+    "toast.share_imported": "Plan imported to your account. Redirecting...",
+    "toast.course_removed": "Course removed.",
+    "toast.course_removed_code": "Removed {code} from the schedule.",
+    "toast.courses_added": "{count} courses added to the session.",
+
     "footer.howtouse": "How to Use",
     "howtouse.title": "KRSan Usage Guide",
     "howtouse.step1_title": "1. Academic Configuration",
@@ -281,22 +386,34 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
 );
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [lang, setLangState] = useState<Language>(() => {
-    const saved = localStorage.getItem("krsan_lang");
-    return (saved as Language) || "ID";
-  });
+  // Via the hook rather than raw localStorage: it guards against a throwing
+  // localStorage (Safari private mode, disabled storage), which would
+  // otherwise take down the whole provider and with it the app.
+  const [lang, setLang] = useLocalStorage<Language>("krsan_lang", "ID");
 
-  const setLang = (newLang: Language) => {
-    setLangState(newLang);
-    localStorage.setItem("krsan_lang", newLang);
-  };
+  // Memoised so `t` is referentially stable across renders. As an inline arrow
+  // it was a new function every render, which makes it useless in a dependency
+  // array: any effect depending on it would re-run on every render.
+  const t = useCallback(
+    (key: string, vars?: TVars) => {
+      // A missing key falls back to the key itself, which renders literal text
+      // like "selector.no_subjects" to the user. `npm run check:i18n` exists to
+      // catch that at build time, because nothing else does.
+      let out = translations[lang][key] ?? key;
+      if (vars) {
+        for (const [name, value] of Object.entries(vars)) {
+          out = out.split(`{${name}}`).join(String(value));
+        }
+      }
+      return out;
+    },
+    [lang],
+  );
 
-  const t = (key: string) => {
-    return translations[lang][key] || key;
-  };
+  const value = useMemo(() => ({ lang, setLang, t }), [lang, setLang, t]);
 
   return (
-    <LanguageContext.Provider value={{ lang, setLang, t }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

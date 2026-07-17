@@ -3,8 +3,9 @@ import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
 import { logAudit } from "./audit";
 
-// Helper to verify admin status
-async function checkAdmin(ctx: any) {
+// Helper to verify admin status.
+// Exported so other modules reuse it rather than adding another copy.
+export async function checkAdmin(ctx: any) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity) throw new Error("Unauthorized");
 
@@ -263,7 +264,6 @@ export const addCurriculumItem = mutation({
   args: {
     prodi: v.string(),
     semester: v.number(),
-    term: v.string(),
     code: v.string(),
     name: v.string(),
     sks: v.number(),
@@ -271,6 +271,29 @@ export const addCurriculumItem = mutation({
   handler: async (ctx, args) => {
     await checkAdmin(ctx);
     return await ctx.db.insert("curriculum", args);
+  },
+});
+
+/**
+ * One-off cleanup: strip the deprecated `term` field from curriculum rows.
+ *
+ * Run once from the dashboard, then `term` can leave convex/schema.ts. Until
+ * then the schema must keep it optional, because Convex rejects a push when a
+ * stored document carries a field the schema does not declare.
+ */
+export const dropCurriculumTerm = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await checkAdmin(ctx);
+    const rows = await ctx.db.query("curriculum").collect();
+    let cleaned = 0;
+    for (const row of rows) {
+      if (row.term !== undefined) {
+        await ctx.db.patch(row._id, { term: undefined });
+        cleaned++;
+      }
+    }
+    return { scanned: rows.length, cleaned };
   },
 });
 

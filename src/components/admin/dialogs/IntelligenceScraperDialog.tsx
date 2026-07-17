@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Wand2, Copy, Loader2, AlertCircle } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { toast } from "sonner";
 
 interface IntelligenceScraperDialogProps {
@@ -27,11 +27,7 @@ export function IntelligenceScraperDialog({
   const { getToken } = useAuth();
   const convex = useConvex(); // Access to imperative Convex calls
   const bulkImport = useMutation(api.admin.bulkImportMaster);
-  // Safe access to ai.saveCache if it exists, otherwise use bulkImport as a valid mutation reference
-  // (unlikely to be called if ai.saveCache is missing, but keeps hook valid)
-  const saveCache = useMutation(
-    (api as any).ai?.saveCache || api.admin.bulkImportMaster,
-  );
+  const saveCache = useMutation(api.ai.saveScraperCache);
 
   const [scraperMode, setScraperMode] = useState<"ai" | "manual">("manual");
   const [rawText, setRawText] = useState("");
@@ -208,10 +204,9 @@ export function IntelligenceScraperDialog({
     try {
       // 1. Check Cache
       const hash = await computeHash(rawText.trim());
-      const checkCacheFunc = (api as any).ai?.checkCache;
-      const cachedResponse = checkCacheFunc
-        ? await convex.query(checkCacheFunc, { hash })
-        : null;
+      const cachedResponse = await convex.query(api.ai.checkScraperCache, {
+        hash,
+      });
 
       let data;
 
@@ -253,24 +248,24 @@ export function IntelligenceScraperDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl bg-white rounded-3xl p-8 border-none shadow-2xl overflow-y-auto max-h-[90vh]">
+      <DialogContent size="4xl">
         <DialogHeader className="mb-6">
           <div className="flex justify-between items-start">
             <div className="space-y-1">
-              <DialogTitle className="text-2xl font-display font-bold text-slate-900 italic flex items-center gap-3">
-                <Wand2 className="w-6 h-6 text-blue-700" />
+              <DialogTitle className="text-headline text-foreground italic flex items-center gap-3">
+                <Icon name="sparkles" size={24} className="text-primary" />
                 Intelligence Scraper
               </DialogTitle>
-              <DialogDescription className="text-[11px] font-mono text-slate-400 uppercase tracking-widest pt-2">
+              <DialogDescription className="text-caps font-mono text-muted-foreground uppercase pt-2">
                 Architect your database from raw terminal data or pasted sheets.
               </DialogDescription>
             </div>
-            <div className="flex bg-slate-100 p-1 rounded-xl">
+            <div className="flex bg-muted p-1 rounded-xl">
               <Button
                 variant={scraperMode === "manual" ? "secondary" : "ghost"}
                 size="sm"
                 onClick={() => setScraperMode("manual")}
-                className={`rounded-lg font-mono text-[9px] uppercase tracking-wider px-4 ${scraperMode === "manual" ? "bg-white shadow-sm" : ""}`}
+                className={`rounded-lg font-mono text-caps uppercase px-4 ${scraperMode === "manual" ? "bg-card" : ""}`}
               >
                 Manual Core
               </Button>
@@ -278,7 +273,7 @@ export function IntelligenceScraperDialog({
                 variant={scraperMode === "ai" ? "secondary" : "ghost"}
                 size="sm"
                 onClick={() => setScraperMode("ai")}
-                className={`rounded-lg font-mono text-[9px] uppercase tracking-wider px-4 ${scraperMode === "ai" ? "bg-white shadow-sm" : ""}`}
+                className={`rounded-lg font-mono text-caps uppercase px-4 ${scraperMode === "ai" ? "bg-card" : ""}`}
               >
                 AI Architect
               </Button>
@@ -298,7 +293,7 @@ export function IntelligenceScraperDialog({
                   ? "Manual Format (Tab Separated):\nProdi [TAB] Kode [TAB] Nama [TAB] Kelas [TAB] SKS [TAB] Kapasitas [TAB] Jadwal [TAB] Ruang\n\nExample:\nTeknik Pertambangan\tESDC\tESDC\tA\t2\t40\tSenin 07:00-09:00\tAL-C-D-1\nDr. Jane Doe (Lecturer on new line)"
                   : "Paste messy schedule text here... AI will analyze and structure it automatically."
               }
-              className="min-h-[350px] bg-slate-50 border-none rounded-2xl p-6 font-mono text-xs leading-relaxed focus-visible:ring-blue-700 transition-all group-focus-within:bg-white group-focus-within:shadow-inner"
+              className="min-h-[350px] bg-muted rounded-control p-4 font-mono text-caption focus-visible:ring-ring transition-all group-focus-within:bg-card"
             />
             {scraperMode === "manual" && (
               <div className="absolute top-4 right-4">
@@ -311,9 +306,9 @@ export function IntelligenceScraperDialog({
                     navigator.clipboard.writeText(template);
                     toast.success("Structure template copied to clipboard");
                   }}
-                  className="h-7 px-3 text-[9px] font-mono uppercase tracking-widest text-slate-400 hover:text-blue-700 hover:bg-blue-50"
+                  className="h-7 px-3 text-caps font-mono uppercase text-muted-foreground hover:text-primary hover:bg-muted"
                 >
-                  <Copy className="w-3 h-3 mr-2" />
+                  <Icon name="copy" size={12} className="mr-2" />
                   Copy Template
                 </Button>
               </div>
@@ -321,20 +316,22 @@ export function IntelligenceScraperDialog({
           </div>
 
           <div
-            className={`p-5 rounded-2xl border transition-colors ${scraperMode === "manual" ? "bg-slate-50 border-slate-100" : "bg-blue-50/50 border-blue-50"}`}
+            className={`p-3 rounded-control border transition-colors ${scraperMode === "manual" ? "bg-muted border-border" : "bg-muted/50 border-border"}`}
           >
             <div className="flex gap-4 items-start">
-              <AlertCircle
-                className={`w-5 h-5 flex-shrink-0 mt-0.5 ${scraperMode === "manual" ? "text-slate-400" : "text-blue-700"}`}
+              <Icon
+                name="alert"
+                size={20}
+                className={`flex-shrink-0 mt-0.5 ${scraperMode === "manual" ? "text-muted-foreground" : "text-primary"}`}
               />
               <div className="space-y-2">
-                <p className="text-[11px] font-bold uppercase tracking-tight text-slate-900">
+                <p className="text-caps uppercase text-foreground">
                   {scraperMode === "manual"
                     ? "Deterministic Core Mode"
                     : "AI Intelligence Mode"}
                 </p>
                 <p
-                  className={`text-[10px] leading-relaxed ${scraperMode === "manual" ? "text-slate-500" : "text-blue-900"}`}
+                  className={`text-caption ${scraperMode === "manual" ? "text-muted-foreground" : "text-foreground"}`}
                 >
                   {scraperMode === "manual"
                     ? "Directly maps columns from Tab-Separated values (Excel/CSV). Handles empty columns automatically. This method is 100% accurate if your format follows the template."
@@ -345,11 +342,11 @@ export function IntelligenceScraperDialog({
           </div>
         </div>
 
-        <DialogFooter className="mt-8 pt-6 border-t border-slate-100">
+        <DialogFooter className="mt-8 pt-6 border-t border-border">
           <Button
             variant="ghost"
             onClick={onClose}
-            className="font-mono text-[10px] uppercase tracking-widest text-slate-400"
+            className="font-mono text-caps uppercase text-muted-foreground"
           >
             Cancel
           </Button>
@@ -358,11 +355,11 @@ export function IntelligenceScraperDialog({
               scraperMode === "manual" ? handleManualParse : handleAiCleanup
             }
             disabled={isAiCleaning || !rawText.trim()}
-            className={`${scraperMode === "manual" ? "bg-slate-900 shadow-slate-200" : "bg-blue-700 shadow-blue-100"} hover:opacity-90 text-white font-display font-medium px-8 rounded-xl shadow-lg min-w-[180px] transition-all`}
+            className="bg-primary hover:opacity-90 text-primary-foreground font-medium px-8 rounded-control min-w-[180px] transition-all"
           >
             {isAiCleaning ? (
               <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                <Icon name="spinner" className="mr-2 animate-spin" />
                 {scraperMode === "manual" ? "Parsing..." : "Architecting..."}
               </>
             ) : (

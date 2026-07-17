@@ -23,15 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Search,
-  Wand2,
-  FileSpreadsheet,
-  Upload,
-  Loader2,
-  Edit3,
-  Trash2,
-} from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { toast } from "sonner";
 import Papa from "papaparse";
 
@@ -247,14 +239,14 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
 
   return (
     <div className="space-y-4">
-      <Card className="border-slate-200 shadow-sm overflow-hidden rounded-2xl">
-        <CardHeader className="p-4 md:p-5 border-b border-slate-100 bg-slate-50/30">
+      <Card className="border-border overflow-hidden rounded-card">
+        <CardHeader className="p-4 border-b border-border bg-muted/30">
           <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-4">
             <div>
-              <CardTitle className="text-xl font-display">
+              <CardTitle className="text-title">
                 Master Data Repository
               </CardTitle>
-              <CardDescription className="font-mono text-[9px] uppercase tracking-widest mt-0.5 break-words">
+              <CardDescription className="font-mono text-caps uppercase mt-0.5 break-words">
                 Global Component Database ({totalLoaded} loaded)
               </CardDescription>
             </div>
@@ -264,9 +256,9 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                   variant="destructive"
                   size="sm"
                   onClick={handleBatchDelete}
-                  className="w-full sm:w-auto rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest h-9 md:h-8"
+                  className="w-full sm:w-auto rounded-control px-4 font-mono text-caps uppercase h-9 md:h-8"
                 >
-                  <Trash2 className="w-3.5 h-3.5 mr-2" />
+                  <Icon name="trash" size={14} className="mr-2" />
                   Delete ({selectedIds.length})
                 </Button>
               )}
@@ -277,12 +269,12 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                   size="sm"
                   onClick={handleFixProdi}
                   disabled={isFixing}
-                  className="rounded-xl font-mono text-[9px] uppercase tracking-widest border-emerald-200 text-emerald-700 hover:bg-emerald-50 h-9 md:h-8"
+                  className="rounded-control font-mono text-caps uppercase border-border text-primary hover:bg-muted h-9 md:h-8"
                 >
                   {isFixing ? (
-                    <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                    <Icon name="spinner" size={12} className="animate-spin mr-2" />
                   ) : (
-                    <Wand2 className="w-3 h-3 mr-2" />
+                    <Icon name="sparkles" size={12} className="mr-2" />
                   )}
                   Fix Format
                 </Button>
@@ -290,9 +282,9 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                 <Button
                   variant="outline"
                   onClick={onOpenScraper}
-                  className="rounded-xl font-mono text-[9px] uppercase tracking-widest border-blue-200 text-blue-700 hover:bg-blue-50 h-9 md:h-8"
+                  className="rounded-control font-mono text-caps uppercase border-border text-primary hover:bg-muted h-9 md:h-8"
                 >
-                  <Wand2 className="w-3 h-3 mr-2" />
+                  <Icon name="sparkles" size={12} className="mr-2" />
                   AI Scraper
                 </Button>
 
@@ -300,9 +292,9 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                   <Button
                     variant="outline"
                     onClick={handlePurgeProdi}
-                    className="rounded-xl font-mono text-[9px] uppercase tracking-widest border-red-100 text-red-600 hover:bg-red-50 h-9 md:h-8"
+                    className="rounded-control font-mono text-caps uppercase border-border text-destructive hover:bg-destructive/10 h-9 md:h-8"
                   >
-                    <Trash2 className="w-3 h-3 mr-2" />
+                    <Icon name="trash" size={12} className="mr-2" />
                     Purge {prodiFilter}
                   </Button>
                 )}
@@ -321,13 +313,13 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                     <Button
                       asChild
                       variant="outline"
-                      className="w-full rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer h-9 md:h-8"
+                      className="w-full rounded-control px-4 font-mono text-caps uppercase border-border text-muted-foreground hover:bg-muted cursor-pointer h-9 md:h-8"
                     >
                       <span>
                         {isImporting ? (
-                          <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                          <Icon name="spinner" size={12} className="animate-spin mr-2" />
                         ) : (
-                          <FileSpreadsheet className="w-3 h-3 mr-2" />
+                          <Icon name="database" size={12} className="mr-2" />
                         )}
                         CSV
                       </span>
@@ -346,13 +338,13 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                   <Label htmlFor="master-import">
                     <Button
                       asChild
-                      className="w-full bg-slate-900 hover:bg-slate-800 text-white rounded-xl px-4 font-mono text-[9px] uppercase tracking-widest cursor-pointer shadow-lg shadow-slate-100 h-9 md:h-8"
+                      className="w-full bg-primary hover:bg-primary/80 text-primary-foreground rounded-control px-4 font-mono text-caps uppercase cursor-pointer h-9 md:h-8"
                     >
                       <span>
                         {isImporting ? (
-                          <Loader2 className="w-3 h-3 animate-spin mr-2" />
+                          <Icon name="spinner" size={12} className="animate-spin mr-2" />
                         ) : (
-                          <Upload className="w-3 h-3 mr-2" />
+                          <Icon name="upload" size={12} className="mr-2" />
                         )}
                         JSON
                       </span>
@@ -363,23 +355,23 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
             </div>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-2 mt-4 pt-4 border-t border-slate-100">
+          <div className="flex flex-col md:flex-row gap-2 mt-4 pt-4 border-t border-border">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Icon name="search" className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search code or name..."
-                className="pl-10 h-10 rounded-xl border-slate-200 text-xs"
+                className="pl-10 h-10 rounded-control border-border"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
             </div>
             <div className="w-full md:w-56">
               <Select value={prodiFilter} onValueChange={setProdiFilter}>
-                <SelectTrigger className="h-10 rounded-xl border-slate-200 text-[10px] font-bold">
+                <SelectTrigger className="h-10 rounded-control border-border">
                   <SelectValue placeholder="All Prodi" />
                 </SelectTrigger>
-                <SelectContent className="rounded-xl border-slate-100 shadow-xl max-h-[300px]">
-                  <SelectItem value="all" className="text-[10px] font-bold">
+                <SelectContent className="rounded-control border-border shadow-card max-h-[300px]">
+                  <SelectItem value="all" className="text-caption font-bold">
                     All Prodi
                   </SelectItem>
                   {[
@@ -399,7 +391,7 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                   ]
                     .sort()
                     .map((p) => (
-                      <SelectItem key={p} value={p} className="text-[10px]">
+                      <SelectItem key={p} value={p} className="text-caption">
                         {p}
                       </SelectItem>
                     ))}
@@ -410,8 +402,8 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
-            <table className="w-full text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-[9px] font-mono uppercase tracking-widest text-slate-500">
+            <table className="w-full text-caption">
+              <thead className="bg-muted border-b border-border text-caps font-mono uppercase text-muted-foreground">
                 <tr>
                   <th className="px-4 py-3 text-left w-10">
                     <Checkbox
@@ -432,11 +424,11 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 font-sans">
+              <tbody className="divide-y divide-border font-sans">
                 {(courses || []).map((c: any) => (
                   <tr
                     key={c._id}
-                    className={`hover:bg-slate-50/50 transition-colors group ${selectedIds.includes(c._id) ? "bg-blue-50/30" : ""}`}
+                    className={`hover:bg-muted/50 transition-colors group ${selectedIds.includes(c._id) ? "bg-muted/30" : ""}`}
                   >
                     <td className="px-2 md:px-4 py-2.5">
                       <Checkbox
@@ -444,20 +436,20 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                         onCheckedChange={() => toggleSelect(c._id)}
                       />
                     </td>
-                    <td className="px-2 md:px-4 py-2.5 font-mono font-bold text-blue-900">
+                    <td className="px-2 md:px-4 py-2.5 font-mono font-bold text-primary">
                       {c.code}
                     </td>
                     <td className="px-2 md:px-4 py-2.5 font-medium min-w-[120px]">
                       {c.name}
                     </td>
-                    <td className="px-2 md:px-4 py-2.5 text-slate-600">
+                    <td className="px-2 md:px-4 py-2.5 text-muted-foreground">
                       {c.class}
                     </td>
-                    <td className="px-2 md:px-4 py-2.5 text-slate-500 text-[10px]">
+                    <td className="px-2 md:px-4 py-2.5 text-muted-foreground text-caption">
                       {c.prodi}
                     </td>
                     <td className="px-2 md:px-4 py-2.5 font-mono">{c.sks}</td>
-                    <td className="px-2 md:px-4 py-2.5 text-slate-500 text-[10px] overflow-hidden max-w-[150px] truncate">
+                    <td className="px-2 md:px-4 py-2.5 text-muted-foreground text-caption overflow-hidden max-w-[150px] truncate">
                       {c.lecturer}
                     </td>
                     <td className="px-2 md:px-4 py-2.5 text-right opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
@@ -465,18 +457,18 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-slate-400 hover:text-blue-600 active:bg-slate-100"
+                          className="h-8 w-8 text-muted-foreground hover:text-primary active:bg-muted"
                           onClick={() => handleEditMaster(c)}
                         >
-                          <Edit3 className="w-4 h-4" />
+                          <Icon name="pencil" />
                         </Button>
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-8 w-8 text-slate-400 hover:text-red-600 active:bg-slate-100"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive active:bg-muted"
                           onClick={() => handleDeleteMaster(c._id)}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Icon name="trash" />
                         </Button>
                       </div>
                     </td>
@@ -486,7 +478,7 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
             </table>
 
             {(courses || []).length === 0 && !isLoading && (
-              <div className="p-16 text-center text-slate-400 font-mono text-[9px] uppercase tracking-[0.2em]">
+              <div className="p-16 text-center text-muted-foreground font-mono text-caps uppercase">
                 {status === "LoadingFirstPage"
                   ? "Booting Database..."
                   : "No components found matching your search."}

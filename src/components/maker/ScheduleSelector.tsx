@@ -1,14 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  CheckCircle2,
-  Plus,
-  PlusCircle,
-  Trash,
-  Check,
-  ChevronLeft,
-  Brain,
-  Sparkles,
-} from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { useLanguage } from "../../context/LanguageContext";
 import { HelpTooltip } from "@/components/ui/HelpTooltip";
 import {
@@ -20,6 +11,7 @@ import {
 } from "@/components/ui/select";
 import type { Course } from "@/types";
 import { getProdiConfig } from "../../lib/prodi";
+import { ACADEMIC_YEAR, coerceSemester } from "@/lib/period";
 
 interface ScheduleSelectorProps {
   courses: Course[];
@@ -64,6 +56,10 @@ export function ScheduleSelector({
   const { t } = useLanguage();
   const prodiConfig = getProdiConfig(sessionProfile.prodi);
 
+  // Every generator needs at least one selected course. Guarding here rather
+  // than at each button keeps them from disagreeing.
+  const hasSelection = selectedCodes.length > 0;
+
   const grouped = courses.reduce(
     (acc, c) => {
       acc[c.code] = acc[c.code] || [];
@@ -76,24 +72,24 @@ export function ScheduleSelector({
   return (
     <div className="h-full flex flex-col gap-3 md:gap-4 animate-in fade-in duration-500 overflow-hidden">
       {/* Header Section */}
-      <div className="shrink-0 bg-white/90 backdrop-blur-md p-2 md:p-3 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4">
+      <div className="shrink-0 bg-card/90 p-2 md:p-3 rounded-card border border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 md:gap-4">
         <div className="flex items-center gap-3 min-w-0 w-full sm:w-auto">
           {onBack && (
             <Button
               variant="outline"
               size="icon"
               onClick={onBack}
-              className="w-8 h-8 shrink-0 rounded-lg border-slate-200 hover:bg-slate-50"
+              className="w-8 h-8 shrink-0 rounded-control border-border hover:bg-muted"
             >
-              <ChevronLeft className="w-4 h-4" />
+              <Icon name="chevron-left" />
             </Button>
           )}
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 mb-0.5">
-              <h2 className="text-sm md:text-lg font-bold font-display text-slate-900 whitespace-nowrap shrink-0">
-                Course Catalog
+              <h2 className="text-body md:text-title text-foreground whitespace-nowrap shrink-0">
+                {t("selector.title")}
               </h2>
-              <div className="px-1.5 py-0.5 bg-blue-50 text-blue-700 rounded-md text-[9px] font-mono font-bold border border-blue-100 shrink-0 w-fit">
+              <div className="px-1.5 py-0.5 bg-muted text-primary rounded-md text-caption font-mono font-bold border border-border shrink-0 w-fit">
                 {Object.entries(grouped)
                   .filter(([code]) => selectedCodes.includes(code))
                   .reduce((sum, [code, variations]) => {
@@ -107,20 +103,17 @@ export function ScheduleSelector({
                 / {sessionProfile.maxSks} SKS
               </div>
             </div>
-            <p className="text-[8px] text-slate-400 font-mono uppercase tracking-widest leading-none">
-              Semester {sessionProfile.semester} • 2025/2026
+            <p className="text-caps text-muted-foreground font-mono uppercase">
+              Semester {coerceSemester(sessionProfile.semester)} |{" "}
+              {ACADEMIC_YEAR}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
-          <Button
-            onClick={onAddSubject}
-            size="sm"
-            className="h-8 px-3 bg-slate-900 hover:bg-slate-800 text-white font-display text-[9px] font-bold rounded-lg transition-all"
-          >
-            <Plus className="w-3.5 h-3.5 mr-1.5" />
-            Add
+          <Button onClick={onAddSubject} size="sm" className="h-8 px-3">
+            <Icon name="plus" size={14} />
+            {t("selector.add_course")}
           </Button>
           <div className="hidden sm:block">
             <HelpTooltip
@@ -128,19 +121,22 @@ export function ScheduleSelector({
               descKey="help.master_catalog_desc"
             />
           </div>
-          <div className="hidden sm:block w-px h-5 bg-slate-200 mx-0.5" />
+          <div className="hidden sm:block w-px h-5 bg-border mx-0.5" />
 
           <Button
             onClick={() => onGenerate()}
-            disabled={isGenerating || cooldown?.active}
+            disabled={!hasSelection || isGenerating || cooldown?.active}
+            title={!hasSelection ? t("selector.needs_courses") : undefined}
             size="sm"
             variant="outline"
-            className="h-8 px-3 border border-slate-200 hover:border-blue-200 hover:bg-blue-50 text-slate-700 hover:text-blue-700 font-display text-[9px] font-bold rounded-lg transition-all"
+            className="h-8 px-3"
           >
-            <Brain
-              className={`w-3.5 h-3.5 mr-1.5 ${isGenerating ? "animate-pulse" : ""}`}
+            <Icon
+              name="sparkles"
+              size={14}
+              className={isGenerating ? "animate-pulse" : undefined}
             />
-            Quick Build
+            {t("selector.quick_build")}
           </Button>
           <div className="hidden sm:block">
             <HelpTooltip
@@ -153,16 +149,26 @@ export function ScheduleSelector({
             <div className="flex items-center gap-1">
               <Button
                 onClick={onSmartGenerate}
-                disabled={isSmartGenerating || cooldown?.active || isGenerating}
+                // Without a selection there is nothing to schedule, and Smart
+                // Generate spends a credit plus a 30s rate limit to find that
+                // out. The other generators are free, so they only need the
+                // same guard for consistency.
+                disabled={
+                  !hasSelection ||
+                  isSmartGenerating ||
+                  cooldown?.active ||
+                  isGenerating
+                }
+                title={!hasSelection ? t("selector.needs_courses") : undefined}
                 size="sm"
-                className="h-8 px-3 bg-violet-600 hover:bg-violet-700 text-white font-display text-[9px] font-bold rounded-lg transition-all shadow-md shadow-violet-100"
+                className="h-8 px-3"
               >
-                <div className="flex items-center gap-1.5">
-                  <Sparkles
-                    className={`w-3.5 h-3.5 ${isSmartGenerating ? "animate-spin" : ""}`}
-                  />
-                  Smart Generate
-                </div>
+                <Icon
+                  name="sparkles"
+                  size={14}
+                  className={isSmartGenerating ? "animate-spin" : undefined}
+                />
+                {t("selector.smart_generate")}
               </Button>
               <div className="hidden sm:block">
                 <HelpTooltip
@@ -176,11 +182,13 @@ export function ScheduleSelector({
           <Button
             variant="outline"
             onClick={() => onSaveManual?.([])}
-            disabled={selectedCodes.length === 0 || isGenerating}
-            className="border-blue-200 text-blue-700 hover:bg-blue-50 h-8 px-3 rounded-lg font-display font-bold text-[9px]"
+            disabled={!hasSelection || isGenerating}
+            title={!hasSelection ? t("selector.needs_courses") : undefined}
+            size="sm"
+            className="h-8 px-3"
           >
-            <PlusCircle className="w-3.5 h-3.5 mr-1.5" />
-            Plotter
+            <Icon name="plus" size={14} />
+            {t("selector.plotter")}
           </Button>
           <div className="hidden sm:block">
             <HelpTooltip
@@ -210,26 +218,26 @@ export function ScheduleSelector({
             return (
               <div
                 key={code}
-                className={`group relative overflow-hidden transition-all duration-300 rounded-xl md:rounded-2xl border ${
-                  isSelected
-                    ? "bg-white border-slate-200 shadow-sm ring-1 ring-blue-50"
-                    : "bg-slate-50/50 border-slate-100 hover:border-slate-200"
-                }`}
+                className={`group relative overflow-hidden transition-all duration-300 rounded-card border ${
+ isSelected
+ ? "bg-card border-border ring-1 ring-ring"
+ : "bg-muted/50 border-border hover:border-border"
+ }`}
               >
                 <div className="p-3 md:p-4 flex gap-3 md:gap-4 items-start relative">
                   {/* Selection Checkbox */}
                   <div
                     onClick={() => toggleCourse(code)}
-                    className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg flex items-center justify-center cursor-pointer transition-colors mt-0.5 ${
-                      isSelected
-                        ? "bg-blue-50 text-blue-700 ring-1 ring-blue-100"
-                        : "bg-white text-slate-300 hover:text-slate-400 border border-slate-200"
-                    }`}
+                    className={`shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-control flex items-center justify-center cursor-pointer transition-colors mt-0.5 ${
+ isSelected
+ ? "bg-muted text-primary ring-1 ring-ring"
+ : "bg-card text-muted-foreground hover:text-muted-foreground border border-border"
+ }`}
                   >
                     {isSelected ? (
-                      <CheckCircle2 className="w-4 h-4 md:w-5 md:h-5" />
+                      <Icon name="check" />
                     ) : (
-                      <Plus className="w-4 h-4 md:w-5 md:h-5" />
+                      <Icon name="plus" />
                     )}
                   </div>
 
@@ -238,15 +246,15 @@ export function ScheduleSelector({
                     <div className="flex justify-between items-start gap-2">
                       <div className="space-y-0.5 min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-mono font-bold text-[9px] md:text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-600">
+                          <span className="font-mono font-bold text-caption bg-muted px-1.5 py-0.5 rounded text-muted-foreground">
                             {code}
                           </span>
-                          <span className="text-[9px] md:text-[10px] text-slate-400 font-mono">
+                          <span className="text-caption text-muted-foreground font-mono">
                             {activeCourse.sks} SKS
                           </span>
                         </div>
                         <h3
-                          className={`font-bold font-display text-xs md:text-sm leading-tight ${isSelected ? "text-slate-900" : "text-slate-500"}`}
+                          className={`font-bold text-caption md:text-body ${isSelected ? "text-foreground" : "text-muted-foreground"}`}
                         >
                           {activeCourse.name}
                         </h3>
@@ -257,12 +265,12 @@ export function ScheduleSelector({
                           <Button
                             variant="ghost"
                             size="icon"
-                            className="h-6 w-6 text-red-300 hover:text-red-500"
+                            className="h-6 w-6 text-destructive hover:text-destructive"
                             onClick={(e) =>
                               handleDeleteCourse(e, activeCourse.id)
                             }
                           >
-                            <Trash className="w-3.5 h-3.5" />
+                            <Icon name="trash" size={14} />
                           </Button>
                         </div>
                       )}
@@ -284,7 +292,7 @@ export function ScheduleSelector({
                             }
                           }}
                         >
-                          <SelectTrigger className="w-full justify-between h-7 md:h-8 border-slate-200 bg-slate-50/50 hover:bg-white text-[10px] md:text-xs font-mono px-2 rounded-lg">
+                          <SelectTrigger className="w-full justify-between h-7 md:h-8 border-border bg-muted/50 hover:bg-card md: px-2 rounded-control">
                             <SelectValue>
                               {lockedIds && lockedIds.length > 0
                                 ? lockedIds.length === 1
@@ -302,10 +310,10 @@ export function ScheduleSelector({
                                   : "Auto (All)"}
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent className="rounded-2xl border-none shadow-2xl">
+                          <SelectContent className="rounded-card shadow-card">
                             <SelectItem
                               value="all"
-                              className="text-xs font-bold text-blue-700 rounded-lg focus:bg-blue-50"
+                              className="text-caption font-bold text-primary rounded-control focus:bg-muted"
                             >
                               {prodiConfig.isCourseCentric
                                 ? "Auto-Select Day"
@@ -316,7 +324,7 @@ export function ScheduleSelector({
                               return (
                                 <div
                                   key={v.id}
-                                  className="flex items-center px-2 hover:bg-slate-50 cursor-pointer"
+                                  className="flex items-center px-2 hover:bg-muted cursor-pointer"
                                   onClick={() => {
                                     setLockedCourses((prev: any) => {
                                       const newLocked = { ...prev };
@@ -337,25 +345,25 @@ export function ScheduleSelector({
                                   <div
                                     className={`mr-2 flex h-3 w-3 items-center justify-center rounded-sm border border-primary shrink-0 ${isChecked ? "bg-primary text-primary-foreground" : "opacity-50"}`}
                                   >
-                                    {isChecked && <Check className="h-3 w-3" />}
+                                    {isChecked && <Icon name="check" size={12} />}
                                   </div>
                                   <div className="flex flex-col w-full min-w-0 py-2">
                                     <div className="flex items-center justify-between w-full">
                                       <span
-                                        className={`font-bold text-xs ${prodiConfig.isCourseCentric ? "text-slate-900" : "text-slate-700"}`}
+                                        className={`font-bold text-caption ${prodiConfig.isCourseCentric ? "text-foreground" : "text-muted-foreground"}`}
                                       >
                                         {prodiConfig.isCourseCentric
                                           ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
                                           : `Class ${v.class}`}
                                       </span>
                                       {!prodiConfig.isCourseCentric && (
-                                        <span className="text-[9px] text-slate-400 font-mono">
+                                        <span className="text-caption text-muted-foreground font-mono">
                                           {v.schedule[0]?.day}{" "}
                                           {v.schedule[0]?.start}
                                         </span>
                                       )}
                                       {prodiConfig.isCourseCentric && (
-                                        <span className="text-[9px] text-slate-400 font-mono">
+                                        <span className="text-caption text-muted-foreground font-mono">
                                           {prodiConfig.isFloatingDay
                                             ? "Original"
                                             : "Class"}{" "}
@@ -364,7 +372,7 @@ export function ScheduleSelector({
                                       )}
                                     </div>
                                     {!prodiConfig.isCourseCentric && (
-                                      <span className="text-slate-500 text-[10px] truncate w-full block">
+                                      <span className="text-muted-foreground text-caption truncate w-full block">
                                         {v.lecturer.split(",")[0]}
                                       </span>
                                     )}
@@ -383,10 +391,10 @@ export function ScheduleSelector({
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-red-300 hover:text-red-500 hover:bg-red-50 rounded-lg"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-control"
                         onClick={(e) => handleDeleteCourse(e, activeCourse.id)}
                       >
-                        <Trash className="w-4 h-4" />
+                        <Icon name="trash" />
                       </Button>
                     </div>
                   )}
@@ -396,10 +404,27 @@ export function ScheduleSelector({
           })}
 
           {courses.length === 0 && (
-            <div className="text-center py-20 opacity-50">
-              <p className="font-mono text-xs uppercase tracking-widest text-slate-400">
-                {t("selector.no_subjects")}
+            <div className="flex flex-col items-center gap-2 py-12 text-center">
+              <Icon
+                name="database"
+                size={24}
+                className="text-muted-foreground"
+              />
+              <p className="text-title text-foreground">
+                {t("selector.no_subjects_title")}
               </p>
+              <p className="max-w-xs text-body-sm text-muted-foreground">
+                {t("selector.no_subjects_desc")}
+              </p>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onAddSubject}
+                className="mt-1"
+              >
+                <Icon name="plus" size={14} />
+                {t("selector.add_course")}
+              </Button>
             </div>
           )}
         </div>

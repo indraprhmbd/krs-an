@@ -1,26 +1,18 @@
-import { SignInButton, useUser } from "@clerk/clerk-react";
 import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "../convex/_generated/api";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 import { ScheduleMaker } from "./components/ScheduleMaker";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { Toaster } from "@/components/ui/sonner";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/layout/Navbar";
-import { useLanguage } from "./context/LanguageContext";
+import { toast } from "sonner";
 
 import { SharePage } from "./components/SharePage";
+import { usePlanArchive } from "./hooks/usePlanArchive";
+import { useLanguage } from "./context/LanguageContext";
 
 function App() {
-  const { isSignedIn, isLoaded } = useUser();
   const { t } = useLanguage();
   const { isAuthenticated } = useConvexAuth();
   const userData = useQuery(
@@ -28,6 +20,7 @@ function App() {
     isAuthenticated ? {} : "skip",
   );
   const ensureUser = useMutation(api.users.ensureUser);
+  const { pendingMigrationCount, migrateLocalPlans } = usePlanArchive();
 
   // State shared with Navbar for global navigation
   const [makerStep, setMakerStep] = useState<
@@ -51,10 +44,40 @@ function App() {
     }
   }, [isAuthenticated, ensureUser]);
 
-  if (!isLoaded) return null;
+  // Offer to import plans built before signing in. Prompted, never automatic:
+  // the plans are the user's, and silently moving them is not ours to decide.
+  const migrationOffered = useRef(false);
+  useEffect(() => {
+    if (!isAuthenticated || pendingMigrationCount === 0) return;
+    if (migrationOffered.current) return;
+    migrationOffered.current = true;
+
+    const count = pendingMigrationCount;
+    toast(t("toast.migrate_title"), {
+      description: t("toast.migrate_desc", { count }),
+      duration: Infinity,
+      action: {
+        label: t("toast.migrate_action"),
+        onClick: () => {
+          void migrateLocalPlans()
+            .then((n) => {
+              if (n > 0) toast.success(t("toast.plans_imported", { count: n }));
+              if (n < count) {
+                toast.warning(
+                  t("toast.import_partial", { imported: n, total: count }),
+                );
+              }
+            })
+            .catch((err) =>
+              toast.error(t("toast.import_failed", { error: err.message })),
+            );
+        },
+      },
+    });
+  }, [isAuthenticated, pendingMigrationCount, migrateLocalPlans, t]);
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-slate-50/30 font-sans overflow-hidden">
+    <div className="h-[100dvh] flex flex-col bg-background font-sans overflow-hidden">
       <Toaster position="top-center" />
 
       <Routes>
@@ -62,65 +85,31 @@ function App() {
         <Route
           path="/*"
           element={
-            !isSignedIn ? (
-              <div className="min-h-screen w-full flex flex-col items-center justify-center bg-slate-50 p-4 font-sans">
-                <div className="mb-12 text-center space-y-6">
-                  <div className="w-48 h-48 bg-white/50 backdrop-blur rounded-3xl overflow-hidden flex items-center justify-center mx-auto mb-8 shadow-2xl transition-transform hover:scale-105 border border-white/20">
-                    <img
-                      src="/assets/logo.webp"
-                      alt="KRSan Logo"
-                      className="w-full h-full object-contain p-4"
-                    />
-                  </div>
-                  <p className="text-slate-500 max-w-sm mx-auto text-lg leading-relaxed">
-                    {t("landing.tagline")}
-                  </p>
-                </div>
+            <>
+              <Navbar
+                userData={userData as never}
+                step={makerStep}
+                setStep={handleStepChange}
+                onRestoreArchitect={() => setMakerStep(lastArchitectStep)}
+              />
 
-                <Card className="w-full max-w-md shadow-2xl border-none p-2 bg-white/80 backdrop-blur">
-                  <CardHeader className="text-center pb-8 pt-6">
-                    <CardTitle className="text-xl font-display font-semibold">
-                      {t("landing.welcome")}
-                    </CardTitle>
-                    <CardDescription className="text-slate-400">
-                      {t("landing.sub_welcome")}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="pb-8">
-                    <SignInButton mode="modal">
-                      <Button className="w-full h-12 text-base font-medium bg-blue-700 hover:bg-blue-800 text-white transition-all font-sans rounded-lg shadow-lg shadow-blue-200">
-                        {t("landing.continue")}
-                      </Button>
-                    </SignInButton>
-                  </CardContent>
-                </Card>
-              </div>
-            ) : (
-              <>
-                <Navbar
-                  userData={userData as any}
-                  step={makerStep}
-                  setStep={handleStepChange}
-                  onRestoreArchitect={() => setMakerStep(lastArchitectStep)}
-                />
-
-                <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
-                  <Routes>
-                    <Route
-                      path="/"
-                      element={
-                        <ScheduleMaker
-                          externalStep={makerStep}
-                          onStepChange={handleStepChange}
-                          userData={userData as any}
-                        />
-                      }
-                    />
-                    <Route path="/admin" element={<AdminDashboard />} />
-                  </Routes>
-                </main>
-              </>
-            )
+              <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
+                <Routes>
+                  <Route
+                    path="/"
+                    element={
+                      <ScheduleMaker
+                        externalStep={makerStep}
+                        onStepChange={handleStepChange}
+                        userData={userData as never}
+                      />
+                    }
+                  />
+                  {/* AdminDashboard gates itself; no route guard needed. */}
+                  <Route path="/admin" element={<AdminDashboard />} />
+                </Routes>
+              </main>
+            </>
           }
         />
       </Routes>

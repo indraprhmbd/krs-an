@@ -36,11 +36,28 @@ export interface UserPreferences {
   preferredLecturers: string[];
 }
 
-export interface ArchivedPlan {
+/**
+ * A plan row as it comes back from a backend, before validation.
+ *
+ * `data` is nullable because it genuinely is: plans are stored as a JSON string
+ * and `convex/plans.ts` returns `data: null` for a row that fails to parse
+ * rather than throwing. The type used to claim `data: Plan`, and usePlanArchive
+ * cast the query result to match, so the null was laundered away and every
+ * consumer read `plan.data.courses` straight into a TypeError.
+ *
+ * Do not consume this directly. `usePlanArchive` filters it down to
+ * `ArchivedPlan`, which is the shape call sites can trust.
+ */
+export interface RawArchivedPlan {
   _id: string;
   name: string;
-  data: Plan;
+  data: Plan | null;
   createdAt: number;
   isSmartGenerated?: boolean;
   generatedBy?: string;
+}
+
+/** A plan whose `data` has been verified readable. */
+export interface ArchivedPlan extends RawArchivedPlan {
+  data: Plan;
 }

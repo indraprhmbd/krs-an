@@ -1,15 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  History,
-  Trash,
-  Brain,
-  Bookmark,
-  Pencil,
-  Check,
-  X,
-  Share2,
-} from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import type { ArchivedPlan, Plan } from "@/types";
@@ -20,16 +11,18 @@ interface ScheduleArchiveProps {
   onDelete: (id: string) => void;
   onRename: (id: string, newName: string) => void;
   onShare: (id: string) => void;
+  /** True when these plans live in localStorage rather than the account. */
+  isLocal?: boolean;
 }
 
 const EmptyState = ({ message }: { message: string }) => (
-  <div className="col-span-full py-20 text-center space-y-4 bg-slate-50 rounded-3xl border border-slate-100 border-dashed">
-    <div className="bg-white w-12 h-12 rounded-2xl flex items-center justify-center mx-auto shadow-sm border border-slate-100">
-      <History className="w-6 h-6 text-slate-300" />
+  <div className="col-span-full py-12 text-center space-y-4 bg-muted rounded-card border border-border border-dashed">
+    <div className="bg-card w-12 h-12 rounded-control flex items-center justify-center mx-auto border border-border">
+      <Icon name="history" size={24} className="text-muted-foreground" />
     </div>
     <div className="space-y-1">
-      <p className="font-display font-bold text-slate-400">{message}</p>
-      <p className="text-xs text-slate-400">
+      <p className="font-bold text-muted-foreground">{message}</p>
+      <p className="text-caption text-muted-foreground">
         Plans will appear here once created.
       </p>
     </div>
@@ -70,11 +63,11 @@ const PlanCard = ({
   return (
     <Card
       key={plan._id}
-      className={`group relative border-slate-200/60 shadow-sm hover:shadow-md transition-all rounded-2xl overflow-hidden bg-white ${
-        isAi
-          ? "hover:border-violet-300 shadow-violet-50/50"
-          : "hover:border-blue-300 shadow-blue-50/50"
-      }`}
+      className={`group relative border-border/60 transition-all rounded-card overflow-hidden bg-card ${
+ isAi
+ ? "hover:border-primary"
+ : "hover:border-primary"
+ }`}
     >
       <div className="p-3">
         {/* Compact Header */}
@@ -84,7 +77,7 @@ const PlanCard = ({
               <div className="flex items-center gap-1">
                 <input
                   autoFocus
-                  className="text-xs font-bold text-slate-800 bg-slate-50 border border-blue-200 rounded px-1.5 py-0.5 w-full outline-none focus:ring-1 ring-blue-500"
+                  className="text-caption font-bold text-foreground bg-muted border border-border rounded px-1.5 py-0.5 w-full outline-none focus:ring-1 ring-ring"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   onKeyDown={(e) => {
@@ -96,42 +89,42 @@ const PlanCard = ({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 shrink-0 text-emerald-600 hover:bg-emerald-50"
+                    className="h-6 w-6 shrink-0 text-primary hover:bg-muted"
                     onClick={() => handleSaveRename(plan._id)}
                   >
-                    <Check className="w-3.5 h-3.5" />
+                    <Icon name="check" size={14} />
                   </Button>
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-6 w-6 shrink-0 text-slate-400 hover:bg-slate-50"
+                    className="h-6 w-6 shrink-0 text-muted-foreground hover:bg-muted"
                     onClick={() => setEditingId(null)}
                   >
-                    <X className="w-3.5 h-3.5" />
+                    <Icon name="close" size={14} />
                   </Button>
                 </div>
               </div>
             ) : (
               <div className="flex items-center gap-1.5 group/title">
-                <h3 className="text-xs font-bold text-slate-800 truncate group-hover/title:text-blue-600 transition-colors">
+                <h3 className="text-caption font-bold text-foreground truncate group-hover/title:text-primary transition-colors">
                   {plan.name}
                 </h3>
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-5 w-5 opacity-100 md:opacity-0 md:group-hover/title:opacity-100 text-slate-400 hover:text-blue-500 transition-all"
+                  className="h-5 w-5 opacity-100 md:opacity-0 md:group-hover/title:opacity-100 text-muted-foreground hover:text-primary transition-all"
                   onClick={() => handleStartEdit(plan)}
                 >
-                  <Pencil className="w-3 h-3" />
+                  <Icon name="pencil" size={12} />
                 </Button>
               </div>
             )}
-            <p className="text-[8px] font-mono text-slate-400 mt-0.5">
+            <p className="text-grid font-mono text-muted-foreground mt-0.5">
               {new Date(plan.createdAt).toLocaleDateString("id-ID", {
                 day: "numeric",
                 month: "short",
               })}{" "}
-              • {plan.data.courses.length} MATKUL
+              | {plan.data.courses.length} MATKUL
             </p>
           </div>
           {!isEditing && (
@@ -139,18 +132,18 @@ const PlanCard = ({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 text-slate-300 hover:text-blue-500 hover:bg-blue-50 shrink-0"
+                className="h-6 w-6 text-muted-foreground hover:text-primary hover:bg-muted shrink-0"
                 onClick={() => onShare(plan._id)}
               >
-                <Share2 className="w-3.5 h-3.5" />
+                <Icon name="share" size={14} />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-6 w-6 text-slate-300 hover:text-red-500 hover:bg-red-50 shrink-0"
+                className="h-6 w-6 text-muted-foreground hover:text-destructive hover:bg-destructive/10 shrink-0"
                 onClick={() => onDelete(plan._id)}
               >
-                <Trash className="w-3.5 h-3.5" />
+                <Icon name="trash" size={14} />
               </Button>
             </div>
           )}
@@ -158,28 +151,28 @@ const PlanCard = ({
 
         {/* Info Row */}
         <div className="flex items-center gap-2 mb-3">
-          <div className="flex-1 bg-slate-50 border border-slate-100/50 rounded-lg px-2 py-1 flex items-center justify-between">
-            <span className="text-[8px] font-mono text-slate-400 uppercase tracking-tighter">
+          <div className="flex-1 bg-muted border border-border/50 rounded-control px-2 py-1 flex items-center justify-between">
+            <span className="text-caps font-mono text-muted-foreground uppercase">
               SKS
             </span>
-            <span className="text-[10px] font-bold text-slate-700">
+            <span className="text-caption font-bold text-foreground">
               {plan.data.courses.reduce((sum, c) => sum + (c.sks || 0), 0)}
             </span>
           </div>
           <div
-            className={`flex-1 border rounded-lg px-2 py-1 flex items-center justify-between ${
-              isAi
-                ? "bg-violet-50/50 border-violet-100"
-                : "bg-emerald-50/50 border-emerald-100"
-            }`}
+            className={`flex-1 border rounded-control px-2 py-1 flex items-center justify-between ${
+ isAi
+ ? "bg-muted/50 border-border"
+ : "bg-muted/50 border-border"
+ }`}
           >
             <span
-              className={`text-[8px] font-mono uppercase tracking-tighter ${isAi ? "text-violet-500" : "text-emerald-500"}`}
+              className={`text-caps font-mono uppercase  ${isAi ? "text-primary" : "text-primary"}`}
             >
               TYPE
             </span>
             <span
-              className={`text-[9px] font-bold ${isAi ? "text-violet-700" : "text-emerald-700"}`}
+              className={`text-caption font-bold ${isAi ? "text-primary" : "text-primary"}`}
             >
               {isAi ? "AI" : "MANUAL"}
             </span>
@@ -188,11 +181,11 @@ const PlanCard = ({
 
         {/* Primary Action */}
         <Button
-          className={`w-full h-8 rounded-lg text-[10px] font-bold shadow-sm transition-all ${
-            isAi
-              ? "bg-violet-600 hover:bg-violet-700 text-white"
-              : "bg-slate-800 hover:bg-slate-900 text-white"
-          }`}
+          className={`w-full h-8 rounded-control text-caption font-bold transition-all ${
+ isAi
+ ? "bg-primary hover:bg-primary/90 text-primary-foreground"
+ : "bg-primary hover:bg-primary/90 text-primary-foreground"
+ }`}
           onClick={() => onImport(contextPlans, index)}
         >
           Restore to Grid
@@ -208,6 +201,7 @@ export function ScheduleArchive({
   onDelete,
   onRename,
   onShare,
+  isLocal = false,
 }: ScheduleArchiveProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
@@ -231,28 +225,28 @@ export function ScheduleArchive({
   const manualDataPlans = manualPlans.map((p) => p.data);
 
   return (
-    <div className="max-w-4xl mx-auto h-full overflow-y-auto space-y-6 px-1 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700 no-scrollbar">
+    <div className="max-w-4xl mx-auto h-full overflow-y-auto space-y-4 px-1 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700 no-scrollbar">
       <div className="flex items-center justify-between px-2">
         <div className="flex items-center gap-2">
-          <History className="w-5 h-5 text-slate-400" />
-          <h2 className="font-display font-bold text-slate-800 tracking-tight">
+          <Icon name="history" size={20} className="text-muted-foreground" />
+          <h2 className="font-bold text-foreground tracking-tight">
             Plan Archive
           </h2>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+          <div className="flex items-center gap-2 text-caps text-muted-foreground uppercase">
             <span>Storage Capacity</span>
             <span
-              className={`${(archived?.length || 0) >= 30 ? "text-red-500" : "text-blue-600"}`}
+              className={`${(archived?.length || 0) >= 30 ? "text-destructive" : "text-primary"}`}
             >
               {archived?.length || 0} / 30
             </span>
           </div>
-          <div className="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden border border-slate-200/50">
+          <div className="w-32 h-1.5 bg-muted rounded-full overflow-hidden border border-border/50">
             <div
               className={`h-full transition-all duration-500 ${
-                (archived?.length || 0) >= 25 ? "bg-red-500" : "bg-blue-600"
-              }`}
+ (archived?.length || 0) >= 25 ? "bg-destructive" : "bg-primary"
+ }`}
               style={{
                 width: `${Math.min(((archived?.length || 0) / 30) * 100, 100)}%`,
               }}
@@ -261,32 +255,43 @@ export function ScheduleArchive({
         </div>
       </div>
 
+      {isLocal && (
+        <div className="mt-3 flex items-start gap-2 rounded-card border border-border bg-muted p-2.5 text-caption text-muted-foreground">
+          <Icon name="bookmark" size={14} className="mt-0.5 shrink-0" />
+          <p>
+            These plans are saved on this device only. Sign in to keep them
+            across devices, share them, and use Smart Generate. Anything saved
+            here can be imported when you do.
+          </p>
+        </div>
+      )}
+
       <Tabs
         defaultValue={aiPlans.length > 0 ? "ai" : "saved"}
         className="w-full flex-1 flex flex-col min-h-0"
       >
-        <div className="sticky top-0 z-20 bg-[#f8fafc]/95 backdrop-blur-sm pt-2 pb-4 mb-2 shrink-0">
-          <TabsList className="grid w-full grid-cols-2 bg-slate-200/50 p-1 rounded-2xl">
+        <div className="sticky top-0 z-20 bg-background pt-2 pb-4 mb-2 shrink-0">
+          <TabsList className="grid w-full grid-cols-2 bg-muted p-1 rounded-card">
             <TabsTrigger
               value="ai"
-              className="rounded-xl font-display font-medium data-[state=active]:bg-white data-[state=active]:text-violet-700 data-[state=active]:shadow-sm"
+              className="rounded-control font-medium data-[state=active]:bg-card data-[state=active]:text-primary"
             >
-              <Brain className="w-4 h-4 mr-2" />
+              <Icon name="sparkles" className="mr-2" />
               AI Generated
               {aiPlans.length > 0 && (
-                <span className="ml-2 bg-violet-100 text-violet-700 px-1.5 py-0.5 rounded-md text-[10px] font-bold">
+                <span className="ml-2 bg-primary/10 text-primary px-1.5 py-0.5 rounded-full text-caption font-bold">
                   {aiPlans.length}
                 </span>
               )}
             </TabsTrigger>
             <TabsTrigger
               value="saved"
-              className="rounded-xl font-display font-medium data-[state=active]:bg-white data-[state=active]:text-blue-700 data-[state=active]:shadow-sm"
+              className="rounded-control font-medium data-[state=active]:bg-card data-[state=active]:text-primary"
             >
-              <Bookmark className="w-4 h-4 mr-2" />
+              <Icon name="bookmark" className="mr-2" />
               Saved Plans
               {manualPlans.length > 0 && (
-                <span className="ml-2 bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-md text-[10px] font-bold">
+                <span className="ml-2 bg-primary/10 text-primary px-1.5 py-0.5 rounded-full text-caption font-bold">
                   {manualPlans.length}
                 </span>
               )}
@@ -295,7 +300,7 @@ export function ScheduleArchive({
         </div>
 
         <TabsContent value="ai" className="mt-0">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {aiPlans.map((plan, i) => (
               <PlanCard
                 key={plan._id}
@@ -321,7 +326,7 @@ export function ScheduleArchive({
         </TabsContent>
 
         <TabsContent value="saved" className="mt-0">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {manualPlans.map((plan, i) => (
               <PlanCard
                 key={plan._id}

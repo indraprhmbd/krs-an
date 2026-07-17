@@ -4,12 +4,14 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogBody,
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
+import { cn } from "@/lib/utils";
 import { useState, useMemo } from "react";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -105,28 +107,36 @@ export function MasterCatalogDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl w-[95vw] sm:w-full bg-white rounded-[2.5rem] sm:rounded-3xl p-4 sm:p-6 border-none shadow-2xl overflow-hidden flex flex-col h-[85vh] max-h-[85vh]">
-        <DialogHeader className="mb-4 shrink-0">
-          <DialogTitle className="text-xl font-display font-bold text-slate-900 flex items-center gap-2">
-            <Search className="w-5 h-5 text-blue-700" />
+      <DialogContent
+        size="2xl"
+        className="flex h-[85vh] flex-col overflow-hidden"
+      >
+        <DialogHeader className="shrink-0">
+          <DialogTitle className="flex items-center gap-2 text-title text-foreground">
+            <Icon name="search" size={18} className="text-primary" />
             Master Catalog
           </DialogTitle>
-          <DialogDescription className="text-[10px] font-mono text-slate-500 uppercase tracking-widest pt-1">
+          <DialogDescription className="pt-1 font-mono text-caps uppercase text-muted-foreground">
             Search and Batch Add Components
           </DialogDescription>
         </DialogHeader>
 
-        <div className="relative mb-4">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+        <div className="relative my-3 shrink-0">
+          <Icon
+            name="search"
+            size={14}
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+          />
           <Input
             placeholder="Search code or name..."
+            aria-label="Search master catalog"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 bg-slate-50 border-slate-200 rounded-xl h-10 text-xs focus-visible:ring-blue-700"
+            className="h-10 pl-9 text-caption"
           />
         </div>
 
-        <div className="flex-1 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+        <DialogBody className="custom-scrollbar flex-1 space-y-2 overflow-y-auto pr-1">
           {groupedCourses.map((group) => {
             const groupIds = group.classes.map((c) => c._id);
             const selectedCountInGroup = groupIds.filter((id) =>
@@ -138,72 +148,70 @@ export function MasterCatalogDialog({
             return (
               <div
                 key={group.code}
-                className={`p-4 rounded-2xl border transition-all ${
+                className={cn(
+                  "rounded-card border p-3 transition-colors",
                   isAnySelected
-                    ? "bg-blue-50/50 border-blue-200 shadow-sm"
-                    : "bg-slate-50 border-slate-100 hover:border-slate-200"
-                }`}
+                    ? "border-primary bg-muted"
+                    : "border-border bg-card",
+                )}
               >
-                <div className="flex items-start gap-4">
-                  <div className="mt-1">
-                    <Checkbox
-                      checked={
-                        isAllSelected ||
-                        (isAnySelected ? "indeterminate" : false)
-                      }
-                      onCheckedChange={() => toggleGroup(group.classes)}
-                      className="border-slate-300 data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600 data-[state=indeterminate]:bg-blue-400"
-                    />
-                  </div>
+                <div className="flex items-start gap-3">
+                  <Checkbox
+                    className="mt-1"
+                    aria-label={`Select all classes for ${group.code}`}
+                    checked={
+                      isAllSelected || (isAnySelected ? "indeterminate" : false)
+                    }
+                    onCheckedChange={() => toggleGroup(group.classes)}
+                  />
 
-                  <div className="flex-1 space-y-2">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-[10px] font-mono bg-white px-2 py-0.5 rounded-lg border border-slate-200 text-slate-600 font-bold">
-                            {group.code}
-                          </span>
-                          <Badge
-                            variant="outline"
-                            className="bg-white text-[9px] font-mono border-slate-200 text-slate-500"
-                          >
-                            {group.sks} SKS
+                  <div className="min-w-0 flex-1 space-y-2">
+                    <div>
+                      <div className="mb-1 flex flex-wrap items-center gap-1.5">
+                        <span className="rounded-control border border-border bg-muted px-2 py-0.5 font-mono text-caption font-bold text-muted-foreground">
+                          {group.code}
+                        </span>
+                        <Badge variant="outline" className="font-mono text-caption">
+                          {group.sks} SKS
+                        </Badge>
+                        {isAnySelected && (
+                          <Badge className="h-4 px-1.5 text-grid font-bold">
+                            {selectedCountInGroup} SELECTED
                           </Badge>
-                          {selectedCountInGroup > 0 && (
-                            <Badge className="bg-blue-100 text-blue-700 text-[8px] font-bold border-none h-4 px-1.5">
-                              {selectedCountInGroup} CLASSES SELECTED
-                            </Badge>
-                          )}
-                        </div>
-                        <h4 className="text-sm font-bold text-slate-900 leading-tight">
-                          {group.name}
-                        </h4>
+                        )}
                       </div>
+                      <h4 className="text-body font-bold text-foreground">
+                        {group.name}
+                      </h4>
                     </div>
 
                     {/* Class Selector Row */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full pt-1">
+                    <div className="grid w-full grid-cols-1 gap-2 pt-1 sm:grid-cols-2">
                       {group.classes.map((cls) => {
                         const isClsSelected = selectedClassIds.has(cls._id);
                         return (
                           <button
                             key={cls._id}
+                            type="button"
+                            aria-pressed={isClsSelected}
                             onClick={() => toggleClass(cls._id)}
-                            className={`flex flex-col items-start p-2 rounded-xl text-left transition-all border ${
+                            className={cn(
+                              "flex min-w-0 flex-col items-start rounded-control border p-2 text-left transition-colors",
                               isClsSelected
-                                ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-100"
-                                : "bg-white border-slate-200 text-slate-600 hover:border-blue-300 shadow-sm"
-                            }`}
+                                ? "border-primary bg-primary text-primary-foreground"
+                                : "border-border bg-card text-muted-foreground hover:bg-accent",
+                            )}
                           >
-                            <span className="text-[10px] font-bold uppercase tracking-wider">
+                            <span className="text-caps uppercase">
                               Class {cls.class}
                             </span>
                             <span
-                              className={`text-[9px] font-medium truncate w-full ${
+                              className={cn(
+                                "w-full truncate text-caption font-medium",
                                 isClsSelected
-                                  ? "text-blue-100"
-                                  : "text-slate-400"
-                              }`}
+                                  ? "text-primary-foreground/80"
+                                  : "text-muted-foreground",
+                              )}
                             >
                               {cls.lecturer || "No Lecturer"}
                             </span>
@@ -218,37 +226,39 @@ export function MasterCatalogDialog({
           })}
 
           {groupedCourses.length === 0 && (
-            <div className="text-center py-12 space-y-3">
-              <div className="w-12 h-12 bg-slate-50 rounded-full flex items-center justify-center mx-auto">
-                <Search className="w-6 h-6 text-slate-300" />
-              </div>
-              <p className="text-[11px] text-slate-500 font-mono uppercase tracking-widest">
+            <div className="space-y-2 py-12 text-center">
+              <Icon
+                name="search"
+                size={24}
+                className="mx-auto text-muted-foreground"
+              />
+              <p className="font-mono text-caps uppercase text-muted-foreground">
                 No components found matching "{searchQuery}"
               </p>
             </div>
           )}
-        </div>
+        </DialogBody>
 
-        <DialogFooter className="mt-4 sm:mt-6 pt-4 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4 w-full">
+        <DialogFooter className="mt-3 flex w-full shrink-0 flex-col items-center justify-between gap-3 border-t border-border pt-3 sm:flex-row">
           <div className="flex items-center gap-2">
             {selectedClassIds.size > 0 && (
-              <Badge className="bg-blue-600 text-white font-mono text-[9px] px-2 py-1">
+              <Badge className="px-2 py-1 font-mono text-caption">
                 {selectedClassIds.size} CLASSES SELECTED
               </Badge>
             )}
           </div>
-          <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="flex w-full items-center gap-2 sm:w-auto">
             <Button
               variant="ghost"
               onClick={() => onOpenChange(false)}
-              className="flex-1 sm:flex-none font-bold text-[10px] uppercase tracking-widest text-slate-400 hover:text-slate-600"
+              className="flex-1 text-caps uppercase sm:flex-none"
             >
               Cancel
             </Button>
             <Button
               disabled={selectedClassIds.size === 0}
               onClick={handleAddSelected}
-              className="flex-1 sm:flex-none bg-blue-700 hover:bg-blue-800 text-white font-bold text-[10px] uppercase tracking-widest px-6 rounded-xl shadow-lg shadow-blue-200 transition-all disabled:opacity-50 disabled:shadow-none"
+              className="flex-1 px-6 text-caps uppercase sm:flex-none"
             >
               Add
             </Button>

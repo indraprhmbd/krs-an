@@ -1,10 +1,11 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 import path from "path";
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -12,19 +13,30 @@ export default defineConfig({
   },
   build: {
     sourcemap: true,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          "react-vendor": ["react", "react-dom", "react-router-dom"],
-          "ui-vendor": [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-select",
-            "@radix-ui/react-slot",
-            "@radix-ui/react-tabs",
+        // Rolldown deprecates the manualChunks object form in favour of
+        // advancedChunks. test matches the module path, so anchor on
+        // node_modules and allow both path separators for Windows.
+        advancedChunks: {
+          groups: [
+            {
+              name: "react-vendor",
+              test: /[\\/]node_modules[\\/](react|react-dom|react-router|react-router-dom|scheduler)[\\/]/,
+            },
+            {
+              name: "ui-vendor",
+              test: /[\\/]node_modules[\\/]@radix-ui[\\/]/,
+            },
+            {
+              name: "clerk-vendor",
+              test: /[\\/]node_modules[\\/]@clerk[\\/]/,
+            },
+            {
+              name: "convex-vendor",
+              test: /[\\/]node_modules[\\/]convex[\\/]/,
+            },
           ],
-          "clerk-vendor": ["@clerk/clerk-react"],
-          "convex-vendor": ["convex"],
         },
       },
     },

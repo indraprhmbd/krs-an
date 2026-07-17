@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Icon } from "@/components/ui/icon";
 
 interface PaginationProps {
   currentPage: number;
@@ -61,16 +61,16 @@ export function Pagination({
   if (totalPages <= 1) return null;
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-1 p-4 border-t border-slate-100 bg-slate-50/30">
+    <div className="flex flex-wrap items-center justify-center gap-1 p-4 border-t border-border bg-muted/30">
       {/* Previous Button */}
       <Button
         variant="outline"
         size="icon"
         onClick={onPrev}
         disabled={!canGoPrev}
-        className="h-8 w-8 rounded-lg border-slate-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:border-blue-300"
+        className="h-8 w-8 rounded-control border-border disabled:opacity-30 disabled:cursor-not-allowed hover:bg-card hover:border-border"
       >
-        <ChevronLeft className="w-4 h-4" />
+        <Icon name="chevron-left" />
       </Button>
 
       {/* Page Numbers */}
@@ -78,7 +78,7 @@ export function Pagination({
         page === "..." ? (
           <span
             key={`ellipsis-${idx}`}
-            className="px-2 text-slate-400 font-mono text-xs"
+            className="px-2 text-muted-foreground font-mono text-caption"
           >
             ...
           </span>
@@ -88,11 +88,11 @@ export function Pagination({
             variant={currentPage === page ? "default" : "outline"}
             size="icon"
             onClick={() => onPageChange(page as number)}
-            className={`h-8 w-8 rounded-lg font-mono text-xs transition-all ${
-              currentPage === page
-                ? "bg-blue-700 text-white hover:bg-blue-800 border-blue-700 shadow-sm"
-                : "border-slate-200 text-slate-600 hover:bg-white hover:border-blue-300 hover:text-blue-700"
-            }`}
+            className={`h-8 w-8 rounded-control font-mono text-caption transition-all ${
+ currentPage === page
+ ? "bg-primary text-primary-foreground hover:opacity-90 border-primary"
+ : "border-border text-muted-foreground hover:bg-card hover:border-border hover:text-primary"
+ }`}
           >
             {page}
           </Button>
@@ -105,9 +105,9 @@ export function Pagination({
         size="icon"
         onClick={onNext}
         disabled={!canGoNext}
-        className="h-8 w-8 rounded-lg border-slate-200 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:border-blue-300"
+        className="h-8 w-8 rounded-control border-border disabled:opacity-30 disabled:cursor-not-allowed hover:bg-card hover:border-border"
       >
-        <ChevronRight className="w-4 h-4" />
+        <Icon name="chevron-right" />
       </Button>
     </div>
   );

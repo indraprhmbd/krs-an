@@ -1,62 +1,274 @@
 @import "tailwindcss";
-@import "@fontsource/outfit/300.css";
-@import "@fontsource/outfit/400.css";
-@import "@fontsource/outfit/500.css";
-@import "@fontsource/outfit/600.css";
-@import "@fontsource/outfit/700.css";
-@import "@fontsource/inter/300.css";
-@import "@fontsource/inter/400.css";
-@import "@fontsource/inter/500.css";
-@import "@fontsource/inter/600.css";
-@import "@fontsource/inter/700.css";
-@import "@fontsource/jetbrains-mono/400.css";
-@import "@fontsource/jetbrains-mono/500.css";
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui;
-  --font-display: "Outfit", ui-sans-serif, system-ui;
+/* Two variable families, not three static ones.
+
+   Was 12 static weight imports across Outfit + Inter + JetBrains Mono, which
+   emitted 62 @font-face rules. Variable fonts collapse that to 10 (all
+   unicode-range gated, so only latin is ever downloaded) and carry the whole
+   200-800 axis in one file. That also kills the fake weights: font-black asked
+   for 900 while nothing above 700 was loaded, so the browser was synthesizing
+   it by smearing the 700.
+
+   Plus Jakarta Sans is by Tokotype, commissioned for Jakarta's city identity.
+   SIL OFL 1.1. Picked over Inter/Geist/Poppins because those are the default
+   every generated UI reaches for. */
+@import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/jetbrains-mono";
+
+/* Tailwind v4 defaults the dark variant to prefers-color-scheme. Switch it to
+   class-based so next-themes can drive it from a toggle. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ---------------------------------------------------------------------------
+   Semantic values.
+
+   These are the raw theme values. @theme inline below maps them onto Tailwind
+   utilities. Component code should never reach for a numbered palette colour
+   (slate-400, blue-700); it should only ever use the semantic utilities, so a
+   theme change happens here and nowhere else.
+
+   Naming follows shadcn, because the 16 primitives in src/components/ui/
+   already speak it. Note "accent" means "subtle hover surface", NOT the brand
+   colour. The brand is "primary".
+
+   Neutrals carry a slight cool tint (hue 265) so they sit with the blue brand
+   rather than fighting it. Values are OKLCH for perceptually even steps.
+--------------------------------------------------------------------------- */
+
+:root {
+  /* Surfaces, sunken to raised */
+  --background: oklch(98.5% 0.002 265);
+  --card: oklch(100% 0 0);
+  --popover: oklch(100% 0 0);
+
+  /* Text */
+  --foreground: oklch(21% 0.015 265);
+  --card-foreground: oklch(21% 0.015 265);
+  --popover-foreground: oklch(21% 0.015 265);
+  --muted-foreground: oklch(50% 0.014 265);
+
+  /* Brand. Matches the established blue-700 (#1d4ed8). */
+  --primary: oklch(48% 0.19 259);
+  --primary-foreground: oklch(99% 0 0);
+
+  /* Subdued fills */
+  --secondary: oklch(96% 0.004 265);
+  --secondary-foreground: oklch(28% 0.015 265);
+  --muted: oklch(96% 0.004 265);
+
+  /* Hover surface */
+  --accent: oklch(95.5% 0.005 265);
+  --accent-foreground: oklch(24% 0.015 265);
+
+  /* Danger */
+  --destructive: oklch(55% 0.21 27);
+  --destructive-foreground: oklch(99% 0 0);
+
+  /* Lines. Borders carry the structure here instead of large shadows, so
+     there are two weights: default, and strong for real separation. */
+  --border: oklch(91% 0.005 265);
+  --border-strong: oklch(84% 0.008 265);
+  /* Darker than --border on purpose. An input's border is the only thing
+     identifying the field, so WCAG 1.4.11 wants 3:1 against the surface.
+     Solved for the lightest value clearing 3:1 on both background and card
+     (3.04:1). Do not lighten this to match --border. */
+  --input: oklch(65.5% 0.006 265);
+  --ring: oklch(48% 0.19 259);
+
+  /* Elevation. Deliberately restrained: this is a dense data tool, and big
+     soft shadows read as floaty. */
+  --elevation-card: 0 1px 2px 0 oklch(0% 0 0 / 0.04),
+    0 1px 3px 0 oklch(0% 0 0 / 0.06);
+  --elevation-overlay: 0 8px 24px -4px oklch(0% 0 0 / 0.12),
+    0 2px 6px -2px oklch(0% 0 0 / 0.08);
+}
+
+.dark {
+  --background: oklch(17% 0.012 265);
+  --card: oklch(21% 0.014 265);
+  --popover: oklch(23% 0.014 265);
+
+  --foreground: oklch(94% 0.004 265);
+  --card-foreground: oklch(94% 0.004 265);
+  --popover-foreground: oklch(94% 0.004 265);
+  --muted-foreground: oklch(70% 0.012 265);
+
+  /* Lifted: the light-mode brand is too dark to read on a dark surface. */
+  --primary: oklch(65% 0.17 259);
+  --primary-foreground: oklch(17% 0.02 265);
+
+  --secondary: oklch(27% 0.014 265);
+  --secondary-foreground: oklch(92% 0.004 265);
+  --muted: oklch(27% 0.014 265);
+
+  --accent: oklch(28% 0.016 265);
+  --accent-foreground: oklch(95% 0.004 265);
+
+  --destructive: oklch(62% 0.19 27);
+  --destructive-foreground: oklch(17% 0.02 265);
+
+  --border: oklch(30% 0.014 265);
+  --border-strong: oklch(38% 0.016 265);
+  /* See the light-mode note. Solved for 3:1 against dark surfaces (3.02:1). */
+  --input: oklch(50.5% 0.015 265);
+  --ring: oklch(65% 0.17 259);
+
+  /* Shadows barely register on dark surfaces, so lean on opacity. */
+  --elevation-card: 0 1px 2px 0 oklch(0% 0 0 / 0.3),
+    0 1px 3px 0 oklch(0% 0 0 / 0.4);
+  --elevation-overlay: 0 8px 24px -4px oklch(0% 0 0 / 0.6),
+    0 2px 6px -2px oklch(0% 0 0 / 0.4);
+}
+
+/* ---------------------------------------------------------------------------
+   Utility bridge.
+
+   `inline` is required, not stylistic. It compiles `bg-card` to
+   `background-color: var(--card)` rather than `var(--color-card)`. Without it
+   the value would resolve once at :root and .dark would never take effect.
+--------------------------------------------------------------------------- */
+
+@theme inline {
+  /* Tailwind v4 ships no xs breakpoint. Navbar and ScheduleViewer already use
+     xs: to reveal labels on small phones; without this they never render. */
+  --breakpoint-xs: 30rem;
+
+  --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui;
+  /* One family serves both now, so font-display is a no-op kept only until the
+     52 call sites still passing it are cleaned up. Do not add new uses. */
+  --font-display: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui;
   --font-mono:
-    "JetBrains+Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Liberation Mono", "Courier New", monospace;
+    "JetBrains Mono Variable", ui-monospace, SFMono-Regular, Menlo, Monaco,
+    Consolas, "Liberation Mono", "Courier New", monospace;
 
-  --color-primary: #1d4ed8; /* blue-700 */
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
+  /* -------------------------------------------------------------------------
+     Type scale.
+
+     Roles, not sizes. Every token below bundles size + leading + weight +
+     tracking, so a call site names what a thing IS and never re-decides how it
+     looks. This is the layer the app never had: 14 ad-hoc sizes, 183 of them
+     arbitrary sub-12px values, and one uppercase-mono-tracking-widest
+     treatment applied identically to table headers, buttons, badges, field
+     labels and empty states alike. One style for every role means nothing has
+     rank, which is what read as "AI-generated" and "airy".
+
+     The old scale was bimodal: headings at 24-48px, labels at 8-11px, and
+     almost nothing between. Reading happens in the middle, so the middle is
+     where the weight is now.
+
+     `caps` is ONE role, for technical metadata only (table headers, record
+     badges). Wide tracking belongs on short uppercase strings and nowhere
+     else. It is not the house style.
+  ------------------------------------------------------------------------- */
+
+  --text-display: 2rem;
+  --text-display--line-height: 1.15;
+  --text-display--font-weight: 700;
+  --text-display--letter-spacing: -0.02em;
+
+  --text-headline: 1.5rem;
+  --text-headline--line-height: 1.2;
+  --text-headline--font-weight: 700;
+  --text-headline--letter-spacing: -0.02em;
+
+  --text-title: 1.0625rem;
+  --text-title--line-height: 1.3;
+  --text-title--font-weight: 600;
+  --text-title--letter-spacing: -0.01em;
+
+  /* The default. If text is for reading, it is this. */
+  --text-body: 0.875rem;
+  --text-body--line-height: 1.5;
+  --text-body--font-weight: 400;
+
+  --text-body-sm: 0.8125rem;
+  --text-body-sm--line-height: 1.45;
+  --text-body-sm--font-weight: 400;
+
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.25;
+  --text-label--font-weight: 500;
+
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.35;
+  --text-caption--font-weight: 400;
+
+  /* Technical metadata only. Pair with font-mono + uppercase. */
+  --text-caps: 0.6875rem;
+  --text-caps--line-height: 1.1;
+  --text-caps--font-weight: 600;
+  --text-caps--letter-spacing: 0.08em;
+
+  /* Data roles. Pair with font-mono: course codes, times, SKS counts. */
+  --text-data: 0.8125rem;
+  --text-data--line-height: 1.3;
+  --text-data--font-weight: 500;
+
+  --text-data-sm: 0.6875rem;
+  --text-data-sm--line-height: 1.25;
+  --text-data-sm--font-weight: 500;
+
+  /* Schedule grid only. The one place tiny type is a spatial constraint rather
+     than a style choice: a 30-min slot is 1.5rem tall (ScheduleGrid.tsx) and a
+     block stacks code + class + name + room. Even so, 10px beats the 6-8px it
+     replaced. Changing these means re-checking the grid at 360px. */
+  --text-grid: 0.625rem;
+  --text-grid--line-height: 1.15;
+  --text-grid--font-weight: 600;
+
+  --text-grid-meta: 0.5625rem;
+  --text-grid-meta--line-height: 1.1;
+  --text-grid-meta--font-weight: 400;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Tight radii. Soft mega-radii (rounded-3xl and up) are the loudest
+     generated-UI tell; these keep edges crisp. */
+  --radius-control: 0.375rem;
+  --radius-card: 0.625rem;
+  --radius-panel: 0.875rem;
+
+  --shadow-card: var(--elevation-card);
+  --shadow-overlay: var(--elevation-overlay);
 }
 
-html,
-body,
-#root {
-  height: 100%;
-  font-family: var(--font-sans);
-  background-color: #f8fafc; /* slate-50 */
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: var(--font-display);
-}
-@keyframes marquee {
-  0% {
-    transform: translateX(0);
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+    font-family: var(--font-sans);
+    background-color: var(--background);
+    color: var(--foreground);
   }
-  100% {
-    transform: translateX(-50%);
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
   }
-}
-
-.animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 20s linear infinite;
-}
-
-.animate-marquee:hover {
-  animation-play-state: paused;
 }
 
 /* Custom Scrollbar */
@@ -70,12 +282,12 @@ h6 {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #e2e8f0;
+  background: var(--border);
   border-radius: 10px;
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #cbd5e1;
+  background: var(--border-strong);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */
