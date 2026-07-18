@@ -70,6 +70,21 @@ export function MasterCatalogDialog({
     );
   }, [allMasterCourses, searchQuery]);
 
+  // Summed from allMasterCourses, not the search-filtered groupedCourses --
+  // a code selected before typing a search that hides its group must still
+  // count toward the total.
+  const selectedSks = useMemo(() => {
+    const seen = new Set<string>();
+    let total = 0;
+    for (const c of allMasterCourses || []) {
+      if (selectedCodes.has(c.code) && !seen.has(c.code)) {
+        seen.add(c.code);
+        total += c.sks;
+      }
+    }
+    return total;
+  }, [allMasterCourses, selectedCodes]);
+
   const toggleCode = (code: string) => {
     const next = new Set(selectedCodes);
     if (next.has(code)) {
@@ -191,9 +206,17 @@ export function MasterCatalogDialog({
         <DialogFooter className="mt-3 flex w-full shrink-0 flex-col items-center justify-between gap-3 border-t border-border pt-3 sm:flex-row">
           <div className="flex items-center gap-2">
             {selectedCodes.size > 0 && (
-              <Badge className="px-2 py-1 font-mono text-caption">
-                {selectedCodes.size} MATA KULIAH DIPILIH
-              </Badge>
+              <>
+                <Badge className="px-2 py-1 font-mono text-caption">
+                  {selectedCodes.size} MATA KULIAH DIPILIH
+                </Badge>
+                <Badge
+                  variant="outline"
+                  className="px-2 py-1 font-mono text-caption"
+                >
+                  {selectedSks} SKS DIPILIH
+                </Badge>
+              </>
             )}
           </div>
           <div className="flex w-full items-center gap-2 sm:w-auto">
