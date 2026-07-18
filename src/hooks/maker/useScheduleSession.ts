@@ -36,7 +36,7 @@ export function useScheduleSession({
   savePlan,
   isLocalArchive,
 }: UseScheduleSessionArgs) {
-  const [courses, setCourses] = useState<Course[]>([]);
+  const [courses, setCourses] = useLocalStorage<Course[]>("krs-courses", []);
   const [selectedCodes, setSelectedCodes] = useLocalStorage<string[]>(
     "krs-selected-codes",
     [],

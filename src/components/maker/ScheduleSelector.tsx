@@ -32,6 +32,7 @@ interface ScheduleSelectorProps {
   setLockedCourses: (updater: (prev: any) => any) => void;
   handleDeleteCourse: (e: React.MouseEvent, id: string) => void;
   onAddSubject: () => void;
+  onLoadCurriculum?: () => void;
   onGenerate: (tokenized?: boolean) => void;
   onSmartGenerate?: () => void;
   onSaveManual?: (combo: Course[]) => void;
@@ -50,6 +51,7 @@ export function ScheduleSelector({
   setLockedCourses,
   handleDeleteCourse,
   onAddSubject,
+  onLoadCurriculum,
   onGenerate,
   onSmartGenerate,
   onSaveManual,
@@ -391,15 +393,22 @@ export function ScheduleSelector({
               <p className="max-w-xs text-body-sm text-muted-foreground">
                 {t("selector.no_subjects_desc")}
               </p>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onAddSubject}
-                className="mt-1"
-              >
-                <Icon name="plus" size={14} />
-                {t("selector.add_course")}
-              </Button>
+              <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+                {onLoadCurriculum && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={onLoadCurriculum}
+                  >
+                    <Icon name="database" size={14} />
+                    {t("selector.load_curriculum")}
+                  </Button>
+                )}
+                <Button variant="outline" size="sm" onClick={onAddSubject}>
+                  <Icon name="plus" size={14} />
+                  {t("selector.add_course")}
+                </Button>
+              </div>
             </div>
           )}
       </div>

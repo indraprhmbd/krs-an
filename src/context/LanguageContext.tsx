@@ -56,6 +56,7 @@ const translations: Record<string, string> = {
   "selector.title": "Katalog Mata Kuliah",
   "selector.sub_title": "Pilih mata kuliah yang ingin Anda ambil.",
   "selector.add_course": "Tambah",
+  "selector.load_curriculum": "Muat dari Kurikulum",
   "selector.generating": "Merencanakan...",
   "selector.generate": "Hasilkan Jadwal",
   "selector.thinking": "Berpikir...",

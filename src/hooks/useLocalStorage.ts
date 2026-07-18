@@ -132,6 +132,7 @@ export function clearKRSSession() {
     "krs-session-profile",
     "krs-selected-codes",
     "krs-locked-courses",
+    "krs-courses",
   ];
 
   krsKeys.forEach((key) => {

@@ -269,6 +269,9 @@ export function ScheduleMaker({ userData }: ScheduleMakerProps) {
                   setLockedCourses={session.setLockedCourses}
                   handleDeleteCourse={session.handleDeleteCourse}
                   onAddSubject={() => setIsMasterSearchOpen(true)}
+                  onLoadCurriculum={() =>
+                    session.handleAutoLoad(curriculum, allMasterCourses)
+                  }
                   onGenerate={(tokenized: boolean = false) =>
                     session.handleGenerate(tokenized, {
                       requireAuth,

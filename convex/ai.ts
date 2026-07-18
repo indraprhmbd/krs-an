@@ -12,6 +12,7 @@ import { checkAdmin } from "./admin";
 import { requireUser } from "./lib";
 import { v } from "convex/values";
 import Groq from "groq-sdk";
+import OpenAI from "openai";
 import { z } from "zod";
 import MD5 from "crypto-js/md5";
 
@@ -20,6 +21,14 @@ import MD5 from "crypto-js/md5";
 // fallback in different size classes so a fallback is actually meaningful.
 const PRIMARY_MODEL = "openai/gpt-oss-120b";
 const FALLBACK_MODEL = "openai/gpt-oss-20b";
+
+// SumoPod (OpenAI-SDK-compatible aggregator) fronts the Groq pair as the
+// first attempt. Base URL, key and model name are all deployment env vars --
+// never hardcoded, so a key rotation or provider swap needs no redeploy of
+// source. Unset SUMOPOD_API_KEY disables this tier entirely (falls straight
+// to Groq), so the feature degrades gracefully if it's never configured.
+const SUMOPOD_BASE_URL = process.env.SUMOPOD_BASE_URL;
+const SUMOPOD_MODEL = process.env.SUMOPOD_MODEL;
 
 // Schema for Structured Output
 const SchedulePlanSchema = z.object({
@@ -226,6 +235,18 @@ export const smartGenerate = action({
 
     try {
       // 3. Payload minification: shorten field names to cut tokens.
+      //
+      // Class ids are long opaque strings (Convex ids / UUIDs). Asking a
+      // model to retype one exactly inside a JSON tool-call argument is
+      // asking it to hallucinate-proof-copy a random token from scratch --
+      // Groq's gpt-oss-120b does this reliably enough, but MiniMax (and any
+      // weaker/faster model) frequently mangles a few characters, so the
+      // returned id matches nothing in courseMap and the whole plan is
+      // silently dropped. Short sequential ref keys ("0", "1", ...) are
+      // trivial for any model to copy verbatim; refMap below translates them
+      // back to the real id after the model responds.
+      let refCounter = 0;
+      const refMap = new Map<string, string>(); // ref key -> real course id
       const optimizedCourses = args.courses.reduce((acc: any, c: any) => {
         if (!args.selectedCodes.includes(c.code)) return acc;
 
@@ -236,8 +257,10 @@ export const smartGenerate = action({
             c: [], // c = classes
           };
         }
+        const ref = String(refCounter++);
+        refMap.set(ref, c.id);
         acc[c.code].c.push({
-          id: c.id,
+          id: ref,
           k: c.class, // k = kelas
           l: c.lecturer, // l = lecturer
           t: c.schedule
@@ -290,11 +313,13 @@ export const smartGenerate = action({
           throw new Error("Gemini is currently unavailable. Please use Groq.");
         }
 
-        // 5. Groq execution with fallback.
-        // Primary: high intelligence. Fallback: faster and cheaper.
+        // 5. Provider chain: SumoPod/MiniMax first (if configured), then Groq
+        // primary, then Groq fallback. Each tier is a different model family,
+        // so one provider's outage or deprecation cannot take down the whole
+        // feature.
         const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-        const runChain = async (modelName: string) => {
+        const runGroq = async (modelName: string) => {
           const completion = await groq.chat.completions.create({
             model: modelName,
             temperature: 0.6,
@@ -322,26 +347,94 @@ export const smartGenerate = action({
           return SchedulePlanSchema.parse(JSON.parse(raw));
         };
 
-        try {
-          console.log(`Attempting generation with ${PRIMARY_MODEL}...`);
-          aiResult = await runChain(PRIMARY_MODEL);
-        } catch (primaryError: any) {
-          console.warn(
-            `Primary model failed, falling back to ${FALLBACK_MODEL}...`,
-            primaryError.message,
-          );
+        // MiniMax's OpenAI-compatible endpoint has documented, recurring gaps
+        // in `response_format` support (json_schema/json_object silently
+        // ignored on the M2.x family). Forcing a single strict tool call is
+        // the workaround other OpenAI-SDK integrations have landed on for
+        // this model family -- the shape below asks for the same schema, just
+        // read back from `tool_calls` instead of `content`.
+        const runSumoPod = async () => {
+          const sumopod = new OpenAI({
+            apiKey: process.env.SUMOPOD_API_KEY,
+            baseURL: SUMOPOD_BASE_URL,
+          });
+
+          const completion = await sumopod.chat.completions.create({
+            model: SUMOPOD_MODEL!,
+            temperature: 0.6,
+            messages: [
+              { role: "system", content: systemPrompt },
+              { role: "user", content: userInput },
+            ],
+            tools: [
+              {
+                type: "function",
+                function: {
+                  name: "return_schedule_plans",
+                  strict: true,
+                  parameters: z.toJSONSchema(SchedulePlanSchema) as Record<
+                    string,
+                    unknown
+                  >,
+                },
+              },
+            ],
+            tool_choice: {
+              type: "function",
+              function: { name: "return_schedule_plans" },
+            },
+          });
+
+          const call = completion.choices[0]?.message?.tool_calls?.[0];
+          if (!call || call.type !== "function")
+            throw new Error("Model returned no tool call");
+
+          return SchedulePlanSchema.parse(JSON.parse(call.function.arguments));
+        };
+
+        let providerUsed = "groq:" + PRIMARY_MODEL;
+
+        if (process.env.SUMOPOD_API_KEY && SUMOPOD_BASE_URL && SUMOPOD_MODEL) {
           try {
-            aiResult = await runChain(FALLBACK_MODEL);
-          } catch (fallbackError: any) {
-            console.error("Fallback model also failed:", fallbackError);
-            throw new Error(
-              `AI Generation Failed (Both Primary & Fallback): ${fallbackError.message}`,
+            console.log(`Attempting generation with SumoPod/${SUMOPOD_MODEL}...`);
+            aiResult = await runSumoPod();
+            providerUsed = "sumopod:" + SUMOPOD_MODEL;
+          } catch (sumopodError: any) {
+            console.warn(
+              "SumoPod generation failed, falling back to Groq...",
+              sumopodError.message,
             );
           }
         }
 
-        // Save to cache if successful (regardless of which model won)
+        if (!aiResult) {
+          try {
+            console.log(`Attempting generation with ${PRIMARY_MODEL}...`);
+            aiResult = await runGroq(PRIMARY_MODEL);
+            providerUsed = "groq:" + PRIMARY_MODEL;
+          } catch (primaryError: any) {
+            console.warn(
+              `Primary model failed, falling back to ${FALLBACK_MODEL}...`,
+              primaryError.message,
+            );
+            try {
+              aiResult = await runGroq(FALLBACK_MODEL);
+              providerUsed = "groq:" + FALLBACK_MODEL;
+            } catch (fallbackError: any) {
+              console.error("Fallback model also failed:", fallbackError);
+              throw new Error(
+                `AI Generation Failed (All Providers): ${fallbackError.message}`,
+              );
+            }
+          }
+        }
+
+        // Save to cache if successful (regardless of which provider won). The
+        // hash already commits to `modelToUse` ("groq" from the client), which
+        // is coarser than `providerUsed` -- fine, since the cache is keyed on
+        // input+intent, not on which tier happened to answer.
         if (aiResult) {
+          console.log(`Smart Generate answered by ${providerUsed}`);
           await ctx.runMutation(internal.ai.saveCache, {
             hash: cacheHash,
             response: aiResult,
@@ -355,8 +448,10 @@ export const smartGenerate = action({
 
       const aiPlans = aiResult.plans;
 
-      // 6. Server-side reconstruction: map the model's courseIds back through
-      // the real course data, dropping any hallucinated id.
+      // 6. Server-side reconstruction: map the model's ref keys back through
+      // refMap to a real course id, then through courseMap to the full course.
+      // A hallucinated or mangled ref key resolves to undefined at either
+      // step and is dropped, same guarantee as before.
       const courseMap = new Map();
       args.courses.forEach((c: any) => courseMap.set(c.id, c));
 
@@ -364,7 +459,7 @@ export const smartGenerate = action({
       for (let i = 0; i < Math.min(aiPlans.length, 3); i++) {
         const aiPlan = aiPlans[i];
         const fullCourses = (aiPlan.courseIds || [])
-          .map((id: string) => courseMap.get(id))
+          .map((ref: string) => courseMap.get(refMap.get(ref) ?? ""))
           .filter(Boolean);
 
         if (fullCourses.length === 0) continue;
