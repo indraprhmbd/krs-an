@@ -8,6 +8,7 @@ import { Icon } from "@/components/ui/icon";
 
 import { MasterDataTab } from "./admin/MasterDataTab";
 import { CurriculumTab } from "./admin/CurriculumTab";
+import { ProdiTab } from "./admin/ProdiTab";
 import { IntelligenceScraperDialog } from "./admin/dialogs/IntelligenceScraperDialog";
 import { CurriculumImportDialog } from "./admin/dialogs/CurriculumImportDialog";
 
@@ -134,6 +135,12 @@ export function AdminDashboard() {
             >
               <Icon name="database" size={14} className="mr-2" /> Curriculum
             </TabsTrigger>
+            <TabsTrigger
+              value="prodi"
+              className="flex-1 rounded-control px-3 py-2 font-mono text-caps uppercase md:flex-none md:px-6"
+            >
+              <Icon name="list" size={14} className="mr-2" /> Prodi
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="master">
@@ -144,6 +151,10 @@ export function AdminDashboard() {
             <CurriculumTab
               onOpenImport={() => setIsCurriculumDialogOpen(true)}
             />
+          </TabsContent>
+
+          <TabsContent value="prodi">
+            <ProdiTab />
           </TabsContent>
         </Tabs>
 

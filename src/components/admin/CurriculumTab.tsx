@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useCurriculumData } from "./hooks/useCurriculumData";
+import { useProdiOptions } from "./hooks/useProdiOptions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -30,6 +31,8 @@ interface CurriculumTabProps {
 export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
   const [prodi, setProdi] = useState("INFORMATIKA");
   const [semester, setSemester] = useState(2);
+
+  const { prodiOptions } = useProdiOptions();
 
   const { search, setSearch, filteredCurriculum } = useCurriculumData(
     prodi,
@@ -105,25 +108,15 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
                     <SelectValue placeholder="Select Prodi" />
                   </SelectTrigger>
                   <SelectContent className="rounded-control border-border shadow-overlay max-h-[300px]">
-                    {[
-                      "INFORMATIKA",
-                      "SISTEM INFORMASI",
-                      "TEKNIK INDUSTRI",
-                      "TEKNIK KIMIA",
-                      "TEKNIK LINGKUNGAN",
-                      "TEKNIK PERTAMBANGAN",
-                      "TEKNIK GEOLOGI",
-                      "MANAJEMEN",
-                      "AKUNTANSI",
-                      "EKONOMI PEMBANGUNAN",
-                      "ILMU KOMUNIKASI",
-                      "HUBUNGAN INTERNASIONAL",
-                      "ADMINISTRASI BISNIS",
-                    ]
-                      .sort()
+                    {[...prodiOptions]
+                      .sort((a, b) => a.name.localeCompare(b.name))
                       .map((p) => (
-                        <SelectItem key={p} value={p} className="text-caption">
-                          {p}
+                        <SelectItem
+                          key={p._id}
+                          value={p.name}
+                          className="text-caption"
+                        >
+                          {p.name}
                         </SelectItem>
                       ))}
                   </SelectContent>

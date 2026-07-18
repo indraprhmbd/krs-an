@@ -381,3 +381,76 @@ export const fixProdiFormatting = mutation({
     return { success: true, fixedCount: count };
   },
 });
+
+// Prodi Options: the source of truth for the prodi dropdowns in
+// ScheduleConfig.tsx (student config form) and CurriculumTab.tsx (admin
+// filter), which used to be two separately hardcoded arrays that had already
+// drifted apart. Public read (matches listMasterCourses/listCurriculum --
+// prodi names are not sensitive and the student form needs them
+// unauthenticated); add/remove are admin-gated like every other write here.
+export const listProdiOptions = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query("prodi_options").collect();
+  },
+});
+
+export const addProdiOption = mutation({
+  args: { name: v.string(), comingSoon: v.optional(v.boolean()) },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    const normalized = args.name.toUpperCase().trim().replace(/\.$/, "");
+    const existing = await ctx.db
+      .query("prodi_options")
+      .withIndex("by_name", (q) => q.eq("name", normalized))
+      .unique();
+    if (existing) throw new Error("Prodi already exists.");
+    return await ctx.db.insert("prodi_options", {
+      name: normalized,
+      comingSoon: args.comingSoon,
+    });
+  },
+});
+
+export const removeProdiOption = mutation({
+  args: { id: v.id("prodi_options") },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    await ctx.db.delete(args.id);
+  },
+});
+
+/**
+ * One-off seed: insert the prodi names that used to be hardcoded in
+ * ScheduleConfig.tsx, skipping any that already exist. Run once from the
+ * dashboard after deploying prodi_options -- not auto-run, since seeding is a
+ * data decision, not something that should fire silently on every deploy.
+ */
+export const seedProdiOptions = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const seedNames: { name: string; comingSoon?: boolean }[] = [
+      { name: "INFORMATIKA" },
+      { name: "SISTEM INFORMASI" },
+      { name: "TEKNIK INDUSTRI" },
+      { name: "TEKNIK KIMIA" },
+      { name: "TEKNIK PERTAMBANGAN" },
+      { name: "TEKNIK ELEKTRO", comingSoon: true },
+      { name: "FAKULTAS EKONOMI DAN BISNIS" },
+    ];
+
+    let inserted = 0;
+    for (const seed of seedNames) {
+      const existing = await ctx.db
+        .query("prodi_options")
+        .withIndex("by_name", (q) => q.eq("name", seed.name))
+        .unique();
+      if (!existing) {
+        await ctx.db.insert("prodi_options", seed);
+        inserted++;
+      }
+    }
+    return { inserted };
+  },
+});

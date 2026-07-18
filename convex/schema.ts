@@ -89,4 +89,12 @@ export default defineSchema({
     type: v.string(), // "generate_plan" | "analyze"
     timestamp: v.number(),
   }).index("by_user", ["userId"]),
+
+  // Admin-managed source of truth for the prodi dropdowns. Replaces two
+  // hardcoded arrays (ScheduleConfig.tsx, CurriculumTab.tsx) that had already
+  // drifted apart, and let adding a prodi require a code change + redeploy.
+  prodi_options: defineTable({
+    name: v.string(), // normalized: .toUpperCase().trim().replace(/\.$/, "")
+    comingSoon: v.optional(v.boolean()),
+  }).index("by_name", ["name"]),
 });

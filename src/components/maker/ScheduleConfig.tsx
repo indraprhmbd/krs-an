@@ -1,3 +1,5 @@
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import {
   Select,
   SelectContent,
@@ -35,6 +37,7 @@ export function ScheduleConfig({
   rail,
 }: ScheduleConfigProps) {
   const { t } = useLanguage();
+  const prodiOptions = useQuery(api.admin.listProdiOptions, {}) ?? [];
 
   return (
     <MakerShell rail={rail}>
@@ -120,22 +123,18 @@ export function ScheduleConfig({
                       <SelectValue placeholder={t("config.prodi_placeholder")} />
                     </SelectTrigger>
                     <SelectContent className="rounded-control border-border">
-                      <SelectItem value="INFORMATIKA">INFORMATIKA</SelectItem>
-                      <SelectItem value="SISTEM INFORMASI">
-                        SISTEM INFORMASI
-                      </SelectItem>
-                      <SelectItem value="TEKNIK INDUSTRI">
-                        TEKNIK INDUSTRI
-                      </SelectItem>
-                      <SelectItem value="TEKNIK KIMIA">
-                        TEKNIK KIMIA
-                      </SelectItem>
-                      <SelectItem value="TEKNIK PERTAMBANGAN">
-                        TEKNIK PERTAMBANGAN
-                      </SelectItem>
-                      <SelectItem value="TEKNIK ELEKTRO" disabled>
-                        TEKNIK ELEKTRO (Coming Soon)
-                      </SelectItem>
+                      {[...prodiOptions]
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((p) => (
+                          <SelectItem
+                            key={p._id}
+                            value={p.name}
+                            disabled={p.comingSoon}
+                          >
+                            {p.name}
+                            {p.comingSoon ? " (Coming Soon)" : ""}
+                          </SelectItem>
+                        ))}
                     </SelectContent>
                   </Select>
                 </div>
