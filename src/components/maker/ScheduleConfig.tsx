@@ -49,6 +49,10 @@ export function ScheduleConfig({
             <img
               src="/assets/hero-config.svg"
               alt=""
+              width={750}
+              height={500}
+              loading="lazy"
+              decoding="async"
               className="w-full max-w-md"
             />
             <p className="max-w-xs text-body text-muted-foreground">

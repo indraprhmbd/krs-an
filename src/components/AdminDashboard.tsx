@@ -37,18 +37,18 @@ export function AdminDashboard() {
 
           <div className="space-y-2 text-center">
             <h1 className="text-headline text-foreground">
-              Access Denied
+              Akses Ditolak
             </h1>
             <p className="mx-auto max-w-xs text-muted-foreground">
-              Your identity is not recognized as a{" "}
-              <strong>Core Architect</strong>. Access to university master data
-              is restricted.
+              Identitas Anda tidak dikenali sebagai{" "}
+              <strong>Core Architect</strong>. Akses ke data master universitas
+              dibatasi.
             </p>
           </div>
 
           <div className="flex w-full max-w-xs flex-col gap-4">
             <Button size="lg" onClick={() => (window.location.href = "/")}>
-              Return to Planner
+              Kembali
             </Button>
 
             {user?.tokenIdentifier && (

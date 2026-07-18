@@ -4,9 +4,7 @@ export const AUTHOR_PROFILE = {
   quote:
     "I write code that works on my machine. If it doesn't work on yours, we'll just have to trade machines.",
   description:
-    "Passionate about building intuitive web applications using modern tech stacks like React, Next.js, and Convex. Creator of KRSan.",
-  avatarUrl:
-    "https://media.licdn.com/dms/image/v2/D5603AQGGmEiyEUDGeg/profile-displayphoto-scale_200_200/B56Zqz5TcUHAAY-/0/1763954735633?e=1770249600&v=beta&t=4GDpxvS0XE3xZK61GLIbf04vyTuQzO3cFA7IPgiXmCA", // Replace with actual path or URL
+    "Passionate about building intuitive web applications using modern tech stacks like Vue, Go, FastAPI, React, Astro, Next.js, Convex, PostgreSQL, and MongoDB. Creator of KRSan.",
   socials: {
     github: "https://github.com/indraprhmbd", // Example
     linkedin:

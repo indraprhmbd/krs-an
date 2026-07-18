@@ -379,6 +379,10 @@ export function ScheduleSelector({
               <img
                 src="/assets/Empty-course-pana.svg"
                 alt=""
+                width={750}
+                height={500}
+                loading="lazy"
+                decoding="async"
                 className="h-40 w-full max-w-xs"
               />
               <p className="text-title text-foreground">

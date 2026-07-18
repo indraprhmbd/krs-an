@@ -24,25 +24,11 @@ export function ContactDialog({ trigger }: ContactDialogProps) {
         size="md"
         padded={false}
       >
-        {/* Header Image / Background */}
-        <div className="h-32 bg-muted relative">
-          <DialogClose className="absolute right-6 top-6 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent z-[70]">
-            <Icon name="close" size={16} />
-          </DialogClose>
+        <DialogClose className="absolute right-6 top-6 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent z-[70]">
+          <Icon name="close" size={16} />
+        </DialogClose>
 
-
-          <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
-            <div className="w-24 h-24 rounded-full border-4 border-border bg-muted overflow-hidden relative z-10">
-              <img
-                src={AUTHOR_PROFILE.avatarUrl}
-                alt={AUTHOR_PROFILE.name}
-                className="w-full h-full object-cover"
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-12 pb-8 px-6 text-center space-y-6">
+        <div className="pt-6 pb-8 px-6 text-center space-y-6">
           <div className="space-y-1">
             <h2 className="text-headline text-foreground">
               {AUTHOR_PROFILE.name}
