@@ -125,7 +125,7 @@ export function TutorialModal({
                   className="flex-1 sm:flex-none text-muted-foreground hover:text-foreground"
                 >
                   <Icon name="chevron-left" size={16} className="mr-1" />
-                  Back
+                  Kembali
                 </Button>
               )}
 
@@ -133,7 +133,7 @@ export function TutorialModal({
                 onClick={onNext}
                 className="flex-1 sm:flex-none bg-primary hover:bg-primary text-primary-foreground rounded-control px-6"
               >
-                {currentStepIndex === totalSteps - 1 ? "Get Started" : "Next"}
+                {currentStepIndex === totalSteps - 1 ? "Mulai" : "Lanjut"}
                 {currentStepIndex !== totalSteps - 1 && (
                   <Icon name="chevron-right" size={16} className="ml-1.5" />
                 )}

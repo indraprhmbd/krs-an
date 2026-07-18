@@ -16,8 +16,8 @@ interface LanguageContextType {
 // branch to begin with). `t()` keeps its call shape so existing call sites
 // don't need to change.
 const translations: Record<string, string> = {
-  "nav.architect": "Architect",
-  "nav.archive": "Archive",
+  "nav.architect": "Jadwal",
+  "nav.archive": "Arsip",
   "nav.admin": "Admin",
   "nav.tokens": "Service Tokens",
   "nav.tokens_used": "Tersisa",

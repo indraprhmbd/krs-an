@@ -48,7 +48,7 @@ export function ShareDialog({
           <div className="relative bg-primary p-4 text-primary-foreground">
             <DialogTitle className="mb-1 flex items-center gap-2 text-headline">
               <Icon name="share" size={20} />
-              Share Plan
+              Bagikan Jadwal
             </DialogTitle>
             <DialogDescription className="max-w-[250px] truncate text-caption text-primary-foreground/80">
               {planName}
@@ -63,7 +63,7 @@ export function ShareDialog({
           <div className="space-y-4">
             <div className="p-4 bg-muted rounded-control border border-border space-y-3">
               <p className="text-caps text-muted-foreground uppercase">
-                Shareable Link
+                Tautan
               </p>
               <div className="flex items-center gap-2">
                 <div className="flex-1 bg-card border border-border rounded-control px-3 py-2 text-caption font-mono text-muted-foreground truncate">
@@ -90,12 +90,12 @@ export function ShareDialog({
                 onClick={() => window.open(shareUrl, "_blank")}
               >
                 <Icon name="external-link" size={14} />
-                Preview Link
+                  Buka Tautan
               </Button>
               <Button
                 className="h-11 text-caption font-bold"
                 onClick={() => {
-                  const text = `Check out my KRS plan: ${planName}\n${shareUrl}`;
+                  const text = `Jadwal KRS - ${planName}\n${shareUrl}`;
                   window.open(
                     `https://wa.me/?text=${encodeURIComponent(text)}`,
                     "_blank",
@@ -108,8 +108,7 @@ export function ShareDialog({
           </div>
 
           <p className="text-caption text-center text-muted-foreground italic border-t border-border pt-4">
-            Anyone with this link can view and import this plan to their own
-            archive.
+            Siapa pun yang punya tautan ini bisa lihat dan impor jadwal ke arsip mereka.
           </p>
         </div>
       </DialogContent>

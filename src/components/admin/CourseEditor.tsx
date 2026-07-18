@@ -93,58 +93,58 @@ export function CourseEditor({
       <DialogContent size="xl">
         <DialogHeader className="mb-4">
           <DialogTitle className="text-title text-foreground italic">
-            {course ? "Edit Strategy Component" : "Architect New Course"}
+            {course ? "Edit Mata Kuliah" : "Tambah Mata Kuliah Baru"}
           </DialogTitle>
           <p className="text-caps text-muted-foreground font-mono uppercase pt-1.5 border-t border-border mt-1">
             {course
-              ? "Modifying existing data entry"
-              : "Defining manual academic resource"}
+              ? "Ubah data mata kuliah yang sudah ada"
+              : "Definisi mata kuliah baru"}
           </p>
         </DialogHeader>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-1.5">
             <Label className="text-muted-foreground ml-1">
-              Course Code
+              Kode Mata Kuliah
             </Label>
             <Input
               value={formData.code}
               onChange={(e) =>
                 setFormData({ ...formData, code: e.target.value })
               }
-              placeholder="e.g. CS101"
+              placeholder="Misal: CS101"
               className="font-mono bg-muted border-border h-10 md:h-9 text-caption focus-visible:ring-ring rounded-card"
             />
           </div>
           <div className="space-y-1.5">
             <Label className="text-muted-foreground ml-1">
-              Class Name / Group
+              Nama Kelas
             </Label>
             <Input
               value={formData.class}
               onChange={(e) =>
                 setFormData({ ...formData, class: e.target.value })
               }
-              placeholder="e.g. A"
+              placeholder="Misal: A"
               className="bg-muted border-border h-10 md:h-9 text-caption focus-visible:ring-ring rounded-card"
             />
           </div>
           <div className="sm:col-span-2 space-y-1.5">
             <Label className="text-muted-foreground ml-1">
-              Full Course Name
+              Nama Lengkap Mata Kuliah
             </Label>
             <Input
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder="e.g. Advanced AI Management"
+              placeholder="Misal: Kecerdasan Buatan"
               className="bg-muted border-border h-10 md:h-9 text-caption focus-visible:ring-ring font-medium rounded-card"
             />
           </div>
           <div className="space-y-1.5">
             <Label className="text-muted-foreground ml-1">
-              SKS (Credits)
+              SKS
             </Label>
             <Input
               type="number"
@@ -157,27 +157,27 @@ export function CourseEditor({
           </div>
           <div className="space-y-1.5">
             <Label className="text-muted-foreground ml-1">
-              Academic Room
+              Ruang
             </Label>
             <Input
               value={formData.room}
               onChange={(e) =>
                 setFormData({ ...formData, room: e.target.value })
               }
-              placeholder="e.g. Lab 01"
+              placeholder="Misal: Lab 01"
               className="bg-muted border-border h-10 md:h-9 text-caption focus-visible:ring-ring rounded-card"
             />
           </div>
           <div className="sm:col-span-2 space-y-1.5">
             <Label className="text-muted-foreground ml-1">
-              Professor / Lecturer
+              Dosen
             </Label>
             <Input
               value={formData.lecturer}
               onChange={(e) =>
                 setFormData({ ...formData, lecturer: e.target.value })
               }
-              placeholder="e.g. Dr. John Doe"
+              placeholder="Misal: Dr. John Doe"
               className="bg-muted border-border h-10 md:h-9 text-caption focus-visible:ring-ring rounded-card"
             />
           </div>
@@ -187,7 +187,7 @@ export function CourseEditor({
           <div className="flex justify-between items-center mb-4">
             <h3 className="text-caption font-bold flex items-center gap-2">
               <Icon name="clock" className="text-primary" />
-              Schedule Slots
+              Jadwal
             </h3>
             <Button
               variant="outline"
@@ -196,7 +196,7 @@ export function CourseEditor({
               className="h-8 md:h-7 border-border text-caps font-mono uppercase hover:bg-muted hover:text-primary rounded-card px-4"
             >
               <Icon name="plus" className="mr-2" size={14} />
-              Add Segment
+              Tambah Sesi
             </Button>
           </div>
 
@@ -261,14 +261,14 @@ export function CourseEditor({
             onClick={onClose}
             className="font-mono text-caps uppercase text-muted-foreground h-9"
           >
-            Cancel
+            Batal
           </Button>
           <Button
             onClick={handleSave}
             disabled={!formData.code || !formData.name}
             className="bg-primary hover:bg-primary text-primary-foreground font-medium px-6 rounded-card h-9 text-caption"
           >
-            {course ? "Sync Changes" : "Deploy"}
+            {course ? "Simpan" : "Buat"}
           </Button>
         </DialogFooter>
       </DialogContent>

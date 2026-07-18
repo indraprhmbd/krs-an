@@ -32,7 +32,7 @@ const EmptyState = ({
     <div className="space-y-1">
       <p className="font-bold text-muted-foreground">{message}</p>
       <p className="text-caption text-muted-foreground">
-        Plans will appear here once created.
+        Jadwal akan muncul di sini setelah dibuat.
       </p>
     </div>
   </div>
@@ -176,7 +176,7 @@ const PlanCard = ({
             <span
               className={`text-caps font-mono uppercase ${isAi ? "text-highlight" : "text-primary"}`}
             >
-              TYPE
+              TIPE
             </span>
             <span
               className={`text-caption font-bold ${isAi ? "text-highlight" : "text-primary"}`}
@@ -195,7 +195,7 @@ const PlanCard = ({
           }`}
           onClick={() => onImport(contextPlans, index)}
         >
-          Restore to Grid
+          Muat ke Penampil
         </Button>
       </div>
     </Card>
@@ -235,11 +235,11 @@ export function ScheduleArchive({
 
   return (
     <MakerShell
-      title="Plan Archive"
+      title="Arsip Jadwal"
       description={
         <div className="flex items-center gap-2">
           <span className="font-mono text-caps uppercase text-muted-foreground">
-            Storage
+            Penyimpanan
           </span>
           <span
             className={cn(
@@ -266,9 +266,9 @@ export function ScheduleArchive({
           <div className="flex items-start gap-2 rounded-card border border-border bg-muted p-2.5 text-caption text-muted-foreground">
             <Icon name="bookmark" size={14} className="mt-0.5 shrink-0" />
             <p>
-              These plans are saved on this device only. Sign in to keep them
-              across devices, share them, and use Smart Generate. Anything
-              saved here can be imported when you do.
+              Jadwal disimpan di perangkat ini saja. Masuk untuk menyimpan
+              lintas perangkat, membagikannya, dan menggunakan Smart Generate.
+              Jadwal di sini bisa diimpor nanti.
             </p>
           </div>
         )}
@@ -284,7 +284,7 @@ export function ScheduleArchive({
               className="rounded-control font-medium data-[state=active]:bg-card data-[state=active]:text-highlight"
             >
               <Icon name="sparkles" className="mr-2" />
-              AI Generated
+              AI
               {aiPlans.length > 0 && (
                 <span className="ml-2 bg-highlight/10 text-highlight px-1.5 py-0.5 rounded-full text-caption font-bold">
                   {aiPlans.length}
@@ -296,7 +296,7 @@ export function ScheduleArchive({
               className="rounded-control font-medium data-[state=active]:bg-card data-[state=active]:text-primary"
             >
               <Icon name="bookmark" className="mr-2" />
-              Saved Plans
+              Tersimpan
               {manualPlans.length > 0 && (
                 <span className="ml-2 bg-primary/10 text-primary px-1.5 py-0.5 rounded-full text-caption font-bold">
                   {manualPlans.length}
@@ -327,7 +327,7 @@ export function ScheduleArchive({
               />
             ))}
             {aiPlans.length === 0 && (
-              <EmptyState message="No AI generated plans yet" spot="idea" />
+              <EmptyState message="Belum ada jadwal AI" spot="idea" />
             )}
           </div>
         </TabsContent>
@@ -352,7 +352,7 @@ export function ScheduleArchive({
               />
             ))}
             {manualPlans.length === 0 && (
-              <EmptyState message="No manually saved plans yet" spot="todo-list" />
+              <EmptyState message="Belum ada jadwal tersimpan" spot="todo-list" />
             )}
           </div>
         </TabsContent>

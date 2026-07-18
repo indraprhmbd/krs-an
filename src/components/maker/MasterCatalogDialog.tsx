@@ -114,10 +114,10 @@ export function MasterCatalogDialog({
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2 text-title text-foreground">
             <Icon name="search" size={18} className="text-primary" />
-            Master Catalog
+            Katalog Master
           </DialogTitle>
           <DialogDescription className="pt-1 font-mono text-caps uppercase text-muted-foreground">
-            Search and Batch Add Components
+            Cari dan tambah mata kuliah dari database
           </DialogDescription>
         </DialogHeader>
 
@@ -128,7 +128,7 @@ export function MasterCatalogDialog({
             className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
           />
           <Input
-            placeholder="Search code or name..."
+            placeholder="Cari kode atau nama matkul..."
             aria-label="Search master catalog"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -176,7 +176,7 @@ export function MasterCatalogDialog({
                         </Badge>
                         {isAnySelected && (
                           <Badge className="h-4 px-1.5 text-grid font-bold">
-                            {selectedCountInGroup} SELECTED
+                            {selectedCountInGroup} DIPILIH
                           </Badge>
                         )}
                       </div>
@@ -233,7 +233,7 @@ export function MasterCatalogDialog({
                 className="mx-auto text-muted-foreground"
               />
               <p className="font-mono text-caps uppercase text-muted-foreground">
-                No components found matching "{searchQuery}"
+                Tidak ada komponen yang cocok dengan "{searchQuery}"
               </p>
             </div>
           )}
@@ -243,7 +243,7 @@ export function MasterCatalogDialog({
           <div className="flex items-center gap-2">
             {selectedClassIds.size > 0 && (
               <Badge className="px-2 py-1 font-mono text-caption">
-                {selectedClassIds.size} CLASSES SELECTED
+                {selectedClassIds.size} KELAS DIPILIH
               </Badge>
             )}
           </div>
@@ -253,7 +253,7 @@ export function MasterCatalogDialog({
               onClick={() => onOpenChange(false)}
               className="flex-1 text-caps uppercase sm:flex-none"
             >
-              Cancel
+              Batal
             </Button>
             <Button
               disabled={selectedClassIds.size === 0}

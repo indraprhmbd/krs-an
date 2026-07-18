@@ -456,7 +456,7 @@ export function ScheduleViewer({
           <DialogHeader className="p-4 border-b border-border shrink-0">
             <DialogTitle className="text-body flex items-center justify-between pr-8">
               <div className="flex items-center gap-2">
-                <span>Course Inventory</span>
+                <span>Daftar Mata Kuliah</span>
                 <Badge className="border-transparent bg-primary/10 px-2 text-caption text-primary">
                   {currentPlan.courses.length}
                 </Badge>

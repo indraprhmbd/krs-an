@@ -64,7 +64,7 @@ export function Footer() {
           {/* Connect section */}
           <div className="space-y-3 text-center md:text-right">
             <h4 className="text-caps uppercase text-muted-foreground">
-              Connect with Author
+              Kontak Author
             </h4>
             <div className="flex justify-center gap-2 md:justify-end">
               <SocialIcon
@@ -88,10 +88,10 @@ export function Footer() {
 
         <div className="flex flex-col items-center justify-between gap-3 border-t border-border pt-6 md:flex-row">
           <p className="font-mono text-caption tracking-tighter text-muted-foreground">
-            ELEGANT PLANNING | AI DRIVEN | ACADEMIC TOOL
+            PERENCANAAN KULIAH | OLEH MAHASISWA | UNTUK MAHASISWA
           </p>
           <div className="flex items-center gap-2 font-mono text-caps uppercase text-muted-foreground">
-            <span>Copyright 2026 KRSan Production</span>
+            <span>KRSan 2026</span>
             <span className="h-1 w-1 rounded-full bg-border-strong" />
             <span>Built by Indra</span>
           </div>
@@ -172,7 +172,7 @@ export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
       <DialogContent hideClose size="2xl" padded={false}>
         <DialogBanner
           title={t("howtouse.title")}
-          description="Guide on how to use KRSan application."
+          description="Panduan memakai KRSan."
           descriptionHidden
         />
         <div className="grid gap-4 p-4 md:grid-cols-2">
@@ -202,8 +202,7 @@ export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
               {t("howtouse.premium_desc")}
             </p>
             <p className="border-t border-border pt-3 text-caption italic text-muted-foreground">
-              Pro tip: Lock matkul favoritmu sebelum generate untuk hasil yang
-              lebih spesifik!
+              Kunci matkul favoritmu sebelum generate biar hasilnya sesuai.
             </p>
           </div>
         </div>
@@ -243,7 +242,7 @@ export function AboutDialog({ trigger }: { trigger?: React.ReactNode }) {
       <DialogContent hideClose size="2xl" padded={false}>
         <DialogBanner
           title={t("about.title")}
-          description={'"Simplicity in Complexity"'}
+          description="Tentang semangat di balik KRSan"
         />
         <div className="space-y-4 p-4 text-body text-muted-foreground">
           <div className="space-y-2">
@@ -307,8 +306,8 @@ export function DonateDialog({ trigger }: { trigger?: React.ReactNode }) {
       </DialogTrigger>
       <DialogContent hideClose size="md" padded={false}>
         <DialogBanner
-          title="Support Author"
-          description="Dukung pengembangan KRSan agar tetap gratis dan tanpa iklan."
+          title="Dukung KRSan"
+          description="Bantu KRSan tetap gratis untuk semua mahasiswa."
         />
 
         <div className="space-y-4 p-4">
@@ -343,14 +342,13 @@ export function DonateDialog({ trigger }: { trigger?: React.ReactNode }) {
               }}
               className="h-10 w-full text-caption font-bold"
             >
-              Copy Account Number
+              Salin Nomor Rekening
             </Button>
           </div>
 
           <p className="text-center text-caption italic text-muted-foreground">
-            Donasi Anda akan digunakan untuk biaya server dan API Groq agar AI
-            scheduler tetap bisa diakses gratis oleh semua mahasiswa. Terima
-            kasih!
+            Donasi dipakai untuk biaya server dan API Groq supaya AI scheduler
+            tetap gratis untuk semua mahasiswa. Terima kasih.
           </p>
         </div>
       </DialogContent>

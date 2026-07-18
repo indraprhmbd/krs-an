@@ -167,17 +167,17 @@ export function SmartGenerateDialog({
         <DialogHeader className="border-b border-border bg-muted p-4">
           <DialogTitle className="flex items-center gap-2 text-title text-foreground">
             <Icon name="sparkles" size={18} className="text-primary" />
-            Smart Preferences
+            Preferensi AI
           </DialogTitle>
           <DialogDescription className="text-caption text-muted-foreground">
-            Customize how AI should prioritize your schedule generation.
+            Atur preferensi biar AI nyusun jadwal sesuai keinginanmu.
           </DialogDescription>
         </DialogHeader>
 
         <DialogBody className="custom-scrollbar flex-1 space-y-4 overflow-y-auto p-4">
           <Field
-            label="Preferred Days Off"
-            hint="Select days you want to keep free, if possible."
+            label="Hari Libur"
+            hint="Pilih hari yang pengen kamu kosongin, kalo memungkinkan."
           >
             <div className="flex flex-wrap gap-2">
               {DAYS.map((day) => (
@@ -193,8 +193,8 @@ export function SmartGenerateDialog({
           </Field>
 
           <Field
-            label="Preferred Lecturers"
-            hint="AI will prioritize classes taught by the lecturers you pick."
+            label="Dosen Favorit"
+            hint="AI bakal prioritasi kelas yang dosennya kamu pilih."
           >
             <div className="flex max-h-[150px] flex-wrap gap-2 overflow-y-auto p-1">
               {uniqueLecturers.map((lecturer) => {
@@ -212,18 +212,18 @@ export function SmartGenerateDialog({
               })}
               {uniqueLecturers.length === 0 && (
                 <p className="text-caption italic text-muted-foreground">
-                  No specific lecturers found in selection.
+                  Belum ada dosen terpilih.
                 </p>
               )}
             </div>
           </Field>
 
           <Field
-            label="Additional Instructions"
-            hint="Free text. The AI reads this alongside the options above."
+            label="Instruksi Tambahan"
+            hint="Tulis bebas, AI baca ini sama preferensi di atas."
           >
             <Textarea
-              placeholder="e.g. Avoid 7 AM classes, group classes together..."
+              placeholder="Misal: hindari kelas jam 7 pagi, kelompokkan jadwal..."
               value={customInstructions}
               onChange={(e) => setCustomInstructions(e.target.value)}
               className="h-20 resize-none text-caption"
@@ -231,8 +231,8 @@ export function SmartGenerateDialog({
           </Field>
 
           <Field
-            label="Daily SKS Limit"
-            hint="Maximum academic load permitted per day. Default is 8."
+            label="Batas SKS Harian"
+            hint="Maksimal beban SKS per hari. Standarnya 8."
             action={
               <Badge variant="secondary" className="font-mono font-bold">
                 {maxDailySks >= 24 ? "UNLIMITED" : `${maxDailySks} SKS`}
@@ -277,7 +277,7 @@ export function SmartGenerateDialog({
             onClick={() => onOpenChange(false)}
             disabled={isGenerating}
           >
-            Cancel
+            Batal
           </Button>
           <Button
             onClick={handleSubmit}
@@ -287,12 +287,12 @@ export function SmartGenerateDialog({
             {isGenerating ? (
               <>
                 <Icon name="spinner" size={14} className="animate-spin" />
-                Reasoning...
+                Memproses...
               </>
             ) : cooldown?.active ? (
-              `Wait ${cooldown.seconds}s`
+              `Tunggu ${cooldown.seconds}s`
             ) : (
-              "Generate with AI (1 Token)"
+              "Generate dengan AI (1 Token)"
             )}
           </Button>
         </DialogFooter>

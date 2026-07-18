@@ -18,7 +18,7 @@ const Toaster = () => {
             "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
       }}
-      style={{ bottom: "56px" } as CSSProperties}
+      style={{ bottom: "72px" } as CSSProperties}
     />
   )
 }
