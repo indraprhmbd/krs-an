@@ -29,12 +29,13 @@ export function MasterCatalogDialog({
   onAddCourses,
 }: MasterCatalogDialogProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  // Selection state: Set of master_course _ids
-  const [selectedClassIds, setSelectedClassIds] = useState<Set<string>>(
-    new Set(),
-  );
+  // Selection is per course code, not per class/section -- picking a
+  // specific class here in addition to picking one in the Select step's own
+  // per-course selector was the same choice made twice ("double-picking").
+  // Adding a code brings in every section; the student narrows it down to
+  // one class later, same as curriculum auto-load already behaves.
+  const [selectedCodes, setSelectedCodes] = useState<Set<string>>(new Set());
 
-  // Grouping logic
   const groupedCourses = useMemo(() => {
     if (!allMasterCourses) return [];
 
@@ -69,39 +70,23 @@ export function MasterCatalogDialog({
     );
   }, [allMasterCourses, searchQuery]);
 
-  const toggleClass = (id: string) => {
-    const next = new Set(selectedClassIds);
-    if (next.has(id)) {
-      next.delete(id);
+  const toggleCode = (code: string) => {
+    const next = new Set(selectedCodes);
+    if (next.has(code)) {
+      next.delete(code);
     } else {
-      next.add(id);
+      next.add(code);
     }
-    setSelectedClassIds(next);
-  };
-
-  const toggleGroup = (classes: any[]) => {
-    const next = new Set(selectedClassIds);
-    const allIds = classes.map((c) => c._id);
-    const allSelected = allIds.every((id) => next.has(id));
-
-    if (allSelected) {
-      // Unselect all
-      allIds.forEach((id) => next.delete(id));
-    } else {
-      // Select all
-      allIds.forEach((id) => next.add(id));
-    }
-    setSelectedClassIds(next);
+    setSelectedCodes(next);
   };
 
   const handleAddSelected = () => {
     if (!allMasterCourses) return;
-    const toAdd = allMasterCourses.filter((c) => selectedClassIds.has(c._id));
+    const toAdd = allMasterCourses.filter((c) => selectedCodes.has(c.code));
 
     if (toAdd.length > 0) {
       onAddCourses(toAdd);
-      // Reset state
-      setSelectedClassIds(new Set());
+      setSelectedCodes(new Set());
     }
   };
 
@@ -139,90 +124,51 @@ export function MasterCatalogDialog({
 
         <DialogBody className="custom-scrollbar flex-1 space-y-2 overflow-y-auto pr-1">
           {groupedCourses.map((group) => {
-            const groupIds = group.classes.map((c) => c._id);
-            const selectedCountInGroup = groupIds.filter((id) =>
-              selectedClassIds.has(id),
-            ).length;
-            const isAnySelected = selectedCountInGroup > 0;
-            const isAllSelected = selectedCountInGroup === groupIds.length;
+            const isSelected = selectedCodes.has(group.code);
+            const lecturers = Array.from(
+              new Set(group.classes.map((c) => c.lecturer || "Belum ada dosen")),
+            );
 
             return (
-              <div
+              <button
                 key={group.code}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => toggleCode(group.code)}
                 className={cn(
-                  "rounded-card border p-3 transition-colors",
-                  isAnySelected
+                  "flex w-full items-start gap-3 rounded-card border p-3 text-left transition-colors",
+                  isSelected
                     ? "border-primary bg-muted"
-                    : "border-border bg-card",
+                    : "border-border bg-card hover:bg-accent",
                 )}
               >
-                <div className="flex items-start gap-3">
-                  <Checkbox
-                    className="mt-1"
-                    aria-label={`Select all classes for ${group.code}`}
-                    checked={
-                      isAllSelected || (isAnySelected ? "indeterminate" : false)
-                    }
-                    onCheckedChange={() => toggleGroup(group.classes)}
-                  />
+                <Checkbox
+                  className="mt-1"
+                  aria-hidden
+                  tabIndex={-1}
+                  checked={isSelected}
+                />
 
-                  <div className="min-w-0 flex-1 space-y-2">
-                    <div>
-                      <div className="mb-1 flex flex-wrap items-center gap-1.5">
-                        <span className="rounded-control border border-border bg-muted px-2 py-0.5 font-mono text-caption font-bold text-muted-foreground">
-                          {group.code}
-                        </span>
-                        <Badge variant="outline" className="font-mono text-caption">
-                          {group.sks} SKS
-                        </Badge>
-                        {isAnySelected && (
-                          <Badge className="h-4 px-1.5 text-grid font-bold">
-                            {selectedCountInGroup} DIPILIH
-                          </Badge>
-                        )}
-                      </div>
-                      <h4 className="text-body font-bold text-foreground">
-                        {group.name}
-                      </h4>
-                    </div>
-
-                    {/* Class Selector Row */}
-                    <div className="grid w-full grid-cols-1 gap-2 pt-1 sm:grid-cols-2">
-                      {group.classes.map((cls) => {
-                        const isClsSelected = selectedClassIds.has(cls._id);
-                        return (
-                          <button
-                            key={cls._id}
-                            type="button"
-                            aria-pressed={isClsSelected}
-                            onClick={() => toggleClass(cls._id)}
-                            className={cn(
-                              "flex min-w-0 flex-col items-start rounded-control border p-2 text-left transition-colors",
-                              isClsSelected
-                                ? "border-primary bg-primary text-primary-foreground"
-                                : "border-border bg-card text-muted-foreground hover:bg-accent",
-                            )}
-                          >
-                            <span className="text-caps uppercase">
-                              Class {cls.class}
-                            </span>
-                            <span
-                              className={cn(
-                                "w-full truncate text-caption font-medium",
-                                isClsSelected
-                                  ? "text-primary-foreground/80"
-                                  : "text-muted-foreground",
-                              )}
-                            >
-                              {cls.lecturer || "No Lecturer"}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
+                <div className="min-w-0 flex-1 space-y-1">
+                  <div className="flex flex-wrap items-center gap-1.5">
+                    <span className="rounded-control border border-border bg-muted px-2 py-0.5 font-mono text-caption font-bold text-muted-foreground">
+                      {group.code}
+                    </span>
+                    <Badge variant="outline" className="font-mono text-caption">
+                      {group.sks} SKS
+                    </Badge>
+                    <Badge variant="outline" className="text-caption">
+                      {group.classes.length} kelas tersedia
+                    </Badge>
                   </div>
+                  <h4 className="text-body font-bold text-foreground">
+                    {group.name}
+                  </h4>
+                  <p className="truncate text-caption text-muted-foreground">
+                    {lecturers.join(", ")}
+                  </p>
                 </div>
-              </div>
+              </button>
             );
           })}
 
@@ -244,9 +190,9 @@ export function MasterCatalogDialog({
 
         <DialogFooter className="mt-3 flex w-full shrink-0 flex-col items-center justify-between gap-3 border-t border-border pt-3 sm:flex-row">
           <div className="flex items-center gap-2">
-            {selectedClassIds.size > 0 && (
+            {selectedCodes.size > 0 && (
               <Badge className="px-2 py-1 font-mono text-caption">
-                {selectedClassIds.size} KELAS DIPILIH
+                {selectedCodes.size} MATA KULIAH DIPILIH
               </Badge>
             )}
           </div>
@@ -259,7 +205,7 @@ export function MasterCatalogDialog({
               Batal
             </Button>
             <Button
-              disabled={selectedClassIds.size === 0}
+              disabled={selectedCodes.size === 0}
               onClick={handleAddSelected}
               className="flex-1 px-6 text-caps uppercase sm:flex-none"
             >
