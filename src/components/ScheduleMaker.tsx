@@ -250,9 +250,7 @@ export function ScheduleMaker({ userData }: ScheduleMakerProps) {
                   rail={rail}
                   sessionProfile={sessionProfile}
                   setSessionProfile={setSessionProfile}
-                  onStart={() =>
-                    session.handleAutoLoad(curriculum, allMasterCourses)
-                  }
+                  onStart={() => setStep("select")}
                 />
               </div>
             )}
