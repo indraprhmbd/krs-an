@@ -175,7 +175,7 @@ export function ScheduleSelector({
         ].filter(Boolean) as MakerFooterAction[]
       }
     >
-      <div className="grid gap-2 pb-4">
+      <div className="grid gap-2 pb-4 lg:grid-cols-2">
           {Object.entries(grouped).map(([code, variations]) => {
             const isSelected = selectedCodes.includes(code);
             const lockedIds = lockedCourses[code];
@@ -384,7 +384,7 @@ export function ScheduleSelector({
           })}
 
           {courses.length === 0 && (
-            <div className="flex flex-col items-center gap-2 py-12 text-center">
+            <div className="flex flex-col items-center gap-2 py-12 text-center lg:col-span-2">
               <img
                 src="/assets/Empty-course-pana.svg"
                 alt=""
