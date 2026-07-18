@@ -138,18 +138,18 @@ const translations: Record<string, string> = {
 
   "footer.howtouse": "Cara Pakai",
   "howtouse.title": "Panduan Penggunaan KRSan",
-  "howtouse.step1_title": "1. Konfigurasi Akademik",
+  "howtouse.step1_title": "Konfigurasi Akademik",
   "howtouse.step1_desc":
-    "Masukkan universitas, program studi, dan semester target Anda.",
-  "howtouse.step2_title": "2. Pilih Mata Kuliah",
+    "Pilih universitas, program studi, dan semester yang dituju. Atur batas maksimal SKS sesuai kemampuan. Data akademik tersimpan otomatis untuk kunjungan berikutnya.",
+  "howtouse.step2_title": "Pilih & Kunci Mata Kuliah",
   "howtouse.step2_desc":
-    "Cari dan tambahkan mata kuliah yang Anda inginkan dari katalog.",
-  "howtouse.step3_title": "3. Visualisasi & Optimasi",
+    "Tambah mata kuliah dari katalog global. Cari berdasarkan kode atau nama. Kunci kelas favorit dengan mengklik opsi kelas yang tersedia - sistem akan prioritaskan kelas tersebut saat generate.",
+  "howtouse.step3_title": "Generate Jadwal",
   "howtouse.step3_desc":
-    "Biarkan sistem menghasilkan berbagai kombinasi jadwal tanpa bentrok untuk Anda.",
-  "howtouse.premium_title": "Fitur Premium",
-  "howtouse.premium_desc":
-    "Gunakan Smart Generate untuk mengatur preferensi spesifik seperti 'Tanpa Kelas Pagi'.",
+    "Tiga cara: Quick Build (gratis, sistem otomatis cari kombinasi tanpa bentrok), Smart Generate (AI dengan 1 token - atur preferensi hari libur, dosen favorit, batas SKS harian), atau Plotter (atur manual setiap kelas satu per satu).",
+  "howtouse.step4_title": "Review, Simpan & Bagikan",
+  "howtouse.step4_desc":
+    "Lihat hasil jadwal di grid visual. Geser antar opsi, kunci atau perbaiki kelas di mode manual. Simpan ke arsip (maks 30). Nanti bisa diubah nama, dihapus, atau dibagikan lewat link atau WhatsApp.",
   "about.title": "Tentang KRSan",
   "about.personal":
     "KRSan saya buat karena saya sendiri dulu pusing nyusun jadwal KRS. Antara milih kelas, ngatur biar nggak bentrok, milih dosen - semuanya manual, waktunya mepet, bikin stres. Ini proyek kecil yang saya harap bisa bikin pengalaman KRSan teman-teman jadi lebih gampang.",

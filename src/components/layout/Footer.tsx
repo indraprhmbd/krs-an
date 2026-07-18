@@ -126,6 +126,7 @@ export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
     { title: t("howtouse.step1_title"), desc: t("howtouse.step1_desc") },
     { title: t("howtouse.step2_title"), desc: t("howtouse.step2_desc") },
     { title: t("howtouse.step3_title"), desc: t("howtouse.step3_desc") },
+    { title: t("howtouse.step4_title"), desc: t("howtouse.step4_desc") },
   ];
 
   return (
@@ -156,17 +157,6 @@ export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
               </p>
             </div>
           ))}
-          <div className="rounded-card border-l-2 border-l-primary border-border bg-muted p-4">
-            <div className="flex items-center gap-2 text-primary">
-              <Icon name="sparkles" size={14} />
-              <h4 className="text-caption font-bold uppercase">
-                {t("howtouse.premium_title")}
-              </h4>
-            </div>
-            <p className="mt-1 text-caption text-muted-foreground">
-              {t("howtouse.premium_desc")}
-            </p>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
