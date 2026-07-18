@@ -242,6 +242,15 @@ export function ScheduleViewer({
                     {c.lecturer || "No Lecturer"}
                   </p>
                 )}
+                {/* Class + schedule shown as plain text regardless of mode --
+                    this used to only appear inside the isManualEdit Select,
+                    so a Susun Cepat (quick build, non-manual) result never
+                    showed which class or what time a course actually was. */}
+                <p className="text-caption font-mono font-medium text-muted-foreground mt-1 truncate">
+                  {prodiConfig.isCourseCentric
+                    ? `${formatSchedule(c.schedule)} @ ${c.room || "TBA"}`
+                    : `Kelas ${c.class} | ${formatSchedule(c.schedule)}`}
+                </p>
               </div>
               <Badge
                 variant="outline"
@@ -385,14 +394,6 @@ export function ScheduleViewer({
           </div>
         )
       }
-      actions={[
-        {
-          key: "inventory",
-          label: "Course List",
-          icon: "list",
-          onClick: () => setIsInventoryOpen(true),
-        },
-      ]}
       footer={
         [
           !isManualEdit &&
@@ -522,6 +523,22 @@ export function ScheduleViewer({
         className="flex lg:grid lg:grid-cols-[1.2fr_380px] gap-4 md:gap-8 items-stretch h-full overflow-hidden pb-4"
       >
         <div className="w-full bg-card p-1 rounded-panel md:p-2 md:rounded-panel border border-border overflow-auto custom-scrollbar flex flex-col flex-1">
+          {/* Only below lg: the sidebar Course Inventory card (hidden below
+              lg) is the single source for this list on larger screens, so
+              showing this too there was the exact "identical redundant"
+              duplication being fixed. */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsInventoryOpen(true)}
+            className="no-print mb-1 w-full justify-center gap-2 text-caption lg:hidden"
+          >
+            <Icon name="list" size={14} />
+            Daftar Mata Kuliah
+            <Badge className="border-transparent bg-primary/10 px-1.5 text-caption text-primary">
+              {currentPlan.courses.length}
+            </Badge>
+          </Button>
           <div className="flex-1 min-h-0">
             <ScheduleGrid
               courses={currentPlan.courses}
