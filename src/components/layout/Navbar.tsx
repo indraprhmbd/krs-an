@@ -36,13 +36,20 @@ function MenuButton({
   icon,
   label,
   onClick,
+  disabled,
 }: {
   icon: IconName;
   label: string;
   onClick: () => void;
+  disabled?: boolean;
 }) {
   return (
-    <button type="button" onClick={onClick} className="w-full">
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="w-full disabled:cursor-not-allowed disabled:opacity-50"
+    >
       <MenuItem icon={icon} label={label} />
     </button>
   );
@@ -71,6 +78,7 @@ export function Navbar({ userData }: NavbarProps) {
       <MenuButton
         icon="bookmark"
         label={t("nav.tutorial")}
+        disabled
         onClick={() => {
           restoreArchitectStep();
           requestTutorial();

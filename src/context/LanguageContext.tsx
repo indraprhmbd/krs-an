@@ -39,7 +39,7 @@ const translations: Record<string, string> = {
   "config.title": "Rancang Semester",
   "config.title_span": "Anda.",
   "config.sub_title":
-    "Tentukan parameter akademik Anda untuk memulai penjadwalan cerdas semester depan.",
+    "Nggak perlu lagi pusing coret-coret jadwal manual. Isi data kuliah Anda, biar KRSan yang carikan kombinasi jadwal yang pas.",
   "config.card_title": "Konfigurasi Akademik",
   "config.section_institution": "Institusi",
   "config.section_target": "Target Akademik",
@@ -142,6 +142,8 @@ const translations: Record<string, string> = {
   "toast.courses_added": "{count} mata kuliah ditambahkan ke sesi.",
   "toast.curriculum_loaded":
     "{count} mata kuliah dimuat dari kurikulum.",
+  "toast.curriculum_empty":
+    "Kurikulum untuk prodi dan semester ini sudah ada, tapi kelasnya belum tersedia di katalog. Coba tambah manual atau hubungi admin.",
 
   "auth.sign_in_title": "Butuh login",
   "auth.sign_in_action": "Masuk",
@@ -173,6 +175,7 @@ const translations: Record<string, string> = {
     "Cara kerjanya: pilih mata kuliah yang mau diambil, atur preferensi kayak 'gak mau kelas pagi', sistem bakal nyariin kombinasi jadwal yang cocok tinggal pilih. Hasilnya bisa disimpan atau dibagikan.",
   "about.legal":
     "KRSan proyek sampingan pribadi, bukan produk komersial. Data jadwal kuliah dan nama pengajar bersumber dari informasi publik yang tersedia. Tidak terafiliasi dengan institusi pendidikan mana pun.",
+  "about.illustration_credit": "Idea illustrations by Storyset",
   "help.shuffle_title": "Macro Adjustment (Shuffle)",
   "help.shuffle_desc":
     "Gunakan Shuffle untuk merombak total kombinasi jadwal secara acak. Ini adalah penyesuaian skala besar untuk menemukan struktur jadwal yang benar-benar berbeda.",

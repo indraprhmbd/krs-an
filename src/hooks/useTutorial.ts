@@ -24,8 +24,12 @@ export function useTutorial({ tutorialId, steps }: UseTutorialProps) {
   const [isActive, setIsActive] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
-  // Auto-start only if never seen
+  // Auto-start temporarily disabled. Flip this back to `!hasSeenTutorial`
+  // to re-enable the first-run onboarding walkthrough.
+  const AUTO_START_DISABLED = true;
+
   useEffect(() => {
+    if (AUTO_START_DISABLED) return;
     // Small delay to ensure UI is ready
     const timer = setTimeout(() => {
       if (!hasSeenTutorial) {

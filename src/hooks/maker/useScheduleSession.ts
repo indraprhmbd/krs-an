@@ -80,13 +80,24 @@ export function useScheduleSession({
       id: c._id || `${c.code}-${c.class}`,
     }));
 
+    // The toast used to report mandatoryCodes.size -- the number of curriculum
+    // rows -- regardless of whether any matching class was actually found in
+    // master_courses. A curriculum can exist for a prodi+semester before its
+    // sections are imported, so that count was frequently a lie ("N mata
+    // kuliah dimuat" when 0 courses actually loaded). Report and select only
+    // codes that resolved to a real course.
+    const foundCodes = new Set(coursesWithIds.map((c: any) => c.code));
+
     setCourses(coursesWithIds as any);
-    setSelectedCodes(Array.from(mandatoryCodes));
+    setSelectedCodes(Array.from(foundCodes));
     setStep("select");
     setPlanLimit(12);
-    toast.success(
-      t("toast.curriculum_loaded", { count: mandatoryCodes.size }),
-    );
+
+    if (foundCodes.size === 0) {
+      toast.warning(t("toast.curriculum_empty"));
+    } else {
+      toast.success(t("toast.curriculum_loaded", { count: foundCodes.size }));
+    }
   };
 
   const handleAddMultipleMasterCourses = (
