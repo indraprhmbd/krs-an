@@ -62,7 +62,7 @@ export function SharePage() {
         <div className="flex flex-col items-center gap-3">
           <Icon name="spinner" size={28} className="animate-spin text-primary" />
           <p className="text-body text-muted-foreground">
-            Fetching shared plan...
+            {t("share.loading")}
           </p>
         </div>
       </div>
@@ -77,14 +77,14 @@ export function SharePage() {
             <span className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-card bg-primary-foreground/10">
               <Icon name="share" size={24} />
             </span>
-            <h1 className="text-headline">Plan Not Found</h1>
+            <h1 className="text-headline">{t("share.not_found_title")}</h1>
             <p className="mt-1.5 text-body text-primary-foreground/80">
-              The link might be expired or incorrect.
+              {t("share.not_found_desc")}
             </p>
           </div>
           <CardContent className="p-4">
             <Button className="h-12 w-full font-bold" onClick={() => navigate("/")}>
-              Back to Home
+              {t("share.back_home")}
             </Button>
           </CardContent>
         </Card>
@@ -105,7 +105,7 @@ export function SharePage() {
             <Button
               variant="ghost"
               size="icon"
-              aria-label="Back to planner"
+              aria-label={t("share.back_planner")}
               onClick={() => navigate("/")}
             >
               <Icon name="chevron-left" size={20} />
@@ -115,7 +115,8 @@ export function SharePage() {
                 {sharedPlan.name}
               </h1>
               <p className="hidden font-mono text-caps uppercase text-muted-foreground md:block">
-                SHARED KRS PLAN | {sharedPlan.data.courses.length} MATKUL
+                {t("share.shared_label")} | {sharedPlan.data.courses.length}{" "}
+                MATKUL
               </p>
             </div>
           </div>
@@ -125,8 +126,10 @@ export function SharePage() {
               <SignInButton mode="modal">
                 <Button className="h-9 gap-2 px-3 text-caption font-bold md:px-4">
                   <Icon name="user" size={14} />
-                  <span className="hidden md:inline">Login to Import</span>
-                  <span className="md:hidden">Login</span>
+                  <span className="hidden md:inline">
+                    {t("share.login_import")}
+                  </span>
+                  <span className="md:hidden">{t("share.login")}</span>
                 </Button>
               </SignInButton>
             ) : (
@@ -137,10 +140,12 @@ export function SharePage() {
               >
                 <Icon name="bookmark" size={14} />
                 <span className="hidden md:inline">
-                  {isImporting ? "Importing..." : "Add to My Archive"}
+                  {isImporting
+                    ? t("share.importing")
+                    : t("share.add_to_archive")}
                 </span>
                 <span className="md:hidden">
-                  {isImporting ? "..." : "Import"}
+                  {isImporting ? "..." : t("share.import_short")}
                 </span>
               </Button>
             )}
@@ -162,12 +167,11 @@ export function SharePage() {
                   <div className="mb-1.5 flex items-center gap-2 text-primary">
                     <Icon name="sparkles" size={14} />
                     <span className="text-caps uppercase">
-                      AI Optimized Schedule
+                      {t("share.ai_optimized")}
                     </span>
                   </div>
                   <p className="max-w-md text-body text-foreground">
-                    Generated with <strong>Architect Engine</strong> for maximum
-                    time efficiency.
+                    {t("share.ai_generated_desc")}
                   </p>
                 </>
               ) : (
@@ -175,18 +179,18 @@ export function SharePage() {
                   <div className="mb-1.5 flex items-center gap-2 text-muted-foreground">
                     <Icon name="user" size={14} />
                     <span className="text-caps uppercase">
-                      Manual KRS Plan
+                      {t("share.manual_plan")}
                     </span>
                   </div>
                   <p className="max-w-md text-body text-foreground">
-                    Curated by a fellow student.
+                    {t("share.manual_desc")}
                   </p>
                 </>
               )}
             </div>
             <div className="flex shrink-0 items-baseline gap-1.5 border-t border-border pt-3 md:border-l md:border-t-0 md:pl-6 md:pt-0">
               <span className="text-caps uppercase text-muted-foreground">
-                Total
+                {t("share.total")}
               </span>
               <span className="text-display text-foreground">
                 {totalSKS}
@@ -212,10 +216,12 @@ export function SharePage() {
                 <CardHeader className="flex flex-row items-center justify-between border-b border-border bg-muted px-4 py-3">
                   <div>
                     <CardTitle className="text-body">
-                      Inventory
+                      {t("share.inventory")}
                     </CardTitle>
                     <p className="text-caption text-muted-foreground">
-                      {sharedPlan.data.courses.length} courses total
+                      {t("share.courses_total", {
+                        count: sharedPlan.data.courses.length,
+                      })}
                     </p>
                   </div>
                   <Button
@@ -224,7 +230,7 @@ export function SharePage() {
                     onClick={() => window.print()}
                     className="no-print h-8 text-caption font-bold"
                   >
-                    Print Report
+                    {t("share.print_report")}
                   </Button>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -234,7 +240,9 @@ export function SharePage() {
                         <div className="mb-1 flex items-start justify-between gap-2">
                           <span className="font-mono text-caption uppercase text-muted-foreground">
                             {c.code} |{" "}
-                            {isCourseCentric ? `Class ${c.class}` : c.class}
+                            {isCourseCentric
+                              ? t("selector.class_label", { class: c.class })
+                              : c.class}
                           </span>
                           <Badge
                             variant="outline"
@@ -266,18 +274,17 @@ export function SharePage() {
               <div className="space-y-2 rounded-card border border-border bg-muted p-4">
                 <h4 className="flex items-center gap-2 font-bold text-foreground">
                   <Icon name="history" className="text-primary" />
-                  Want to make your own?
+                  {t("share.want_own_title")}
                 </h4>
                 <p className="text-caption text-muted-foreground">
-                  Join 1,000+ students using KRSan to eliminate conflicts and
-                  maximize academic efficiency.
+                  {t("share.want_own_desc")}
                 </p>
                 <Button
                   variant="ghost"
                   className="h-auto justify-start p-0 text-caption font-bold text-primary hover:bg-transparent"
                   onClick={() => navigate("/")}
                 >
-                  Get Started for Free
+                  {t("share.get_started")}
                 </Button>
               </div>
             </div>
@@ -286,20 +293,15 @@ export function SharePage() {
 
         <footer className="container mx-auto max-w-5xl border-t border-border px-4 py-8">
           <div className="flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div className="flex items-center gap-2">
-              <img
-                src="/assets/logo.webp"
-                alt=""
-                width={32}
-                height={32}
-                className="h-8 w-8 object-contain"
-              />
-              <span className="tracking-tighter text-foreground">
-                KRSan
-              </span>
-            </div>
+            <img
+              src="/assets/logo.webp"
+              alt="KRSan"
+              width={96}
+              height={36}
+              className="h-10 w-24 object-contain"
+            />
             <p className="font-mono text-caps uppercase text-muted-foreground">
-              Copyright 2026 Academic Optimization Systems
+              Copyright 2026 KRSan
             </p>
           </div>
         </footer>
