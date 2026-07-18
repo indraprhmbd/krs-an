@@ -1,6 +1,9 @@
 ## video ada di cloudinary dengan format video cld-looping
 
 1. configuration (until press inisialisasi sesi)
+(YouTube test rejected -- always shows title/branding/related-videos
+overlay, not the clean silent-loop look wanted here. Staying on
+Cloudinary's cld-looping profile.)
 
 <iframe
   src="https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-43-16_bycvab&profile=cld-looping"
