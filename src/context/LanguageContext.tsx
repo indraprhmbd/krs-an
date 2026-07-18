@@ -141,7 +141,7 @@ const translations: Record<string, string> = {
   "toast.share_imported": "Jadwal diimpor ke akun Anda. Mengalihkan...",
   "toast.course_removed": "Mata kuliah dihapus.",
   "toast.course_removed_code": "{code} dihapus dari jadwal.",
-  "toast.courses_added": "{count} mata kuliah ditambahkan ke sesi.",
+  "toast.courses_added": "{count} Mata Kuliah dan {sks} SKS dipilih.",
   "toast.curriculum_loaded":
     "{count} mata kuliah dimuat dari kurikulum.",
   "toast.curriculum_empty":

@@ -119,7 +119,22 @@ export function useScheduleSession({
       setSelectedCodes((prev) => [...prev, ...uniqueNewCodes]);
     }
 
-    toast.success(t("toast.courses_added", { count: masterCourses.length }));
+    // Count/SKS by unique course code, not by row -- masterCourses can carry
+    // every class/section for a code, and the toast should read as "N mata
+    // kuliah" (courses), matching what the catalog dialog's own selection
+    // badges already count, not "N sections."
+    const seenCodes = new Set<string>();
+    let totalSks = 0;
+    for (const mc of masterCourses) {
+      if (!seenCodes.has(mc.code)) {
+        seenCodes.add(mc.code);
+        totalSks += mc.sks || 0;
+      }
+    }
+
+    toast.success(
+      t("toast.courses_added", { count: seenCodes.size, sks: totalSks }),
+    );
     onDone();
   };
 

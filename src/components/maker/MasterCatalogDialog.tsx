@@ -232,7 +232,7 @@ export function MasterCatalogDialog({
               onClick={handleAddSelected}
               className="flex-1 px-6 text-caps uppercase sm:flex-none"
             >
-              Add
+              Tambah
             </Button>
           </div>
         </DialogFooter>
