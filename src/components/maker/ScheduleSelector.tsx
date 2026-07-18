@@ -30,7 +30,7 @@ interface ScheduleSelectorProps {
   };
   toggleCourse: (code: string) => void;
   setLockedCourses: (updater: (prev: any) => any) => void;
-  handleDeleteCourse: (e: React.MouseEvent, id: string) => void;
+  handleDeleteCourse: (e: React.MouseEvent, code: string) => void;
   onAddSubject: () => void;
   onLoadCurriculum?: () => void;
   onGenerate: (tokenized?: boolean) => void;
@@ -244,9 +244,7 @@ export function ScheduleSelector({
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6 text-destructive hover:text-destructive"
-                            onClick={(e) =>
-                              handleDeleteCourse(e, activeCourse.id)
-                            }
+                            onClick={(e) => handleDeleteCourse(e, code)}
                           >
                             <Icon name="trash" size={14} />
                           </Button>
@@ -378,7 +376,7 @@ export function ScheduleSelector({
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7 text-destructive hover:text-destructive hover:bg-destructive/10 rounded-control"
-                        onClick={(e) => handleDeleteCourse(e, activeCourse.id)}
+                        onClick={(e) => handleDeleteCourse(e, code)}
                       >
                         <Icon name="trash" size={14} />
                       </Button>

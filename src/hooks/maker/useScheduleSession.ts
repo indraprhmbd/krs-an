@@ -59,9 +59,20 @@ export function useScheduleSession({
     );
   };
 
-  const handleDeleteCourse = (e: React.MouseEvent, courseId: string) => {
+  const handleDeleteCourse = (e: React.MouseEvent, code: string) => {
     e.stopPropagation();
-    setCourses((prev) => prev.filter((c) => c.id !== courseId));
+    // Removes every row for this code, not just the currently-active variant.
+    // handleAutoLoad adds every class/section master_courses has for a code,
+    // so a course with multiple sections had siblings left behind when this
+    // only matched by id -- the row kept reappearing (via the next available
+    // variation) and looked like delete had silently failed.
+    setCourses((prev) => prev.filter((c) => c.code !== code));
+    setSelectedCodes((prev) => prev.filter((c) => c !== code));
+    setLockedCourses((prev: any) => {
+      const next = { ...prev };
+      delete next[code];
+      return next;
+    });
     toast.success(t("toast.course_removed"));
   };
 
