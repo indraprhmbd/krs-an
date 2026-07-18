@@ -102,6 +102,12 @@ export function ScheduleSelector({
         </div>
       }
       actions={[
+        onLoadCurriculum && {
+          key: "load-curriculum",
+          label: t("selector.load_curriculum"),
+          icon: "database",
+          onClick: onLoadCurriculum,
+        },
         {
           key: "add-course",
           label: t("selector.add_course"),
@@ -112,7 +118,7 @@ export function ScheduleSelector({
             descKey: "help.master_catalog_desc",
           },
         },
-      ]}
+      ].filter(Boolean) as MakerFooterAction[]}
       footer={
         [
           {
