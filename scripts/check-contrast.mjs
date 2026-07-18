@@ -84,6 +84,7 @@ const PAIRS = [
   ["secondary-foreground", "secondary", 4.5],
   ["accent-foreground", "accent", 4.5],
   ["highlight-foreground", "highlight", 4.5],
+  ["warning-foreground", "warning", 4.5],
 
   ["primary", "background", 3.0],
   ["primary", "card", 3.0],

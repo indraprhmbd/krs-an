@@ -72,6 +72,12 @@
   --highlight: oklch(55% 0.17 50);
   --highlight-foreground: oklch(99% 0 0);
 
+  /* Notice banner (e.g. the first-visit tutorial nudge) -- a true yellow,
+     distinct from --highlight's brand-orange, since this needs to read as a
+     neutral "heads up" rather than carrying AI/brand meaning. */
+  --warning: oklch(88% 0.15 95);
+  --warning-foreground: oklch(28% 0.06 95);
+
   /* Danger */
   --destructive: oklch(55% 0.21 27);
   --destructive-foreground: oklch(99% 0 0);
@@ -120,6 +126,11 @@
      lifted for a dark surface. */
   --highlight: oklch(76% 0.15 55);
   --highlight-foreground: oklch(20% 0.03 55);
+
+  /* See the light-mode note on --warning. Muted rather than bright on a dark
+     surface, same lift pattern as --highlight above. */
+  --warning: oklch(35% 0.08 95);
+  --warning-foreground: oklch(92% 0.05 95);
 
   --destructive: oklch(62% 0.19 27);
   --destructive-foreground: oklch(17% 0.02 265);
@@ -253,6 +264,8 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-highlight: var(--highlight);
   --color-highlight-foreground: var(--highlight-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);

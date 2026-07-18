@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/layout/Navbar";
 import { TutorialVideosDialog } from "./components/layout/Footer";
+import { Icon } from "@/components/ui/icon";
 import { toast } from "sonner";
 
 import { SharePage } from "./components/SharePage";
@@ -67,8 +68,8 @@ function App() {
   }, [isAuthenticated, pendingMigrationCount, migrateLocalPlans, t]);
 
   // First-visit nudge toward the tutorial videos. One-time: marked seen the
-  // moment the toast is shown, not just when the action is clicked, so a
-  // dismissed toast never reappears -- but an emptied localStorage (Hapus
+  // moment the banner is shown, not just when the action is clicked, so a
+  // dismissed banner never reappears -- but an emptied localStorage (Hapus
   // Sesi, clearing site data, a new device) is treated as a genuinely new
   // visit and shows it again, which is fine.
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
@@ -76,20 +77,14 @@ function App() {
     "has_seen_tutorial_nudge",
     false,
   );
+  const [isBannerDismissed, setIsBannerDismissed] = useState(false);
+  const showTutorialBanner = !hasSeenTutorialNudge && !isBannerDismissed;
   const tutorialNudgeShown = useRef(false);
   useEffect(() => {
     if (hasSeenTutorialNudge || tutorialNudgeShown.current) return;
     tutorialNudgeShown.current = true;
     setHasSeenTutorialNudge(true);
-    toast(t("toast.tutorial_nudge_title"), {
-      description: t("toast.tutorial_nudge_desc"),
-      duration: 10000,
-      action: {
-        label: t("toast.tutorial_nudge_action"),
-        onClick: () => setIsTutorialOpen(true),
-      },
-    });
-  }, [hasSeenTutorialNudge, setHasSeenTutorialNudge, t]);
+  }, [hasSeenTutorialNudge, setHasSeenTutorialNudge]);
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background font-sans overflow-hidden">
@@ -108,6 +103,32 @@ function App() {
           element={
             <SessionProvider>
               <Navbar userData={userData as never} />
+
+              {showTutorialBanner && (
+                <div className="flex items-center justify-between gap-3 border-b border-warning-foreground/10 bg-warning px-4 py-2 text-caption text-warning-foreground">
+                  <span className="min-w-0 truncate">
+                    {t("toast.tutorial_nudge_title")}{" "}
+                    {t("toast.tutorial_nudge_desc")}
+                  </span>
+                  <div className="flex shrink-0 items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsTutorialOpen(true)}
+                      className="rounded-control bg-warning-foreground/10 px-2.5 py-1 font-bold underline hover:bg-warning-foreground/20"
+                    >
+                      {t("toast.tutorial_nudge_action")}
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Tutup"
+                      onClick={() => setIsBannerDismissed(true)}
+                      className="rounded-control p-1 hover:bg-warning-foreground/10"
+                    >
+                      <Icon name="close" size={14} />
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
                 <Routes>
