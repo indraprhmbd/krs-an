@@ -121,7 +121,13 @@ export function useSmartGenerate({
         setStep("archive");
       }
     } catch (err: any) {
-      const msg = err.message || "";
+      // Convex only forwards a thrown error's real message to the client when
+      // it's a ConvexError (`err.data`); a plain Error gets redacted into an
+      // opaque "[CONVEX A(...)] Server Error" wrapper in production. ai.ts's
+      // user-facing throws are ConvexError for exactly this reason -- prefer
+      // `data` and only fall back to `message` for something unexpected
+      // (network failure, etc.) that never went through that path.
+      const msg = (typeof err.data === "string" ? err.data : null) || err.message || "";
       if (
         msg.includes("Token was not consumed") ||
         msg.includes("no valid plans")

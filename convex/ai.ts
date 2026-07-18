@@ -10,7 +10,7 @@ import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { checkAdmin } from "./admin";
 import { requireUser } from "./lib";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import Groq from "groq-sdk";
 import OpenAI from "openai";
 import { z } from "zod";
@@ -120,7 +120,7 @@ export const reserveSmartCredit = internalMutation({
     const user = await requireUser(ctx);
 
     if (user.credits <= 0) {
-      throw new Error(
+      throw new ConvexError(
         "Insufficient credits. You need 1 token for Smart Generate.",
       );
     }
@@ -129,7 +129,7 @@ export const reserveSmartCredit = internalMutation({
       const diff = Date.now() - user.lastSmartGenerateTime;
       if (diff < RATE_LIMIT_MS) {
         const waitTime = Math.ceil((RATE_LIMIT_MS - diff) / 1000);
-        throw new Error(
+        throw new ConvexError(
           `Please wait ${waitTime} seconds before generating again`,
         );
       }
@@ -221,7 +221,7 @@ export const smartGenerate = action({
     // 1. Auth
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new Error("Not authenticated");
+      throw new ConvexError("Not authenticated");
     }
 
     // 2. Atomically reserve a credit and arm the 30s rate limit before any
@@ -310,7 +310,9 @@ export const smartGenerate = action({
         aiResult = cachedResponse;
       } else {
         if (modelToUse === "gemini") {
-          throw new Error("Gemini is currently unavailable. Please use Groq.");
+          throw new ConvexError(
+            "Gemini is currently unavailable. Please use Groq.",
+          );
         }
 
         // 5. Provider chain: SumoPod/MiniMax first (if configured), then Groq
@@ -422,7 +424,7 @@ export const smartGenerate = action({
               providerUsed = "groq:" + FALLBACK_MODEL;
             } catch (fallbackError: any) {
               console.error("Fallback model also failed:", fallbackError);
-              throw new Error(
+              throw new ConvexError(
                 `AI Generation Failed (All Providers): ${fallbackError.message}`,
               );
             }
@@ -443,7 +445,7 @@ export const smartGenerate = action({
       }
 
       if (!aiResult || !aiResult.plans || aiResult.plans.length === 0) {
-        throw new Error("AI generated no valid plans sections.");
+        throw new ConvexError("AI generated no valid plans sections.");
       }
 
       const aiPlans = aiResult.plans;
@@ -478,7 +480,7 @@ export const smartGenerate = action({
       }
 
       if (planPayloads.length === 0) {
-        throw new Error(
+        throw new ConvexError(
           "AI failed to generate a valid schedule. Token was not consumed.",
         );
       }
@@ -494,7 +496,7 @@ export const smartGenerate = action({
       );
 
       if (saved === 0) {
-        throw new Error(
+        throw new ConvexError(
           "Your plan archive is full (30). Delete some to save new ones. Token was not consumed.",
         );
       }
