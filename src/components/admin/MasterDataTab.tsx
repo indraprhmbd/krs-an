@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useMasterData } from "./hooks/useMasterData";
+import { useProdiOptions } from "./hooks/useProdiOptions";
 import { CourseEditor } from "./CourseEditor";
 import { Course } from "@/types";
 import { Button } from "@/components/ui/button";
@@ -50,6 +51,8 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
     canGoNext,
     canGoPrev,
   } = useMasterData();
+
+  const { prodiOptions } = useProdiOptions();
 
   const updateMaster = useMutation(api.admin.updateMasterCourse);
   const deleteMaster = useMutation(api.admin.deleteMasterCourse);
@@ -374,25 +377,15 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                   <SelectItem value="all" className="text-caption font-bold">
                     All Prodi
                   </SelectItem>
-                  {[
-                    "INFORMATIKA",
-                    "SISTEM INFORMASI",
-                    "TEKNIK INDUSTRI",
-                    "TEKNIK KIMIA",
-                    "TEKNIK LINGKUNGAN",
-                    "TEKNIK PERTAMBANGAN",
-                    "TEKNIK GEOLOGI",
-                    "MANAJEMEN",
-                    "AKUNTANSI",
-                    "EKONOMI PEMBANGUNAN",
-                    "ILMU KOMUNIKASI",
-                    "HUBUNGAN INTERNASIONAL",
-                    "ADMINISTRASI BISNIS",
-                  ]
-                    .sort()
+                  {[...prodiOptions]
+                    .sort((a, b) => a.name.localeCompare(b.name))
                     .map((p) => (
-                      <SelectItem key={p} value={p} className="text-caption">
-                        {p}
+                      <SelectItem
+                        key={p._id}
+                        value={p.name}
+                        className="text-caption"
+                      >
+                        {p.name}
                       </SelectItem>
                     ))}
                 </SelectContent>

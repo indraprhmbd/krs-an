@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { useProdiOptions } from "../hooks/useProdiOptions";
 
 interface CurriculumImportDialogProps {
   isOpen: boolean;
@@ -38,21 +39,10 @@ export function CurriculumImportDialog({
   const [curriculumRawText, setCurriculumRawText] = useState("");
   const [isImporting, setIsImporting] = useState(false);
 
-  const prodis = [
-    "INFORMATIKA",
-    "SISTEM INFORMASI",
-    "TEKNIK INDUSTRI",
-    "TEKNIK KIMIA",
-    "TEKNIK LINGKUNGAN",
-    "TEKNIK PERTAMBANGAN",
-    "TEKNIK GEOLOGI",
-    "MANAJEMEN",
-    "AKUNTANSI",
-    "EKONOMI PEMBANGUNAN",
-    "ILMU KOMUNIKASI",
-    "HUBUNGAN INTERNASIONAL",
-    "ADMINISTRASI BISNIS",
-  ].sort();
+  const { prodiOptions } = useProdiOptions();
+  const prodis = [...prodiOptions]
+    .map((p) => p.name)
+    .sort((a, b) => a.localeCompare(b));
 
   const handleCurriculumBatchImport = async () => {
     if (!curriculumRawText.trim()) return;
