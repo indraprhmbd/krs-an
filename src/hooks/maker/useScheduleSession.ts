@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { generatePlans } from "@/lib/scheduler";
 import type { Course, Plan } from "@/types";
 import { toast } from "sonner";
@@ -27,6 +27,12 @@ interface UseScheduleSessionArgs {
     generatedBy?: string;
   }) => Promise<string>;
   isLocalArchive: boolean;
+  /** Which prodi+semester the persisted courses/selectedCodes/lockedCourses
+   * actually belong to. When this drifts from what was last recorded, those
+   * three are cleared automatically -- otherwise a config change left stale,
+   * wrong-prodi courses sitting in the select step with no way back to an
+   * empty state short of the explicit "Hapus Sesi" action. */
+  configKey: string;
 }
 
 export function useScheduleSession({
@@ -35,6 +41,7 @@ export function useScheduleSession({
   userData,
   savePlan,
   isLocalArchive,
+  configKey,
 }: UseScheduleSessionArgs) {
   const [courses, setCourses] = useLocalStorage<Course[]>("krs-courses", []);
   const [selectedCodes, setSelectedCodes] = useLocalStorage<string[]>(
@@ -44,6 +51,35 @@ export function useScheduleSession({
   const [lockedCourses, setLockedCourses] = useLocalStorage<
     Record<string, string[]>
   >("krs-locked-courses", {});
+  const [coursesConfigKey, setCoursesConfigKey] = useLocalStorage<
+    string | null
+  >("krs-courses-config-key", null);
+
+  useEffect(() => {
+    if (coursesConfigKey === null) {
+      // First run (or post-clear): just record what config the current
+      // (empty) state belongs to, nothing to wipe yet.
+      setCoursesConfigKey(configKey);
+      return;
+    }
+    if (coursesConfigKey !== configKey) {
+      setCourses([]);
+      setSelectedCodes([]);
+      setLockedCourses({});
+      setCoursesConfigKey(configKey);
+    }
+    // useLocalStorage's setters are stable per key (useCallback keyed only
+    // on the storage key itself), so including them here does not cause this
+    // to re-run on every unrelated courses/selectedCodes update -- only
+    // configKey actually changing drives it.
+  }, [
+    configKey,
+    coursesConfigKey,
+    setCourses,
+    setSelectedCodes,
+    setLockedCourses,
+    setCoursesConfigKey,
+  ]);
   const [plans, setPlans] = useState<Plan[]>([]);
   const [currentPlanIndex, setCurrentPlanIndex] = useState(0);
   const [viewSource, setViewSource] = useState<"live" | "archive">("live");

@@ -133,6 +133,7 @@ export function clearKRSSession() {
     "krs-selected-codes",
     "krs-locked-courses",
     "krs-courses",
+    "krs-courses-config-key",
   ];
 
   krsKeys.forEach((key) => {

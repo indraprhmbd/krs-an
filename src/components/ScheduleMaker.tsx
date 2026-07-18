@@ -115,6 +115,7 @@ export function ScheduleMaker({ userData }: ScheduleMakerProps) {
     userData,
     savePlan,
     isLocalArchive,
+    configKey: `${sessionProfile.prodi}|${semester}`,
   });
 
   // The step rail shared by config/select/view via MakerShell. Archive is
