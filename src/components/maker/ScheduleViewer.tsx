@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -21,9 +20,14 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
-import { HelpTooltip } from "../ui/HelpTooltip";
 import { getProdiConfig } from "../../lib/prodi";
 import { useLanguage } from "../../context/LanguageContext";
+import { HelpTooltip } from "@/components/ui/HelpTooltip";
+import {
+  MakerShell,
+  type MakerFooterAction,
+  type MakerRailStep,
+} from "./MakerShell";
 
 interface ScheduleViewerProps {
   plans: Plan[];
@@ -40,6 +44,7 @@ interface ScheduleViewerProps {
   planLimit: number;
   isGenerating?: boolean;
   prodi?: string;
+  rail: MakerRailStep[];
 }
 
 export function ScheduleViewer({
@@ -57,6 +62,7 @@ export function ScheduleViewer({
   planLimit,
   isGenerating,
   prodi,
+  rail,
 }: ScheduleViewerProps) {
   const { t } = useLanguage();
   const [isInventoryOpen, setIsInventoryOpen] = useState(false);
@@ -160,7 +166,7 @@ export function ScheduleViewer({
                   if (variation) handleUpdateCourse(code, variation);
                 }}
               >
-                <SelectTrigger className="w-full h-8 border-2 border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary rounded-xl bg-card">
+                <SelectTrigger className="w-full h-8 border-2 border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary rounded-control bg-card">
                   <SelectValue placeholder="+" />
                 </SelectTrigger>
                 <SelectContent>
@@ -173,7 +179,7 @@ export function ScheduleViewer({
                           ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
                           : `Class ${v.class} | ${v.lecturer.split(",")[0]} | ${v.schedule[0]?.day} ${v.schedule[0]?.start}`
                       }
-                      className="rounded-xl px-3 py-2 cursor-pointer focus:bg-muted"
+                      className="rounded-control px-3 py-2 cursor-pointer focus:bg-muted"
                     >
                       <div className="flex flex-col min-w-0">
                         <span className="font-bold text-caption text-foreground">
@@ -262,7 +268,7 @@ export function ScheduleViewer({
                     if (variation) handleUpdateCourse(c.code, variation);
                   }}
                 >
-                  <SelectTrigger className="h-7 px-3 border-border bg-card hover:bg-accent rounded-lg w-full min-w-[100px]">
+                  <SelectTrigger className="h-7 px-3 border-border bg-card hover:bg-accent rounded-control w-full min-w-[100px]">
                     <span className="truncate w-full text-left block">
                       {prodiConfig.isCourseCentric
                         ? `${c.schedule[0]?.day} ${c.schedule[0]?.start} @ ${c.room || "TBA"}`
@@ -272,7 +278,7 @@ export function ScheduleViewer({
                   <SelectContent>
                     <SelectItem
                       value="remove"
-                      className="rounded-xl px-3 py-2 cursor-pointer focus:bg-destructive/10 text-destructive font-bold text-caption"
+                      className="rounded-control px-3 py-2 cursor-pointer focus:bg-destructive/10 text-destructive font-bold text-caption"
                     >
                       <div className="flex items-center gap-2">
                         <span>Minify / Remove Selection</span>
@@ -287,7 +293,7 @@ export function ScheduleViewer({
                             ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
                             : `Class ${v.class} | ${v.lecturer.split(",")[0]} | ${v.schedule[0]?.day} ${v.schedule[0]?.start}`
                         }
-                        className="rounded-xl px-3 py-2 cursor-pointer focus:bg-muted"
+                        className="rounded-control px-3 py-2 cursor-pointer focus:bg-muted"
                       >
                         <div className="flex items-center justify-between w-full gap-2">
                           <div className="flex flex-col min-w-0 flex-1">
@@ -324,18 +330,167 @@ export function ScheduleViewer({
     </div>
   );
 
+  const saveLabel = isSaving ? "Saving..." : isManualEdit ? "Commit" : "Save";
+  const handleSave = () => {
+    if (isManualEdit) onSavePlan(currentPlan.courses);
+    else onSavePlan(currentPlan);
+  };
+
   return (
-    <div className="h-full flex flex-col gap-3 md:gap-4 animate-in fade-in duration-500 overflow-hidden">
+    <MakerShell
+      rail={rail}
+      scrollBody={false}
+      onBack={onBack}
+      backLabel="Back"
+      title={currentPlan.name}
+      description={
+        <span className="font-mono text-caps uppercase text-muted-foreground">
+          {totalSKS} SKS
+        </span>
+      }
+      extra={
+        !isManualEdit &&
+        plans.length > 1 && (
+          <div className="flex shrink-0 items-center gap-1">
+            <div className="flex items-center gap-0.5 rounded-control bg-muted p-0.5">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() =>
+                  setCurrentPlanIndex((prev) =>
+                    prev > 0 ? prev - 1 : plans.length - 1,
+                  )
+                }
+              >
+                <Icon name="chevron-left" size={12} />
+              </Button>
+              <span className="px-1 font-mono text-caption font-bold">
+                {currentPlanIndex + 1}/{plans.length}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() =>
+                  setCurrentPlanIndex((prev) =>
+                    prev < plans.length - 1 ? prev + 1 : 0,
+                  )
+                }
+              >
+                <Icon name="chevron-right" size={12} />
+              </Button>
+            </div>
+            <HelpTooltip titleKey="help.slider_title" descKey="help.slider_desc" />
+          </div>
+        )
+      }
+      actions={[
+        {
+          key: "inventory",
+          label: "Course List",
+          icon: "list",
+          onClick: () => setIsInventoryOpen(true),
+        },
+      ]}
+      footer={
+        [
+          !isManualEdit &&
+            onShuffle && {
+              key: "shuffle",
+              label: "Shuffle",
+              icon: "refresh",
+              onClick: onShuffle,
+              disabled: isGenerating,
+              loading: isGenerating,
+              tooltip: {
+                titleKey: "help.shuffle_title",
+                descKey: "help.shuffle_desc",
+              },
+            },
+          !isManualEdit &&
+            onExpand &&
+            planLimit < 36 && {
+              key: "expand",
+              label: "Expand",
+              icon: "sparkles",
+              variant: "highlight",
+              onClick: onExpand,
+              disabled: isGenerating,
+              loading: isGenerating,
+              tooltip: {
+                titleKey: "help.expand_title",
+                descKey: "help.expand_desc",
+              },
+            },
+          isManualEdit && {
+            key: "fix-conflicts",
+            label: "Fix Conflicts",
+            // Kept distinct from Save's "check" (both appear together in the
+            // manual-edit footer): this is an AI-assisted action, same family
+            // as Expand.
+            icon: "sparkles",
+            variant: "highlight",
+            onClick: handleQuickFix,
+            tooltip: {
+              titleKey: "help.quick_fix_title",
+              descKey: "help.quick_fix_desc",
+            },
+          },
+          isManualEdit && {
+            key: "reset",
+            label: "Reset",
+            icon: "close",
+            onClick: handleReset,
+          },
+          {
+            key: "save",
+            label: saveLabel,
+            icon: "check",
+            onClick: handleSave,
+            disabled: isSaving || (isManualEdit && !valid),
+            loading: isSaving,
+          },
+        ].filter(Boolean) as MakerFooterAction[]
+      }
+    >
+      <Dialog open={isInventoryOpen} onOpenChange={setIsInventoryOpen}>
+        <DialogContent size="md" padded={false}>
+          <DialogHeader className="p-4 border-b border-border shrink-0">
+            <DialogTitle className="text-body flex items-center justify-between pr-8">
+              <div className="flex items-center gap-2">
+                <span>Course Inventory</span>
+                <Badge className="border-transparent bg-primary/10 px-2 text-caption text-primary">
+                  {currentPlan.courses.length}
+                </Badge>
+              </div>
+              <Button
+                size="sm"
+                onClick={() => {
+                  handleSave();
+                  setIsInventoryOpen(false);
+                }}
+                disabled={isSaving || (isManualEdit && !valid)}
+              >
+                <Icon name="check" className={isSaving ? "animate-pulse" : ""} size={12} />
+                {saveLabel}
+              </Button>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto px-1">{renderInventory()}</div>
+        </DialogContent>
+      </Dialog>
+
       <style
         dangerouslySetInnerHTML={{
           __html: `
         @media print {
           body * { visibility: hidden; }
           #printable-area, #printable-area * { visibility: visible; }
-          #printable-area { 
-            position: absolute; 
-            left: 0; 
-            top: 0; 
+          #printable-area {
+            position: absolute;
+            left: 0;
+            top: 0;
             width: 100%;
             padding: 0;
             margin: 0;
@@ -361,198 +516,9 @@ export function ScheduleViewer({
         }}
       />
 
-      <div className="flex items-center gap-2 bg-card p-2 rounded-panel border border-border no-print shrink-0 overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-1.5 shrink-0">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={onBack}
-            className="w-8 h-8 shrink-0 rounded-lg border-border hover:bg-accent"
-          >
-            <Icon name="chevron-left" />
-          </Button>
-          <div className="min-w-0 hidden xs:block max-w-[120px] sm:max-w-none">
-            <h2 className="text-caption sm:text-body font-bold text-foreground truncate">
-              {currentPlan.name}
-            </h2>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-1.5 no-print ml-auto">
-          {!isManualEdit && plans.length > 1 && (
-            <div className="flex items-center bg-muted rounded-lg p-0.5 gap-0.5">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-md"
-                onClick={() =>
-                  setCurrentPlanIndex((prev) =>
-                    prev > 0 ? prev - 1 : plans.length - 1,
-                  )
-                }
-              >
-                <Icon name="chevron-left" size={12} />
-              </Button>
-              <span className="text-caption font-bold font-mono px-1">
-                {currentPlanIndex + 1}/{plans.length}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 rounded-md"
-                onClick={() =>
-                  setCurrentPlanIndex((prev) =>
-                    prev < plans.length - 1 ? prev + 1 : 0,
-                  )
-                }
-              >
-                <Icon name="chevron-right" size={12} />
-              </Button>
-            </div>
-          )}
-
-          {!isManualEdit && onShuffle && (
-            <div className="flex items-center gap-1">
-              <div className="flex items-center gap-1">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onShuffle}
-                  disabled={isGenerating}
-                  className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-border text-muted-foreground hover:text-primary"
-                >
-                  <Icon name="refresh" className={isGenerating ? "animate-spin" : ""} size={14} />
-                  <span className="hidden sm:inline ml-1.5 text-caps uppercase">
-                    Shuffle
-                  </span>
-                </Button>
-                <div className="hidden sm:block">
-                  <HelpTooltip
-                    titleKey="help.shuffle_title"
-                    descKey="help.shuffle_desc"
-                  />
-                </div>
-              </div>
-
-              {onExpand && planLimit < 36 && (
-                <div className="flex items-center gap-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={onExpand}
-                    disabled={isGenerating}
-                    className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-border text-muted-foreground hover:text-primary"
-                  >
-                    <Icon name="sparkles" className={isGenerating ? "animate-pulse" : ""} size={14} />
-                    <span className="hidden sm:inline ml-1.5 text-caps uppercase">
-                      Expand
-                    </span>
-                  </Button>
-                  <div className="hidden sm:block">
-                    <HelpTooltip
-                      titleKey="help.expand_title"
-                      descKey="help.expand_desc"
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {isManualEdit && (
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleQuickFix}
-                className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-border text-muted-foreground hover:text-primary"
-              >
-                <Icon name="sparkles" className="text-primary" size={14} />
-                <span className="hidden sm:inline ml-1.5 text-caps uppercase">
-                  Fix Conflicts
-                </span>
-              </Button>
-              <div className="hidden sm:block">
-                <HelpTooltip
-                  titleKey="help.quick_fix_title"
-                  descKey="help.quick_fix_desc"
-                />
-              </div>
-
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleReset}
-                className="h-8 w-8 sm:w-auto sm:px-2.5 rounded-lg border-border text-muted-foreground hover:text-destructive"
-              >
-                <Icon name="refresh" className="text-muted-foreground" size={14} />
-                <span className="hidden sm:inline ml-1.5 text-caps uppercase">
-                  Reset
-                </span>
-              </Button>
-            </div>
-          )}
-        </div>
-
-        <div className="flex items-center gap-2 pl-2 border-l border-border h-8 shrink-0">
-          <div className="text-right min-w-[50px]">
-            <p className="text-caps font-mono text-muted-foreground uppercase mb-0.5">
-              SKS
-            </p>
-            <span className="text-title text-primary">
-              {totalSKS}
-            </span>
-          </div>
-
-          <Dialog open={isInventoryOpen} onOpenChange={setIsInventoryOpen}>
-            <DialogTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="lg:hidden w-8 h-8 rounded-lg bg-muted border-border text-primary"
-              >
-                <Icon name="list" />
-              </Button>
-            </DialogTrigger>
-            <DialogContent size="md" padded={false}>
-              <DialogHeader className="p-4 border-b border-border shrink-0">
-                <DialogTitle className="text-body flex items-center justify-between pr-8">
-                  <div className="flex items-center gap-2">
-                    <span>Course Inventory</span>
-                    <Badge className="border-transparent bg-primary/10 px-2 text-caption text-primary">
-                      {currentPlan.courses.length}
-                    </Badge>
-                  </div>
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      if (isManualEdit) onSavePlan(currentPlan.courses);
-                      else onSavePlan(currentPlan);
-                      setIsInventoryOpen(false);
-                    }}
-                    disabled={isSaving || (isManualEdit && !valid)}
-                    className={`h-7 px-3 text-caption uppercase rounded-lg transition-all ${
- valid
- ? "bg-primary text-primary-foreground hover:bg-primary/90"
- : "bg-muted text-muted-foreground"
- }`}
-                  >
-                    <Icon name="check" className={`mr-1 ${isSaving ? "animate-pulse" : ""}`} size={12} />
-                    {isSaving ? "Saving..." : isManualEdit ? "Commit" : "Save"}
-                  </Button>
-                </DialogTitle>
-              </DialogHeader>
-              <div className="flex-1 overflow-y-auto px-1">
-                {renderInventory()}
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-      </div>
-
       <div
         id="printable-area"
-        className="flex lg:grid lg:grid-cols-[1.2fr_380px] gap-4 md:gap-8 items-stretch flex-1 min-h-0 overflow-hidden pb-4"
+        className="flex lg:grid lg:grid-cols-[1.2fr_380px] gap-4 md:gap-8 items-stretch h-full overflow-hidden pb-4"
       >
         <div className="w-full bg-card p-1 rounded-panel md:p-2 md:rounded-panel border border-border overflow-auto custom-scrollbar flex flex-col flex-1">
           <div className="flex-1 min-h-0">
@@ -575,33 +541,15 @@ export function ScheduleViewer({
                   {currentPlan.courses.length}
                 </Badge>
               </CardTitle>
-              <div className="flex items-center gap-1.5">
-                <Button
-                  size="sm"
-                  onClick={() => {
-                    if (isManualEdit) onSavePlan(currentPlan.courses);
-                    else onSavePlan(currentPlan);
-                  }}
-                  disabled={isSaving || (isManualEdit && !valid)}
-                  className={`h-7 px-3 text-caption uppercase rounded-lg transition-all ${
- valid
- ? "bg-primary text-primary-foreground hover:bg-primary/90"
- : "bg-muted text-muted-foreground"
- }`}
-                >
-                  <Icon name="check" className={`mr-1 ${isSaving ? "animate-pulse" : ""}`} size={12} />
-                  {isSaving ? "Saving..." : isManualEdit ? "Commit" : "Save"}
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => window.print()}
-                  className="h-7 px-2 font-mono text-caps uppercase bg-card hover:bg-accent border-border rounded-lg"
-                >
-                  <Icon name="printer" className="mr-1" size={12} />
-                  Print
-                </Button>
-              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => window.print()}
+                className="h-7 px-2 font-mono text-caps uppercase"
+              >
+                <Icon name="printer" className="mr-1" size={12} />
+                Print
+              </Button>
             </CardHeader>
             <CardContent className="p-0 flex-1 overflow-y-auto custom-scrollbar">
               {renderInventory()}
@@ -609,6 +557,6 @@ export function ScheduleViewer({
           </Card>
         </div>
       </div>
-    </div>
+    </MakerShell>
   );
 }

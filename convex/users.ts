@@ -1,23 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { logAudit } from "./audit";
-
-// Import checkAdmin helper from admin module
-async function checkAdmin(ctx: any) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) throw new Error("Unauthorized");
-
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_token", (q: any) =>
-      q.eq("tokenIdentifier", identity.tokenIdentifier),
-    )
-    .unique();
-
-  if (!user || !user.isAdmin)
-    throw new Error("Forbidden: Admin access required");
-  return user;
-}
+import { getAuthedUser, requireUser, requireAdmin } from "./lib";
 
 // Helper to get current user
 export const getCurrentUser = query({
@@ -27,12 +11,7 @@ export const getCurrentUser = query({
     if (!identity) {
       return null;
     }
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
+    const user = await getAuthedUser(ctx);
 
     return {
       ...user,
@@ -51,18 +30,7 @@ export const updatePreferences = mutation({
     preferredAiModel: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
-
-    if (!user) throw new Error("User not found");
-
+    const user = await requireUser(ctx);
     await ctx.db.patch(user._id, {
       preferredAiModel: args.preferredAiModel,
     });
@@ -89,17 +57,18 @@ export const ensureUser = mutation({
       .split("T")[0];
 
     if (user !== null) {
-      // Security/Safety: Ensure email is always up to date
-      if (user.email !== identity.email) {
-        await ctx.db.patch(user._id, { email: identity.email });
-      }
-
-      // Check for daily reset (WIB: UTC+7)
+      // Combine the email-refresh and daily-reset patches into one write:
+      // this runs on every auth transition, so the common case (returning
+      // user, new day) used to cost two patches instead of one.
+      const patch: { email?: string; credits?: number; lastResetDate?: string } =
+        {};
+      if (user.email !== identity.email) patch.email = identity.email;
       if (user.lastResetDate !== wibDate) {
-        await ctx.db.patch(user._id, {
-          credits: 5,
-          lastResetDate: wibDate,
-        });
+        patch.credits = 5;
+        patch.lastResetDate = wibDate;
+      }
+      if (Object.keys(patch).length > 0) {
+        await ctx.db.patch(user._id, patch);
       }
       return user._id;
     }
@@ -164,17 +133,7 @@ export const ensureUser = mutation({
 export const generateServiceToken = mutation({
   args: { type: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
-
-    if (!user) throw new Error("User not found");
+    const user = await requireUser(ctx);
 
     if (user.credits <= 0) {
       throw new Error("Daily limit reached. Come back tomorrow!");
@@ -212,8 +171,8 @@ export const generateServiceToken = mutation({
 export const makeAdmin = mutation({
   args: { tokenIdentifier: v.string() },
   handler: async (ctx, args) => {
-    // CRITICAL SECURITY FIX: Require admin authorization
-    await checkAdmin(ctx);
+    // Only an existing admin may promote another user.
+    const admin = await requireAdmin(ctx);
 
     const user = await ctx.db
       .query("users")
@@ -226,7 +185,7 @@ export const makeAdmin = mutation({
 
       // Log admin promotion for audit trail
       await logAudit(ctx, {
-        user: (await ctx.auth.getUserIdentity())!.tokenIdentifier,
+        user: admin.tokenIdentifier,
         action: "promote_admin",
         details: `Promoted user ${args.tokenIdentifier} to admin`,
       });

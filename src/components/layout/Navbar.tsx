@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { Icon, type IconName } from "@/components/ui/icon";
 import { ContactDialog } from "../maker/ContactDialog";
 import { useLanguage } from "../../context/LanguageContext";
+import { useSession } from "../../context/SessionContext";
 import { Button } from "@/components/ui/button";
 import { HelpTooltip } from "@/components/ui/HelpTooltip";
 import {
@@ -18,9 +19,6 @@ interface NavbarProps {
     isAdmin?: boolean;
     credits?: number;
   };
-  step: "config" | "select" | "view" | "archive";
-  setStep: (step: "config" | "select" | "view" | "archive") => void;
-  onRestoreArchitect?: () => void;
 }
 
 /** One row in the utility grid. */
@@ -49,14 +47,11 @@ function MenuButton({
   );
 }
 
-export function Navbar({
-  userData,
-  step,
-  setStep,
-  onRestoreArchitect,
-}: NavbarProps) {
+export function Navbar({ userData }: NavbarProps) {
   const { isSignedIn, user } = useUser();
   const { lang, setLang, t } = useLanguage();
+  const { step, setStep, restoreArchitectStep, requestTutorial } =
+    useSession();
   const isArchitect = step === "config" || step === "select" || step === "view";
   const isArchive = step === "archive";
 
@@ -73,10 +68,8 @@ export function Navbar({
         icon="sparkles"
         label={t("nav.tutorial")}
         onClick={() => {
-          onRestoreArchitect?.();
-          // ScheduleMaker owns tutorial state; this avoids drilling a callback
-          // through the whole tree. Listener is in ScheduleMaker.
-          window.dispatchEvent(new CustomEvent("trigger-tutorial"));
+          restoreArchitectStep();
+          requestTutorial();
         }}
       />
       <AboutDialog
@@ -185,9 +178,7 @@ export function Navbar({
             aria-selected={isArchitect}
             variant={isArchitect ? "secondary" : "ghost"}
             size="sm"
-            onClick={() =>
-              onRestoreArchitect ? onRestoreArchitect() : setStep("config")
-            }
+            onClick={() => restoreArchitectStep()}
           >
             <Icon name="sparkles" size={14} />
             <span className="hidden xs:inline">{t("nav.architect")}</span>

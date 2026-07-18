@@ -172,3 +172,109 @@ fs.mkdirSync("src/components/ui", { recursive: true });
 fs.writeFileSync("src/components/ui/icon.tsx", out);
 console.log(`Wrote src/components/ui/icon.tsx with ${Object.keys(nodes).length} icons`);
 console.log("names:", Object.keys(nodes).join(", "));
+
+/**
+ * Second, unrelated set: multicolor spot art for large decorative surfaces
+ * (empty states, feature cards, onboarding), vendored from flat-color-icons
+ * (icons8, MIT). <Icon> stays mono/currentColor so it themes correctly and
+ * stays legible at 14-16px; a fixed-palette multicolor icon cannot do either,
+ * so it gets a separate primitive used only at large sizes.
+ */
+const SPOT_DIST = path.resolve("node_modules/flat-color-icons/svg");
+
+// local name -> flat-color-icons file (without .svg).
+const SPOT_MAP = {
+  idea: "idea",
+  puzzle: "puzzle",
+  planner: "planner",
+  "todo-list": "todo_list",
+  "empty-filter": "empty_filter",
+  checkmark: "checkmark",
+  share: "share",
+  synchronize: "synchronize",
+  search: "search",
+  calendar: "calendar",
+  document: "document",
+  "graduation-cap": "graduation_cap",
+  collaboration: "collaboration",
+  database: "database",
+};
+
+const spotEntries = Object.entries(SPOT_MAP).map(([local, file]) => {
+  const svg = fs.readFileSync(path.join(SPOT_DIST, `${file}.svg`), "utf8");
+  const viewBox = svg.match(/viewBox="([^"]+)"/)?.[1] ?? "0 0 48 48";
+  // Keep everything between the opening and closing <svg> tags as-is: these
+  // are static, vendored at generation time (not user input), so embedding
+  // via dangerouslySetInnerHTML at render time carries no injection risk.
+  const inner = svg.replace(/^<svg[^>]*>/, "").replace(/<\/svg>\s*$/, "");
+  return { local, viewBox, inner };
+});
+
+const spotBody = spotEntries
+  .map(
+    ({ local, viewBox, inner }) =>
+      `  "${local}": { viewBox: ${JSON.stringify(viewBox)}, inner: ${JSON.stringify(inner)} },`,
+  )
+  .join("\n");
+
+const spotOut = `/**
+ * Multicolor spot icon set.
+ *
+ * Markup is vendored from flat-color-icons (icons8), MIT licensed:
+ *
+ *   Copyright (c) Icons8 LLC. Licensed under the MIT License.
+ *   https://github.com/icons8/flat-color-icons
+ *
+ * This is deliberately a second, separate primitive from <Icon>. <Icon> is
+ * mono/currentColor so it themes correctly and stays legible at 14-16px;
+ * these have fixed multicolor fills that cannot adapt to dark mode and turn
+ * muddy at small sizes. Use <SpotIcon> only for large decorative art --
+ * empty states, feature callouts, onboarding -- never for UI controls.
+ *
+ * This file is generated. To add an icon, add it to SPOT_MAP in the
+ * generator and re-run; the svg file must exist in
+ * node_modules/flat-color-icons/svg.
+ */
+import type { SVGProps } from "react";
+
+const SPOT_ICONS = {
+${spotBody}
+} as const satisfies Record<string, { viewBox: string; inner: string }>;
+
+export type SpotIconName = keyof typeof SPOT_ICONS;
+
+export interface SpotIconProps
+  extends Omit<SVGProps<SVGSVGElement>, "name" | "dangerouslySetInnerHTML"> {
+  name: SpotIconName;
+  /** Pixel size for both axes. Defaults to 64: this primitive is for large
+   * decorative art, not UI chrome -- use <Icon> below ~24px. */
+  size?: number;
+  /** Accessible label. Omit when the icon is purely decorative next to text
+   * that already says the same thing (the common case for spot art). */
+  label?: string;
+}
+
+export function SpotIcon({ name, size = 64, label, ...props }: SpotIconProps) {
+  const { viewBox, inner } = SPOT_ICONS[name];
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox={viewBox}
+      role={label ? "img" : undefined}
+      aria-label={label}
+      aria-hidden={label ? undefined : true}
+      focusable="false"
+      dangerouslySetInnerHTML={{ __html: inner }}
+      {...props}
+    />
+  );
+}
+`;
+
+fs.writeFileSync("src/components/ui/spot-icon.tsx", spotOut);
+console.log(
+  `Wrote src/components/ui/spot-icon.tsx with ${spotEntries.length} spot icons`,
+);
+console.log("spot names:", spotEntries.map((e) => e.local).join(", "));

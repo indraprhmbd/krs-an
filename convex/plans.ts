@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { getAuthedUser, requireUser } from "./lib";
 
 /**
  * Save a generated plan to the archive
@@ -12,17 +13,7 @@ export const savePlan = mutation({
     generatedBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
-
-    if (!user) throw new Error("User not found");
+    const user = await requireUser(ctx);
 
     // Check plan limit
     const existingPlans = await ctx.db
@@ -55,16 +46,7 @@ export const savePlan = mutation({
 export const listPlans = query({
   args: {},
   handler: async (ctx) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) return [];
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
-
+    const user = await getAuthedUser(ctx);
     if (!user) return [];
 
     const plans = await ctx.db
@@ -97,17 +79,7 @@ export const listPlans = query({
 export const deletePlan = mutation({
   args: { planId: v.id("plans") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
-
-    if (!user) throw new Error("User not found");
+    const user = await requireUser(ctx);
 
     const plan = await ctx.db.get(args.planId);
     if (!plan || plan.userId !== user._id) {
@@ -124,17 +96,7 @@ export const deletePlan = mutation({
 export const renamePlan = mutation({
   args: { planId: v.id("plans"), newName: v.string() },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
-
-    if (!user) throw new Error("User not found");
+    const user = await requireUser(ctx);
 
     const plan = await ctx.db.get(args.planId);
     if (!plan || plan.userId !== user._id) {
@@ -151,17 +113,7 @@ export const renamePlan = mutation({
 export const createShareLink = mutation({
   args: { planId: v.id("plans") },
   handler: async (ctx, args) => {
-    const identity = await ctx.auth.getUserIdentity();
-    if (!identity) throw new Error("Unauthorized");
-
-    const user = await ctx.db
-      .query("users")
-      .withIndex("by_token", (q) =>
-        q.eq("tokenIdentifier", identity.tokenIdentifier),
-      )
-      .unique();
-
-    if (!user) throw new Error("User not found");
+    const user = await requireUser(ctx);
 
     const plan = await ctx.db.get(args.planId);
     if (!plan || plan.userId !== user._id) {

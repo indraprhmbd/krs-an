@@ -83,10 +83,13 @@ const PAIRS = [
   ["destructive-foreground", "destructive", 4.5],
   ["secondary-foreground", "secondary", 4.5],
   ["accent-foreground", "accent", 4.5],
+  ["highlight-foreground", "highlight", 4.5],
 
   ["primary", "background", 3.0],
   ["primary", "card", 3.0],
   ["destructive", "card", 3.0],
+  ["highlight", "background", 3.0],
+  ["highlight", "card", 3.0],
 
   // The border IS the text field. WCAG 1.4.11 applies.
   ["input", "background", 3.0],

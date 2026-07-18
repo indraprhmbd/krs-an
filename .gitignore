@@ -28,6 +28,7 @@ dist-ssr
 .env.local
 venv/
 ai-service
+_temp/
 
-.claude/
-CLAUDE.md
+# .claude/
+# CLAUDE.md

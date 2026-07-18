@@ -39,9 +39,9 @@ const translations: Record<Language, Record<string, string>> = {
     "config.title_span": "Anda.",
     "config.sub_title":
       "Tentukan parameter akademik Anda untuk memulai penjadwalan cerdas semester depan.",
-    "config.ai_scrolling":
-      "Menyinkronkan database... Mencapai keseimbangan akademik optimal... Mencegah konflik jadwal...",
     "config.card_title": "Konfigurasi Akademik",
+    "config.section_institution": "Institusi",
+    "config.section_target": "Target Akademik",
     "config.univ_label": "Institusi / Universitas",
     "config.univ_placeholder": "Pilih Universitas",
     "config.prodi_label": "Program Studi (Prodi)",
@@ -152,6 +152,7 @@ const translations: Record<Language, Record<string, string>> = {
     "about.legal_title": "Aspek Legal & Privasi",
     "about.legal_desc":
       "KRSan menyajikan data jadwal kuliah dan nama pengajar berdasarkan informasi publik yang disediakan oleh institusi terkait. Kami hanya memproses data ini untuk tujuan edukasi dan kemudahan administratif mahasiswa, sesuai dengan semangat UU Pelindungan Data Pribadi No. 27 Tahun 2022 (Kapasitas Profesional).",
+    "about.illustration_credit": "Ilustrasi oleh",
     "about.title": "Filosofi KRSan",
     "about.background_title": "Latar Belakang",
     "about.background_desc":
@@ -224,9 +225,9 @@ const translations: Record<Language, Record<string, string>> = {
     "config.title_span": "Semester.",
     "config.sub_title":
       "Establish your academic parameters to initialize the intelligent scheduler for the upcoming term.",
-    "config.ai_scrolling":
-      "Cross-referencing database... Achieve optimal academic balance... Preventing scheduling conflicts...",
     "config.card_title": "Academic Configuration",
+    "config.section_institution": "Institution",
+    "config.section_target": "Academic Target",
     "config.univ_label": "Institution / University",
     "config.univ_placeholder": "Select University",
     "config.prodi_label": "Study Program (Prodi)",
@@ -333,6 +334,7 @@ const translations: Record<Language, Record<string, string>> = {
     "about.legal_title": "Legal & Privacy Aspects",
     "about.legal_desc":
       "KRSan presents course schedules and faculty names based on public information provided by the respective institutions. We process this data solely for educational purposes and student administrative convenience, in accordance with the spirit of the Personal Data Protection Act No. 27 of 2022 (Professional Capacity).",
+    "about.illustration_credit": "Illustration by",
     "about.title": "KRSan Philosophy",
     "about.background_title": "Background",
     "about.background_desc":

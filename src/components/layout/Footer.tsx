@@ -278,6 +278,17 @@ export function AboutDialog({ trigger }: { trigger?: React.ReactNode }) {
             <p className="rounded-card border border-border bg-muted p-4 text-caption">
               {t("about.legal_desc")}
             </p>
+            <p className="text-caption text-muted-foreground">
+              {t("about.illustration_credit")}{" "}
+              <a
+                href="https://storyset.com/idea"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-primary"
+              >
+                Storyset
+              </a>
+            </p>
           </div>
         </div>
       </DialogContent>

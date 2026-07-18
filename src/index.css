@@ -47,8 +47,12 @@
   --popover-foreground: oklch(21% 0.015 265);
   --muted-foreground: oklch(50% 0.014 265);
 
-  /* Brand. Matches the established blue-700 (#1d4ed8). */
-  --primary: oklch(48% 0.19 259);
+  /* Brand. Was a flat corporate navy (blue-700, hue 259) that had nothing to
+     do with the actual KRSan mark: the logo is a friendly azure/sky blue with
+     orange and green puzzle pieces, none of which reached the token layer.
+     This is that blue, lightened and shifted a touch warmer (hue 250) so it
+     reads as approachable rather than enterprise-software blue. */
+  --primary: oklch(54% 0.17 250);
   --primary-foreground: oklch(99% 0 0);
 
   /* Subdued fills */
@@ -56,9 +60,17 @@
   --secondary-foreground: oklch(28% 0.015 265);
   --muted: oklch(96% 0.004 265);
 
-  /* Hover surface */
+  /* Hover surface. Stays a neutral, NOT the brand -- see index.css header. */
   --accent: oklch(95.5% 0.005 265);
   --accent-foreground: oklch(24% 0.015 265);
+
+  /* Playful highlight, matching the logo's orange puzzle piece. Deliberately
+     a third concept, distinct from both --primary (brand) and --accent
+     (hover surface): use it only where warmth should read as emphasis, not
+     as the default interactive colour -- the AI/Smart Generate affordance,
+     a schedule's "optimal" indicator, badges that want personality. */
+  --highlight: oklch(55% 0.17 50);
+  --highlight-foreground: oklch(99% 0 0);
 
   /* Danger */
   --destructive: oklch(55% 0.21 27);
@@ -73,7 +85,7 @@
      Solved for the lightest value clearing 3:1 on both background and card
      (3.04:1). Do not lighten this to match --border. */
   --input: oklch(65.5% 0.006 265);
-  --ring: oklch(48% 0.19 259);
+  --ring: oklch(54% 0.17 250);
 
   /* Elevation. Deliberately restrained: this is a dense data tool, and big
      soft shadows read as floaty. */
@@ -94,7 +106,7 @@
   --muted-foreground: oklch(70% 0.012 265);
 
   /* Lifted: the light-mode brand is too dark to read on a dark surface. */
-  --primary: oklch(65% 0.17 259);
+  --primary: oklch(70% 0.15 250);
   --primary-foreground: oklch(17% 0.02 265);
 
   --secondary: oklch(27% 0.014 265);
@@ -104,6 +116,11 @@
   --accent: oklch(28% 0.016 265);
   --accent-foreground: oklch(95% 0.004 265);
 
+  /* See the light-mode note on --highlight: same brand-adjacent orange,
+     lifted for a dark surface. */
+  --highlight: oklch(76% 0.15 55);
+  --highlight-foreground: oklch(20% 0.03 55);
+
   --destructive: oklch(62% 0.19 27);
   --destructive-foreground: oklch(17% 0.02 265);
 
@@ -111,7 +128,7 @@
   --border-strong: oklch(38% 0.016 265);
   /* See the light-mode note. Solved for 3:1 against dark surfaces (3.02:1). */
   --input: oklch(50.5% 0.015 265);
-  --ring: oklch(65% 0.17 259);
+  --ring: oklch(70% 0.15 250);
 
   /* Shadows barely register on dark surfaces, so lean on opacity. */
   --elevation-card: 0 1px 2px 0 oklch(0% 0 0 / 0.3),
@@ -234,6 +251,8 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
+  --color-highlight: var(--highlight);
+  --color-highlight-foreground: var(--highlight-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);

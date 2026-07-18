@@ -2,24 +2,12 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
 import { logAudit } from "./audit";
+import { requireAdmin } from "./lib";
 
-// Helper to verify admin status.
-// Exported so other modules reuse it rather than adding another copy.
-export async function checkAdmin(ctx: any) {
-  const identity = await ctx.auth.getUserIdentity();
-  if (!identity) throw new Error("Unauthorized");
-
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_token", (q: any) =>
-      q.eq("tokenIdentifier", identity.tokenIdentifier),
-    )
-    .unique();
-
-  if (!user || !user.isAdmin)
-    throw new Error("Forbidden: Admin access required");
-  return user;
-}
+// checkAdmin used to be defined here (and duplicated in users.ts). It is now
+// requireAdmin in ./lib. Re-exported under the old name so existing importers
+// (convex/ai.ts) keep working without a rename.
+export { requireAdmin as checkAdmin } from "./lib";
 
 export const pingAdmin = query({
   args: {},
@@ -73,25 +61,34 @@ export const getMasterCoursesCount = query({
     search: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // Simplified count for diagnostic purposes and search support
-    let items;
+    // A search term used to trigger a full-table `.collect()` re-filtered by
+    // hand in JS, on every debounced keystroke. Route through the same search
+    // index getPaginatedMasterCourses uses instead: it also keeps the count in
+    // sync with what that query actually displays (both name-matched), where
+    // before this also matched on `code` and could disagree with the list.
+    if (args.search) {
+      const results = await ctx.db
+        .query("master_courses")
+        .withSearchIndex("search_courses", (q) => {
+          let searchQ = q.search("name", args.search!);
+          if (args.prodi && args.prodi !== "all") {
+            searchQ = searchQ.eq("prodi", args.prodi!);
+          }
+          return searchQ;
+        })
+        .collect();
+      return results.length;
+    }
+
     if (args.prodi && args.prodi !== "all") {
-      items = await ctx.db
+      const items = await ctx.db
         .query("master_courses")
         .withIndex("by_prodi", (q) => q.eq("prodi", args.prodi!))
         .collect();
-    } else {
-      items = await ctx.db.query("master_courses").collect();
+      return items.length;
     }
 
-    if (args.search) {
-      const s = args.search.toLowerCase();
-      items = items.filter(
-        (c) =>
-          c.code.toLowerCase().includes(s) || c.name.toLowerCase().includes(s),
-      );
-    }
-
+    const items = await ctx.db.query("master_courses").collect();
     return items.length;
   },
 });
@@ -132,7 +129,7 @@ export const bulkImportMaster = mutation({
     ),
   },
   handler: async (ctx, args) => {
-    const user = await checkAdmin(ctx);
+    const user = await requireAdmin(ctx);
 
     const inputs = args.courses.map((c) => ({
       ...c,
@@ -173,7 +170,7 @@ export const bulkImportMaster = mutation({
 export const clearMasterData = mutation({
   args: { prodi: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const user = await checkAdmin(ctx);
+    const user = await requireAdmin(ctx);
     let items;
     if (args.prodi) {
       items = await ctx.db
@@ -219,7 +216,7 @@ export const updateMasterCourse = mutation({
     }),
   },
   handler: async (ctx, args) => {
-    await checkAdmin(ctx);
+    await requireAdmin(ctx);
     await ctx.db.patch(args.id, args.updates);
   },
 });
@@ -227,7 +224,7 @@ export const updateMasterCourse = mutation({
 export const deleteMasterCourse = mutation({
   args: { id: v.id("master_courses") },
   handler: async (ctx, args) => {
-    await checkAdmin(ctx);
+    await requireAdmin(ctx);
     await ctx.db.delete(args.id);
   },
 });
@@ -235,7 +232,7 @@ export const deleteMasterCourse = mutation({
 export const batchDeleteMaster = mutation({
   args: { ids: v.array(v.id("master_courses")) },
   handler: async (ctx, args) => {
-    await checkAdmin(ctx);
+    await requireAdmin(ctx);
     await Promise.all(args.ids.map((id) => ctx.db.delete(id)));
     return { success: true, count: args.ids.length };
   },
@@ -269,7 +266,7 @@ export const addCurriculumItem = mutation({
     sks: v.number(),
   },
   handler: async (ctx, args) => {
-    await checkAdmin(ctx);
+    await requireAdmin(ctx);
     return await ctx.db.insert("curriculum", args);
   },
 });
@@ -284,7 +281,7 @@ export const addCurriculumItem = mutation({
 export const dropCurriculumTerm = mutation({
   args: {},
   handler: async (ctx) => {
-    await checkAdmin(ctx);
+    await requireAdmin(ctx);
     const rows = await ctx.db.query("curriculum").collect();
     let cleaned = 0;
     for (const row of rows) {
@@ -300,7 +297,7 @@ export const dropCurriculumTerm = mutation({
 export const removeCurriculumItem = mutation({
   args: { id: v.id("curriculum") },
   handler: async (ctx, args) => {
-    await checkAdmin(ctx);
+    await requireAdmin(ctx);
     await ctx.db.delete(args.id);
   },
 });
@@ -308,7 +305,7 @@ export const removeCurriculumItem = mutation({
 export const batchDeleteCurriculum = mutation({
   args: { ids: v.array(v.id("curriculum")) },
   handler: async (ctx, args) => {
-    await checkAdmin(ctx);
+    await requireAdmin(ctx);
     for (const id of args.ids) {
       await ctx.db.delete(id);
     }
@@ -319,7 +316,7 @@ export const batchDeleteCurriculum = mutation({
 export const fixProdiFormatting = mutation({
   args: {},
   handler: async (ctx) => {
-    await checkAdmin(ctx);
+    await requireAdmin(ctx);
     const masterItems = await ctx.db.query("master_courses").collect();
     const curriculumItems = await ctx.db.query("curriculum").collect();
 

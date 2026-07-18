@@ -78,8 +78,11 @@ for (const file of walk(ROOT)) {
     ]);
     varsAt.set(m[1], names);
   }
-  // <HelpTooltip titleKey="..." descKey="..." />
-  for (const mm of src.matchAll(/(?:titleKey|descKey)=\{?"([^"]+)"/g)) {
+  // <HelpTooltip titleKey="..." descKey="..." /> (JSX attribute) and the
+  // MakerBarAction object-literal shape ({ titleKey: "...", descKey: "..." })
+  // used to pass a tooltip through to HelpTooltip indirectly -- both assign
+  // the same key names, just with `=` vs `:`.
+  for (const mm of src.matchAll(/(?:titleKey|descKey)\s*[:=]\s*\{?"([^"]+)"/g)) {
     const line = src.slice(0, mm.index).split("\n").length;
     if (!used.has(mm[1])) used.set(mm[1], []);
     used.get(mm[1]).push(`${rel}:${line}`);

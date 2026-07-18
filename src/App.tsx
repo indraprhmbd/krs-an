@@ -3,7 +3,7 @@ import { api } from "../convex/_generated/api";
 import { ScheduleMaker } from "./components/ScheduleMaker";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { Toaster } from "@/components/ui/sonner";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/layout/Navbar";
 import { toast } from "sonner";
@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { SharePage } from "./components/SharePage";
 import { usePlanArchive } from "./hooks/usePlanArchive";
 import { useLanguage } from "./context/LanguageContext";
+import { SessionProvider } from "./context/SessionContext";
 
 function App() {
   const { t } = useLanguage();
@@ -21,21 +22,6 @@ function App() {
   );
   const ensureUser = useMutation(api.users.ensureUser);
   const { pendingMigrationCount, migrateLocalPlans } = usePlanArchive();
-
-  // State shared with Navbar for global navigation
-  const [makerStep, setMakerStep] = useState<
-    "config" | "select" | "view" | "archive"
-  >("config");
-  const [lastArchitectStep, setLastArchitectStep] = useState<
-    "config" | "select" | "view"
-  >("config");
-
-  const handleStepChange = (step: "config" | "select" | "view" | "archive") => {
-    setMakerStep(step);
-    if (step !== "archive") {
-      setLastArchitectStep(step);
-    }
-  };
 
   // Sync user to Convex
   useEffect(() => {
@@ -85,31 +71,20 @@ function App() {
         <Route
           path="/*"
           element={
-            <>
-              <Navbar
-                userData={userData as never}
-                step={makerStep}
-                setStep={handleStepChange}
-                onRestoreArchitect={() => setMakerStep(lastArchitectStep)}
-              />
+            <SessionProvider>
+              <Navbar userData={userData as never} />
 
               <main className="flex-1 min-h-0 overflow-hidden flex flex-col">
                 <Routes>
                   <Route
                     path="/"
-                    element={
-                      <ScheduleMaker
-                        externalStep={makerStep}
-                        onStepChange={handleStepChange}
-                        userData={userData as never}
-                      />
-                    }
+                    element={<ScheduleMaker userData={userData as never} />}
                   />
                   {/* AdminDashboard gates itself; no route guard needed. */}
                   <Route path="/admin" element={<AdminDashboard />} />
                 </Routes>
               </main>
-            </>
+            </SessionProvider>
           }
         />
       </Routes>

@@ -1,9 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
+import { SpotIcon, type SpotIconName } from "@/components/ui/spot-icon";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import type { ArchivedPlan, Plan } from "@/types";
+import { MakerShell } from "./MakerShell";
+import { cn } from "@/lib/utils";
 
 interface ScheduleArchiveProps {
   archived: ArchivedPlan[] | undefined;
@@ -15,10 +18,16 @@ interface ScheduleArchiveProps {
   isLocal?: boolean;
 }
 
-const EmptyState = ({ message }: { message: string }) => (
+const EmptyState = ({
+  message,
+  spot,
+}: {
+  message: string;
+  spot: SpotIconName;
+}) => (
   <div className="col-span-full py-12 text-center space-y-4 bg-muted rounded-card border border-border border-dashed">
-    <div className="bg-card w-12 h-12 rounded-control flex items-center justify-center mx-auto border border-border">
-      <Icon name="history" size={24} className="text-muted-foreground" />
+    <div className="mx-auto flex items-center justify-center">
+      <SpotIcon name={spot} size={56} />
     </div>
     <div className="space-y-1">
       <p className="font-bold text-muted-foreground">{message}</p>
@@ -64,10 +73,8 @@ const PlanCard = ({
     <Card
       key={plan._id}
       className={`group relative border-border/60 transition-all rounded-card overflow-hidden bg-card ${
- isAi
- ? "hover:border-primary"
- : "hover:border-primary"
- }`}
+        isAi ? "hover:border-highlight" : "hover:border-primary"
+      }`}
     >
       <div className="p-3">
         {/* Compact Header */}
@@ -161,18 +168,18 @@ const PlanCard = ({
           </div>
           <div
             className={`flex-1 border rounded-control px-2 py-1 flex items-center justify-between ${
- isAi
- ? "bg-muted/50 border-border"
- : "bg-muted/50 border-border"
- }`}
+              isAi
+                ? "bg-highlight/10 border-highlight/30"
+                : "bg-muted/50 border-border"
+            }`}
           >
             <span
-              className={`text-caps font-mono uppercase  ${isAi ? "text-primary" : "text-primary"}`}
+              className={`text-caps font-mono uppercase ${isAi ? "text-highlight" : "text-primary"}`}
             >
               TYPE
             </span>
             <span
-              className={`text-caption font-bold ${isAi ? "text-primary" : "text-primary"}`}
+              className={`text-caption font-bold ${isAi ? "text-highlight" : "text-primary"}`}
             >
               {isAi ? "AI" : "MANUAL"}
             </span>
@@ -182,10 +189,10 @@ const PlanCard = ({
         {/* Primary Action */}
         <Button
           className={`w-full h-8 rounded-control text-caption font-bold transition-all ${
- isAi
- ? "bg-primary hover:bg-primary/90 text-primary-foreground"
- : "bg-primary hover:bg-primary/90 text-primary-foreground"
- }`}
+            isAi
+              ? "bg-highlight hover:bg-highlight/90 text-highlight-foreground"
+              : "bg-primary hover:bg-primary/90 text-primary-foreground"
+          }`}
           onClick={() => onImport(contextPlans, index)}
         >
           Restore to Grid
@@ -224,62 +231,62 @@ export function ScheduleArchive({
   const aiDataPlans = aiPlans.map((p) => p.data);
   const manualDataPlans = manualPlans.map((p) => p.data);
 
+  const count = archived?.length || 0;
+
   return (
-    <div className="max-w-4xl mx-auto h-full overflow-y-auto space-y-4 px-1 pb-20 animate-in fade-in slide-in-from-bottom-4 duration-700 no-scrollbar">
-      <div className="flex items-center justify-between px-2">
+    <MakerShell
+      title="Plan Archive"
+      description={
         <div className="flex items-center gap-2">
-          <Icon name="history" size={20} className="text-muted-foreground" />
-          <h2 className="font-bold text-foreground tracking-tight">
-            Plan Archive
-          </h2>
-        </div>
-        <div className="flex flex-col items-end gap-1">
-          <div className="flex items-center gap-2 text-caps text-muted-foreground uppercase">
-            <span>Storage Capacity</span>
-            <span
-              className={`${(archived?.length || 0) >= 30 ? "text-destructive" : "text-primary"}`}
-            >
-              {archived?.length || 0} / 30
-            </span>
-          </div>
-          <div className="w-32 h-1.5 bg-muted rounded-full overflow-hidden border border-border/50">
+          <span className="font-mono text-caps uppercase text-muted-foreground">
+            Storage
+          </span>
+          <span
+            className={cn(
+              "font-mono text-caption font-bold",
+              count >= 30 ? "text-destructive" : "text-primary",
+            )}
+          >
+            {count} / 30
+          </span>
+          <div className="h-1.5 w-24 overflow-hidden rounded-full border border-border/50 bg-muted">
             <div
-              className={`h-full transition-all duration-500 ${
- (archived?.length || 0) >= 25 ? "bg-destructive" : "bg-primary"
- }`}
-              style={{
-                width: `${Math.min(((archived?.length || 0) / 30) * 100, 100)}%`,
-              }}
+              className={cn(
+                "h-full transition-all duration-500",
+                count >= 25 ? "bg-destructive" : "bg-primary",
+              )}
+              style={{ width: `${Math.min((count / 30) * 100, 100)}%` }}
             />
           </div>
         </div>
-      </div>
+      }
+    >
+      <div className="mx-auto max-w-4xl space-y-4 pb-6">
+        {isLocal && (
+          <div className="flex items-start gap-2 rounded-card border border-border bg-muted p-2.5 text-caption text-muted-foreground">
+            <Icon name="bookmark" size={14} className="mt-0.5 shrink-0" />
+            <p>
+              These plans are saved on this device only. Sign in to keep them
+              across devices, share them, and use Smart Generate. Anything
+              saved here can be imported when you do.
+            </p>
+          </div>
+        )}
 
-      {isLocal && (
-        <div className="mt-3 flex items-start gap-2 rounded-card border border-border bg-muted p-2.5 text-caption text-muted-foreground">
-          <Icon name="bookmark" size={14} className="mt-0.5 shrink-0" />
-          <p>
-            These plans are saved on this device only. Sign in to keep them
-            across devices, share them, and use Smart Generate. Anything saved
-            here can be imported when you do.
-          </p>
-        </div>
-      )}
-
-      <Tabs
-        defaultValue={aiPlans.length > 0 ? "ai" : "saved"}
+        <Tabs
+          defaultValue={aiPlans.length > 0 ? "ai" : "saved"}
         className="w-full flex-1 flex flex-col min-h-0"
       >
         <div className="sticky top-0 z-20 bg-background pt-2 pb-4 mb-2 shrink-0">
           <TabsList className="grid w-full grid-cols-2 bg-muted p-1 rounded-card">
             <TabsTrigger
               value="ai"
-              className="rounded-control font-medium data-[state=active]:bg-card data-[state=active]:text-primary"
+              className="rounded-control font-medium data-[state=active]:bg-card data-[state=active]:text-highlight"
             >
               <Icon name="sparkles" className="mr-2" />
               AI Generated
               {aiPlans.length > 0 && (
-                <span className="ml-2 bg-primary/10 text-primary px-1.5 py-0.5 rounded-full text-caption font-bold">
+                <span className="ml-2 bg-highlight/10 text-highlight px-1.5 py-0.5 rounded-full text-caption font-bold">
                   {aiPlans.length}
                 </span>
               )}
@@ -320,7 +327,7 @@ export function ScheduleArchive({
               />
             ))}
             {aiPlans.length === 0 && (
-              <EmptyState message="No AI generated plans yet" />
+              <EmptyState message="No AI generated plans yet" spot="idea" />
             )}
           </div>
         </TabsContent>
@@ -345,11 +352,12 @@ export function ScheduleArchive({
               />
             ))}
             {manualPlans.length === 0 && (
-              <EmptyState message="No manually saved plans yet" />
+              <EmptyState message="No manually saved plans yet" spot="todo-list" />
             )}
           </div>
         </TabsContent>
-      </Tabs>
-    </div>
+        </Tabs>
+      </div>
+    </MakerShell>
   );
 }
