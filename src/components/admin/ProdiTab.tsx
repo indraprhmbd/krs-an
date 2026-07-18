@@ -20,6 +20,20 @@ export function ProdiTab() {
   const { prodiOptions } = useProdiOptions();
   const addProdiOption = useMutation(api.admin.addProdiOption);
   const removeProdiOption = useMutation(api.admin.removeProdiOption);
+  const seedProdiOptions = useMutation(api.admin.seedProdiOptions);
+  const [isSeeding, setIsSeeding] = useState(false);
+
+  const handleSeed = async () => {
+    setIsSeeding(true);
+    try {
+      const { inserted } = await seedProdiOptions({});
+      toast.success(`${inserted} prodi default ditambahkan.`);
+    } catch (err: any) {
+      toast.error(err.message || "Gagal seed prodi default.");
+    } finally {
+      setIsSeeding(false);
+    }
+  };
 
   const [name, setName] = useState("");
   const [comingSoon, setComingSoon] = useState(false);
@@ -60,6 +74,24 @@ export function ProdiTab() {
         <CardDescription className="mt-0.5 font-mono text-caps uppercase">
           Sumber daftar prodi untuk form konfigurasi dan filter kurikulum
         </CardDescription>
+
+        {sorted.length === 0 && (
+          <div className="mt-3 flex items-center justify-between gap-3 rounded-card border border-dashed border-border bg-muted p-3">
+            <p className="text-caption text-muted-foreground">
+              Belum ada data. Isi otomatis dengan daftar prodi bawaan (bisa
+              dihapus/diedit lagi setelahnya).
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSeed}
+              disabled={isSeeding}
+              className="shrink-0 rounded-control text-caption"
+            >
+              {isSeeding ? "Menambah..." : "Seed Default"}
+            </Button>
+          </div>
+        )}
 
         <div className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-end">
           <div className="flex-1 space-y-1">
