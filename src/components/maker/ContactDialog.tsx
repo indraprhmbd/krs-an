@@ -25,9 +25,9 @@ export function ContactDialog({ trigger }: ContactDialogProps) {
         padded={false}
       >
         {/* Header Image / Background */}
-        <div className="h-32 bg-primary relative">
-          <DialogClose className="absolute right-6 top-6 p-2 rounded-full hover:bg-primary-foreground/10 transition-colors z-[70]">
-            <Icon name="close" size={20} className="text-primary-foreground" />
+        <div className="h-32 bg-muted relative">
+          <DialogClose className="absolute right-6 top-6 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent z-[70]">
+            <Icon name="close" size={16} />
           </DialogClose>
 
 

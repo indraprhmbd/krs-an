@@ -44,17 +44,19 @@ export function ShareDialog({
         size="md"
         padded={false}
       >
-        <DialogHeader className="p-0">
-          <div className="relative bg-primary p-4 text-primary-foreground">
-            <DialogTitle className="mb-1 flex items-center gap-2 text-headline">
-              <Icon name="share" size={20} />
-              Bagikan Jadwal
-            </DialogTitle>
-            <DialogDescription className="max-w-[250px] truncate text-caption text-primary-foreground/80">
-              {planName}
-            </DialogDescription>
-            <DialogClose className="absolute right-3 top-3 rounded-full p-2 transition-colors hover:bg-primary-foreground/10">
-              <Icon name="close" size={18} label="Close" />
+        <DialogHeader className="p-4 pb-0">
+          <div className="flex items-start justify-between">
+            <div className="space-y-1">
+              <DialogTitle className="flex items-center gap-2 text-headline">
+                <Icon name="share" size={18} />
+                Bagikan Jadwal
+              </DialogTitle>
+              <DialogDescription className="max-w-[250px] truncate text-caption text-muted-foreground">
+                {planName}
+              </DialogDescription>
+            </div>
+            <DialogClose className="shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent">
+              <Icon name="close" size={16} />
             </DialogClose>
           </div>
         </DialogHeader>

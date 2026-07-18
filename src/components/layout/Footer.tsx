@@ -4,7 +4,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
@@ -121,45 +120,12 @@ function FooterLinkTrigger({
   );
 }
 
-/** The coloured band every footer dialog opens with. */
-function DialogBanner({
-  title,
-  description,
-  descriptionHidden,
-}: {
-  title: string;
-  description: string;
-  descriptionHidden?: boolean;
-}) {
-  return (
-    <DialogHeader className="p-0">
-      <div className="relative bg-primary p-4 text-left text-primary-foreground">
-        <DialogTitle className="mb-1 text-headline">
-          {title}
-        </DialogTitle>
-        <DialogDescription
-          className={
-            descriptionHidden
-              ? "hidden"
-              : "text-body italic text-primary-foreground/80"
-          }
-        >
-          {description}
-        </DialogDescription>
-        <DialogClose className="absolute right-3 top-3 rounded-full p-2 transition-colors hover:bg-primary-foreground/10">
-          <Icon name="close" size={18} label="Close" />
-        </DialogClose>
-      </div>
-    </DialogHeader>
-  );
-}
-
 export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
   const { t } = useLanguage();
   const steps = [
-    { n: "01", title: t("howtouse.step1_title"), desc: t("howtouse.step1_desc") },
-    { n: "02", title: t("howtouse.step2_title"), desc: t("howtouse.step2_desc") },
-    { n: "03", title: t("howtouse.step3_title"), desc: t("howtouse.step3_desc") },
+    { title: t("howtouse.step1_title"), desc: t("howtouse.step1_desc") },
+    { title: t("howtouse.step2_title"), desc: t("howtouse.step2_desc") },
+    { title: t("howtouse.step3_title"), desc: t("howtouse.step3_desc") },
   ];
 
   return (
@@ -170,39 +136,35 @@ export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
         )}
       </DialogTrigger>
       <DialogContent hideClose size="2xl" padded={false}>
-        <DialogBanner
-          title={t("howtouse.title")}
-          description="Panduan memakai KRSan."
-          descriptionHidden
-        />
-        <div className="grid gap-4 p-4 md:grid-cols-2">
-          <div className="space-y-4">
-            {steps.map((step) => (
-              <div key={step.n} className="space-y-1.5">
-                <h3 className="flex items-center gap-2 text-body font-bold text-foreground">
-                  <span className="flex h-5 w-5 items-center justify-center rounded-control bg-muted text-caption text-primary">
-                    {step.n}
-                  </span>
-                  {step.title}
-                </h3>
-                <p className="text-caption text-muted-foreground">
-                  {step.desc}
-                </p>
-              </div>
-            ))}
+        <DialogHeader className="p-4 pb-0">
+          <div className="flex items-start justify-between">
+            <DialogTitle className="text-headline">{t("howtouse.title")}</DialogTitle>
+            <DialogClose className="shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent">
+              <Icon name="close" size={16} />
+            </DialogClose>
           </div>
-          <div className="space-y-3 self-start rounded-card border border-border bg-muted p-4">
+        </DialogHeader>
+        <div className="space-y-4 p-4">
+          {steps.map((step, i) => (
+            <div key={i} className="space-y-1.5">
+              <h3 className="flex items-center gap-2 text-body font-bold text-foreground">
+                <span className="text-caption text-primary">{'\u2022'}</span>
+                {step.title}
+              </h3>
+              <p className="text-caption text-muted-foreground">
+                {step.desc}
+              </p>
+            </div>
+          ))}
+          <div className="rounded-card border-l-2 border-l-primary border-border bg-muted p-4">
             <div className="flex items-center gap-2 text-primary">
               <Icon name="sparkles" size={14} />
               <h4 className="text-caption font-bold uppercase">
                 {t("howtouse.premium_title")}
               </h4>
             </div>
-            <p className="text-caption text-muted-foreground">
+            <p className="mt-1 text-caption text-muted-foreground">
               {t("howtouse.premium_desc")}
-            </p>
-            <p className="border-t border-border pt-3 text-caption italic text-muted-foreground">
-              Kunci matkul favoritmu sebelum generate biar hasilnya sesuai.
             </p>
           </div>
         </div>
@@ -240,16 +202,18 @@ export function AboutDialog({ trigger }: { trigger?: React.ReactNode }) {
         {trigger || <FooterLinkTrigger icon="info" label={t("footer.about")} />}
       </DialogTrigger>
       <DialogContent hideClose size="2xl" padded={false}>
-        <DialogBanner
-          title={t("about.title")}
-          description="Tentang semangat di balik KRSan"
-        />
+        <DialogHeader className="p-4 pb-0">
+          <div className="flex items-start justify-between">
+            <DialogTitle className="text-headline">{t("about.title")}</DialogTitle>
+            <DialogClose className="shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent">
+              <Icon name="close" size={16} />
+            </DialogClose>
+          </div>
+        </DialogHeader>
         <div className="space-y-4 p-4 text-body text-muted-foreground">
           <div className="space-y-2">
             <h3 className="flex items-center gap-2 font-bold text-foreground">
-              <span className="flex h-6 w-6 items-center justify-center rounded-control bg-muted text-caption text-primary">
-                01
-              </span>
+              <Icon name="sparkles" className="shrink-0 text-primary" size={16} />
               {t("about.background_title")}
             </h3>
             <p>{t("about.background_desc")}</p>
@@ -257,9 +221,7 @@ export function AboutDialog({ trigger }: { trigger?: React.ReactNode }) {
 
           <div className="space-y-2">
             <h3 className="flex items-center gap-2 font-bold text-foreground">
-              <span className="flex h-6 w-6 items-center justify-center rounded-control bg-muted text-caption text-primary">
-                02
-              </span>
+              <Icon name="info" className="shrink-0 text-primary" size={16} />
               {t("about.mission_title")}
             </h3>
             <p>{t("about.mission_desc")}</p>
@@ -271,7 +233,7 @@ export function AboutDialog({ trigger }: { trigger?: React.ReactNode }) {
 
           <div className="space-y-2 border-t border-border pt-4">
             <h3 className="flex items-center gap-2 font-bold text-foreground">
-              <Icon name="shield" className="text-primary" />
+              <Icon name="shield" className="shrink-0 text-primary" size={16} />
               {t("about.legal_title")}
             </h3>
             <p className="rounded-card border border-border bg-muted p-4 text-caption">
@@ -305,10 +267,14 @@ export function DonateDialog({ trigger }: { trigger?: React.ReactNode }) {
         )}
       </DialogTrigger>
       <DialogContent hideClose size="md" padded={false}>
-        <DialogBanner
-          title="Dukung KRSan"
-          description="Bantu KRSan tetap gratis untuk semua mahasiswa."
-        />
+        <DialogHeader className="p-4 pb-0">
+          <div className="flex items-start justify-between">
+            <DialogTitle className="text-headline">Dukung KRSan</DialogTitle>
+            <DialogClose className="shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent">
+              <Icon name="close" size={16} />
+            </DialogClose>
+          </div>
+        </DialogHeader>
 
         <div className="space-y-4 p-4">
           <div className="space-y-3 rounded-card border border-dashed border-border-strong bg-muted p-4 text-center">
