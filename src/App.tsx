@@ -3,15 +3,17 @@ import { api } from "../convex/_generated/api";
 import { ScheduleMaker } from "./components/ScheduleMaker";
 import { AdminDashboard } from "./components/AdminDashboard";
 import { Toaster } from "@/components/ui/sonner";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import { Navbar } from "./components/layout/Navbar";
+import { TutorialVideosDialog } from "./components/layout/Footer";
 import { toast } from "sonner";
 
 import { SharePage } from "./components/SharePage";
 import { PrivacyPage } from "./components/PrivacyPage";
 import { TermsPage } from "./components/TermsPage";
 import { usePlanArchive } from "./hooks/usePlanArchive";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 import { useLanguage } from "./context/LanguageContext";
 import { SessionProvider } from "./context/SessionContext";
 
@@ -64,9 +66,38 @@ function App() {
     });
   }, [isAuthenticated, pendingMigrationCount, migrateLocalPlans, t]);
 
+  // First-visit nudge toward the tutorial videos. One-time: marked seen the
+  // moment the toast is shown, not just when the action is clicked, so a
+  // dismissed toast never reappears -- but an emptied localStorage (Hapus
+  // Sesi, clearing site data, a new device) is treated as a genuinely new
+  // visit and shows it again, which is fine.
+  const [isTutorialOpen, setIsTutorialOpen] = useState(false);
+  const [hasSeenTutorialNudge, setHasSeenTutorialNudge] = useLocalStorage(
+    "has_seen_tutorial_nudge",
+    false,
+  );
+  const tutorialNudgeShown = useRef(false);
+  useEffect(() => {
+    if (hasSeenTutorialNudge || tutorialNudgeShown.current) return;
+    tutorialNudgeShown.current = true;
+    setHasSeenTutorialNudge(true);
+    toast(t("toast.tutorial_nudge_title"), {
+      description: t("toast.tutorial_nudge_desc"),
+      duration: 10000,
+      action: {
+        label: t("toast.tutorial_nudge_action"),
+        onClick: () => setIsTutorialOpen(true),
+      },
+    });
+  }, [hasSeenTutorialNudge, setHasSeenTutorialNudge, t]);
+
   return (
     <div className="h-[100dvh] flex flex-col bg-background font-sans overflow-hidden">
       <Toaster />
+      <TutorialVideosDialog
+        isOpen={isTutorialOpen}
+        onOpenChange={setIsTutorialOpen}
+      />
 
       <Routes>
         <Route path="/share/:shareId" element={<SharePage />} />

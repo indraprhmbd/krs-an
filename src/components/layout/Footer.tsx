@@ -231,8 +231,14 @@ function TutorialVideoFrame({ section }: { section: TutorialSection }) {
 
 export function TutorialVideosDialog({
   trigger,
+  isOpen,
+  onOpenChange,
 }: {
   trigger?: React.ReactNode;
+  /** Pass both to drive this dialog externally (e.g. auto-open on first
+   * visit) instead of via the internal DialogTrigger click. */
+  isOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const { t } = useLanguage();
   const [activeIndex, setActiveIndex] = useState(0);
@@ -284,13 +290,27 @@ export function TutorialVideosDialog({
 
   const active = sections[activeIndex];
 
+  // isOpen passed (even as false) means this instance is driven externally
+  // (e.g. the first-visit auto-nudge) and renders no trigger of its own --
+  // otherwise it behaves exactly like its sibling dialogs (About/HowToUse),
+  // an uncontrolled Dialog opened by clicking the trigger.
+  const isControlled = isOpen !== undefined;
+
   return (
-    <Dialog onOpenChange={(open) => open && setActiveIndex(0)}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <FooterLinkTrigger icon="bookmark" label={t("nav.tutorial")} />
-        )}
-      </DialogTrigger>
+    <Dialog
+      open={isControlled ? isOpen : undefined}
+      onOpenChange={(open) => {
+        onOpenChange?.(open);
+        if (open) setActiveIndex(0);
+      }}
+    >
+      {!isControlled && (
+        <DialogTrigger asChild>
+          {trigger || (
+            <FooterLinkTrigger icon="bookmark" label={t("nav.tutorial")} />
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent
         hideClose
         size="3xl"

@@ -170,6 +170,9 @@ const translations: Record<string, string> = {
   "toast.migrate_desc":
     "{count} jadwal yang dibuat sebelum Anda masuk bisa dipindahkan ke akun ini.",
   "toast.migrate_action": "Impor",
+  "toast.tutorial_nudge_title": "Baru pertama kali di sini?",
+  "toast.tutorial_nudge_desc": "Lihat video tutorial singkat cara pakai KRSan.",
+  "toast.tutorial_nudge_action": "Lihat Tutorial",
   "toast.share_imported": "Jadwal diimpor ke akun Anda. Mengalihkan...",
   "toast.course_removed": "Mata kuliah dihapus.",
   "toast.course_removed_code": "{code} dihapus dari jadwal.",
