@@ -28,8 +28,10 @@ export function isOverlapping(slot1: TimeSlot, slot2: TimeSlot): boolean {
 export function checkConflicts(courses: Course[]): {
   valid: boolean;
   messages: string[];
+  pairs: [Course, Course][];
 } {
   const messages: string[] = [];
+  const pairs: [Course, Course][] = [];
   for (let i = 0; i < courses.length; i++) {
     for (let j = i + 1; j < courses.length; j++) {
       const c1 = courses[i];
@@ -53,8 +55,63 @@ export function checkConflicts(courses: Course[]): {
         messages.push(
           `Conflict: ${c1.name} (${c1.class}) overlaps with ${c2.name} (${c2.class})`,
         );
+        pairs.push([c1, c2]);
       }
     }
   }
-  return { valid: messages.length === 0, messages };
+  return { valid: messages.length === 0, messages, pairs };
+}
+
+/**
+ * Resolve conflicts one course at a time instead of rebuilding the whole
+ * plan. For each conflicting pair, try swapping just one side to another
+ * class/section of the same course code that reduces the conflict count;
+ * every course not involved in a conflict is left untouched. A pair that no
+ * single-course swap can fix is reported in `unresolvedPairs` rather than
+ * blocking the rest of the plan from being cleaned up.
+ */
+export function resolveConflictsMinimally(
+  courses: Course[],
+  alternativesByCode: Record<string, Course[]>,
+): { courses: Course[]; resolved: boolean; unresolvedPairs: [Course, Course][] } {
+  let current = courses;
+  const stuckPairKeys = new Set<string>();
+
+  const pairKey = (a: Course, b: Course) =>
+    [a.id, b.id].sort().join("::");
+
+  for (let pass = 0; pass < courses.length + 1; pass++) {
+    const { valid, pairs } = checkConflicts(current);
+    if (valid) {
+      return { courses: current, resolved: true, unresolvedPairs: [] };
+    }
+
+    const target = pairs.find(([a, b]) => !stuckPairKeys.has(pairKey(a, b)));
+    if (!target) break; // every remaining pair is already known-stuck
+
+    const [a, b] = target;
+    const baselineConflicts = pairs.length;
+
+    const trySwap = (toReplace: Course): Course[] | null => {
+      const alternatives = (alternativesByCode[toReplace.code] || []).filter(
+        (alt) => alt.id !== toReplace.id,
+      );
+      for (const alt of alternatives) {
+        const candidate = current.map((c) => (c.id === toReplace.id ? alt : c));
+        const { pairs: nextPairs } = checkConflicts(candidate);
+        if (nextPairs.length < baselineConflicts) return candidate;
+      }
+      return null;
+    };
+
+    const swapped = trySwap(a) ?? trySwap(b);
+    if (swapped) {
+      current = swapped;
+    } else {
+      stuckPairKeys.add(pairKey(a, b));
+    }
+  }
+
+  const { valid, pairs: remaining } = checkConflicts(current);
+  return { courses: current, resolved: valid, unresolvedPairs: remaining };
 }

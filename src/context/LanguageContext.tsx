@@ -126,6 +126,8 @@ const translations: Record<string, string> = {
     "Tidak ada jadwal yang valid. Coba lepas beberapa kelas yang dikunci.",
   "toast.selections_cleared": "Pilihan dibersihkan.",
   "toast.quick_fix": "Perbaikan cepat diterapkan.",
+  "toast.quick_fix_partial":
+    "{count} konflik belum bisa diperbaiki otomatis: {names}. Ganti kelasnya secara manual.",
   "toast.link_copied": "Tautan disalin ke papan klip.",
   "toast.account_copied": "Nomor rekening berhasil disalin.",
   "toast.plan_corrupt":

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Icon } from "@/components/ui/icon";
 import { ScheduleGrid } from "../ScheduleGrid";
 import type { Plan, Course } from "@/types";
-import { checkConflicts } from "../../lib/rules";
+import { checkConflicts, resolveConflictsMinimally } from "../../lib/rules";
 import {
   Dialog,
   DialogContent,
@@ -111,22 +111,25 @@ export function ScheduleViewer({
   const handleQuickFix = () => {
     if (!onUpdatePlan || !allPossibleCourses) return;
 
-    const fixedCombo: Course[] = [];
-    for (const code of uniqueCodes) {
-      const variations = groupedVariations[code] || [];
-      const best =
-        variations.find((v) => {
-          const { valid } = checkConflicts([...fixedCombo, v]);
-          return valid;
-        }) || variations[0];
+    // Touches only the courses actually in conflict, one swap at a time,
+    // rather than rebuilding the whole plan from catalog order (see
+    // docs/minimal-fix-conflicts-plan.md for why the old greedy rebuild was
+    // silently changing courses that had no conflict at all).
+    const { courses: fixedCourses, resolved, unresolvedPairs } =
+      resolveConflictsMinimally(currentPlan.courses, groupedVariations);
 
-      if (best) {
-        fixedCombo.push(best);
-      }
+    onUpdatePlan(fixedCourses);
+
+    if (resolved) {
+      toast.success(t("toast.quick_fix"));
+    } else {
+      const names = Array.from(
+        new Set(unresolvedPairs.flat().map((c) => `${c.name} (${c.class})`)),
+      ).join(", ");
+      toast.warning(
+        t("toast.quick_fix_partial", { count: unresolvedPairs.length, names }),
+      );
     }
-
-    onUpdatePlan(fixedCombo);
-    toast.success(t("toast.quick_fix"));
   };
 
   const renderInventory = () => (
@@ -429,6 +432,7 @@ export function ScheduleViewer({
             icon: "sparkles",
             variant: "highlight",
             onClick: handleQuickFix,
+            disabled: valid,
             tooltip: {
               titleKey: "help.quick_fix_title",
               descKey: "help.quick_fix_desc",
