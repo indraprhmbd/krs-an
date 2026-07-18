@@ -67,24 +67,19 @@ function App() {
     });
   }, [isAuthenticated, pendingMigrationCount, migrateLocalPlans, t]);
 
-  // First-visit nudge toward the tutorial videos. One-time: marked seen the
-  // moment the banner is shown, not just when the action is clicked, so a
-  // dismissed banner never reappears -- but an emptied localStorage (Hapus
-  // Sesi, clearing site data, a new device) is treated as a genuinely new
-  // visit and shows it again, which is fine.
+  // First-visit nudge toward the tutorial videos. Marked seen only when the
+  // user actually dismisses it or opens the tutorial -- marking it on mount
+  // (the previous approach) flipped hasSeenTutorialNudge to true one render
+  // after the banner appeared, so it rendered for a single frame and vanished
+  // before anyone could read it. An emptied localStorage (Hapus Sesi,
+  // clearing site data, a new device) is treated as a genuinely new visit and
+  // shows it again, which is fine.
   const [isTutorialOpen, setIsTutorialOpen] = useState(false);
   const [hasSeenTutorialNudge, setHasSeenTutorialNudge] = useLocalStorage(
     "has_seen_tutorial_nudge",
     false,
   );
-  const [isBannerDismissed, setIsBannerDismissed] = useState(false);
-  const showTutorialBanner = !hasSeenTutorialNudge && !isBannerDismissed;
-  const tutorialNudgeShown = useRef(false);
-  useEffect(() => {
-    if (hasSeenTutorialNudge || tutorialNudgeShown.current) return;
-    tutorialNudgeShown.current = true;
-    setHasSeenTutorialNudge(true);
-  }, [hasSeenTutorialNudge, setHasSeenTutorialNudge]);
+  const showTutorialBanner = !hasSeenTutorialNudge;
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background font-sans overflow-hidden">
@@ -113,7 +108,10 @@ function App() {
                   <div className="flex shrink-0 items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => setIsTutorialOpen(true)}
+                      onClick={() => {
+                        setIsTutorialOpen(true);
+                        setHasSeenTutorialNudge(true);
+                      }}
                       className="rounded-control bg-warning-foreground/10 px-2.5 py-1 font-bold underline hover:bg-warning-foreground/20"
                     >
                       {t("toast.tutorial_nudge_action")}
@@ -121,7 +119,7 @@ function App() {
                     <button
                       type="button"
                       aria-label="Tutup"
-                      onClick={() => setIsBannerDismissed(true)}
+                      onClick={() => setHasSeenTutorialNudge(true)}
                       className="rounded-control p-1 hover:bg-warning-foreground/10"
                     >
                       <Icon name="close" size={14} />
