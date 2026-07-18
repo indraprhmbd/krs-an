@@ -9,6 +9,8 @@ import { Navbar } from "./components/layout/Navbar";
 import { toast } from "sonner";
 
 import { SharePage } from "./components/SharePage";
+import { PrivacyPage } from "./components/PrivacyPage";
+import { TermsPage } from "./components/TermsPage";
 import { usePlanArchive } from "./hooks/usePlanArchive";
 import { useLanguage } from "./context/LanguageContext";
 import { SessionProvider } from "./context/SessionContext";
@@ -68,6 +70,8 @@ function App() {
 
       <Routes>
         <Route path="/share/:shareId" element={<SharePage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
         <Route
           path="/*"
           element={

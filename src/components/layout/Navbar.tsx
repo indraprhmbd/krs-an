@@ -115,6 +115,12 @@ export function Navbar({ userData }: NavbarProps) {
           </button>
         }
       />
+      <Link to="/privacy" className="w-full">
+        <MenuItem icon="shield" label={t("nav.privacy")} />
+      </Link>
+      <Link to="/terms" className="w-full">
+        <MenuItem icon="list" label={t("nav.terms")} />
+      </Link>
     </div>
   );
 

@@ -26,6 +26,8 @@ const translations: Record<string, string> = {
   "nav.signout": "Keluar",
   "nav.tutorial": "Tutorial",
   "nav.contact": "Kontak",
+  "nav.privacy": "Kebijakan Privasi",
+  "nav.terms": "Syarat & Ketentuan",
   "footer.tagline":
     "Platform optimasi jadwal perkuliahan tercanggih untuk mahasiswa Indonesia.",
   "footer.about": "Tentang",
@@ -176,6 +178,31 @@ const translations: Record<string, string> = {
   "about.legal":
     "KRSan proyek sampingan pribadi, bukan produk komersial. Data jadwal kuliah dan nama pengajar bersumber dari informasi publik yang tersedia. Tidak terafiliasi dengan institusi pendidikan mana pun.",
   "about.illustration_credit": "Idea illustrations by Storyset",
+  "privacy.title": "Kebijakan Privasi",
+  "privacy.intro":
+    "KRSan proyek sampingan pribadi, bukan produk komersial. Halaman ini menjelaskan data apa saja yang disimpan saat Anda pakai KRSan dan kenapa.",
+  "privacy.data_collected_title": "Data yang Disimpan",
+  "privacy.data_collected":
+    "Kalau Anda masuk lewat akun, KRSan menyimpan identitas dari Clerk (email, foto profil), rencana jadwal yang disimpan ke arsip, sisa token harian, dan catatan pemakaian Smart Generate. Kalau Anda tidak masuk akun, semua konfigurasi dan draf mata kuliah cuma tersimpan di localStorage browser Anda sendiri, tidak pernah dikirim ke server mana pun.",
+  "privacy.third_parties_title": "Layanan Pihak Ketiga",
+  "privacy.third_parties":
+    "KRSan pakai Clerk untuk autentikasi, Convex untuk database dan hosting backend, dan Groq untuk fitur Smart Generate (AI). Ketiganya punya kebijakan privasi masing-masing untuk data yang mereka proses atas nama KRSan.",
+  "privacy.course_data_title": "Data Jadwal Kuliah",
+  "privacy.course_data":
+    "Data mata kuliah, kelas, dan nama dosen bersumber dari informasi publik yang tersedia di portal universitas, bukan data pribadi yang Anda kirimkan.",
+  "privacy.contact":
+    "Ada pertanyaan atau mau minta data dihapus? Kirim email ke indraprhmbd@gmail.com.",
+  "terms.title": "Syarat & Ketentuan",
+  "terms.intro":
+    "KRSan adalah alat bantu edukasi independen dan non-komersial, tidak terafiliasi dengan institusi pendidikan mana pun. Dengan memakai KRSan, Anda setuju dengan syarat di bawah ini.",
+  "terms.usage_title": "Penggunaan yang Wajar",
+  "terms.usage":
+    "Jangan menyalahgunakan Smart Generate di luar batas token yang berlaku, dan jangan menyebarkan ulang data jadwal hasil scraping seolah-olah itu sumber resmi dari universitas.",
+  "terms.credits_title": "Token dan Arsip",
+  "terms.credits":
+    "Smart Generate memakai 1 token per proses, jatah 5 token per hari (reset tengah malam WIB). Arsip rencana dibatasi maksimal 30 per pengguna.",
+  "terms.no_warranty":
+    "Jadwal yang dihasilkan KRSan adalah alat bantu perencanaan, bukan pengganti konfirmasi KRS resmi ke universitas. Tidak ada jaminan atas keakuratan data jadwal atau ketersediaan kelas.",
   "help.shuffle_title": "Macro Adjustment (Shuffle)",
   "help.shuffle_desc":
     "Gunakan Shuffle untuk merombak total kombinasi jadwal secara acak. Ini adalah penyesuaian skala besar untuk menemukan struktur jadwal yang benar-benar berbeda.",
