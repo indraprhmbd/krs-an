@@ -70,6 +70,12 @@ const translations: Record<string, string> = {
   "selector.no_subjects_desc":
     "Muat mata kuliah wajib semester Anda, atau tambah sendiri dari katalog.",
   "selector.needs_courses": "Tambah mata kuliah dulu sebelum menyusun jadwal.",
+  "selector.class_label": "Kelas {class}",
+  "selector.options_count": "{count} Opsi",
+  "selector.auto_assigned": "Otomatis",
+  "selector.auto_all": "Otomatis (Semua)",
+  "selector.auto_select_day": "Pilih Hari Otomatis",
+  "selector.auto_optimize": "Optimasi Otomatis (Kelas Manapun)",
   "viewer.title": "Review Jadwal",
   "viewer.sub_title": "Hasil optimasi jadwal terbaik untuk Anda.",
   "viewer.save": "Simpan ke Arsip",

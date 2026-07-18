@@ -277,11 +277,18 @@ export function ScheduleSelector({
                                           ? `${formatSchedule(v.schedule)} @ ${v.room || "TBA"}`
                                           : "";
                                       })()
-                                    : `Class ${variations.find((v) => v.id === lockedIds[0])?.class}`
-                                  : `${lockedIds.length} Options`
+                                    : t("selector.class_label", {
+                                        class:
+                                          variations.find(
+                                            (v) => v.id === lockedIds[0],
+                                          )?.class || "",
+                                      })
+                                  : t("selector.options_count", {
+                                      count: lockedIds.length,
+                                    })
                                 : prodiConfig.isCourseCentric
-                                  ? "Auto-Assigned"
-                                  : "Auto (All)"}
+                                  ? t("selector.auto_assigned")
+                                  : t("selector.auto_all")}
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent className="rounded-card shadow-card">
@@ -290,8 +297,8 @@ export function ScheduleSelector({
                               className="text-caption font-bold text-primary rounded-control focus:bg-muted"
                             >
                               {prodiConfig.isCourseCentric
-                                ? "Auto-Select Day"
-                                : "Auto-Optimize (Any Class)"}
+                                ? t("selector.auto_select_day")
+                                : t("selector.auto_optimize")}
                             </SelectItem>
                             {variations.map((v) => {
                               const isChecked = currentLocked?.includes(v.id);
