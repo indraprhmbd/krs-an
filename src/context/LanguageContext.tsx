@@ -204,24 +204,26 @@ const translations: Record<string, string> = {
     "Lihat hasil jadwal di grid visual. Geser antar opsi, kunci atau perbaiki kelas di mode manual. Simpan ke arsip (maks 30). Nanti bisa diubah nama, dihapus, atau dibagikan lewat link atau WhatsApp.",
   "tutorial_video.title": "Tutorial Video",
   "tutorial_video.placeholder": "Video segera hadir",
-  "tutorial_video.section1_title": "Konfigurasi & Mulai",
+  "tutorial_video.section1_title": "Konfigurasi Sesi",
   "tutorial_video.section1_desc":
-    "Pilih universitas, prodi, dan semester, atur max SKS, lalu klik Mulai Rancang sampai masuk ke layar pemilihan mata kuliah.",
+    "Isi konfigurasi akademik sampai klik Inisialisasi Sesi.",
   "tutorial_video.section2_title": "Susun Daftar Mata Kuliah",
   "tutorial_video.section2_desc":
-    "Muat dari kurikulum, tambah manual lewat katalog, kunci kelas tertentu, dan hapus mata kuliah - satu alur lengkap menyusun daftar.",
-  "tutorial_video.section3_title": "Tiga Cara Membuat Jadwal",
+    "Muat dari kurikulum, tambah manual dari katalog, hapus salah satu mata kuliah, lalu pilih/kunci beberapa kelas.",
+  "tutorial_video.section3_title": "Susun Cepat & Simpan",
   "tutorial_video.section3_desc":
-    "Susun Cepat, Smart Generate (isi preferensi lalu generate), dan Plotter manual, ditunjukkan berurutan dari titik yang sama.",
-  "tutorial_video.section4_title": "Baca & Sempurnakan Hasil",
+    "Generate dengan Susun Cepat, coba Shuffle dan pager antar variasi, lalu simpan dan lihat hasilnya di tab arsip AI.",
+  "tutorial_video.section4_title": "Plotter Manual",
   "tutorial_video.section4_desc":
-    "Geser antar variasi jadwal, Shuffle/Expand, lalu di mode manual: ubah kelas dan Fix Conflicts, sampai klik Simpan.",
-  "tutorial_video.section5_title": "Kelola & Bagikan Arsip",
+    "Pilih kelas satu per satu, lihat konflik yang muncul, coba perbaiki otomatis, lalu simpan dan lihat hasilnya di tab arsip manual.",
+  "tutorial_video.section5_title": "Impor Jadwal & Masuk Akun",
   "tutorial_video.section5_desc":
-    "Ganti nama, hapus, bagikan lewat link/WhatsApp, dan buka link tersebut untuk impor ke akun lain.",
-  "tutorial_video.section6_title": "Reset & Mulai Ulang",
+    "Impor sebuah rencana, lalu masuk akun agar bisa membagikannya.",
+  "tutorial_video.section6_title": "Ganti Nama & Bagikan",
   "tutorial_video.section6_desc":
-    "Hapus Sesi dari kondisi terisi sampai balik ke keadaan awal, menutup siklus penuh.",
+    "Ganti nama rencana, bagikan lewat link, buktikan link bekerja di akun lain, lalu simpan dan lihat hasil bagikan.",
+  "tutorial_video.section7_title": "Hapus Sesi",
+  "tutorial_video.section7_desc": "Hapus/reset sesi dari awal.",
   "about.title": "Tentang KRSan",
   "about.personal":
     "KRSan saya buat karena saya sendiri dulu pusing nyusun jadwal KRS. Antara milih kelas, ngatur biar nggak bentrok, milih dosen - semuanya manual, waktunya mepet, bikin stres. Ini proyek kecil yang saya harap bisa bikin pengalaman KRSan teman-teman jadi lebih gampang.",

@@ -168,19 +168,23 @@ export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
 interface TutorialSection {
   title: string;
   desc: string;
-  youtubeId?: string; // filled in once a video is uploaded; omitted = placeholder
+  // Full iframe embed src -- Cloudinary's cld-looping player embed URL today,
+  // but any embeddable video src works the same way (e.g. a YouTube
+  // /embed/VIDEO_ID URL), so this isn't tied to one provider.
+  embedSrc?: string;
 }
 
 function TutorialVideoFrame({ section }: { section: TutorialSection }) {
   const { t } = useLanguage();
-  if (section.youtubeId) {
+  if (section.embedSrc) {
     return (
       <div className="aspect-video w-full overflow-hidden rounded-card border border-border bg-muted">
         <iframe
-          src={`https://www.youtube.com/embed/${section.youtubeId}`}
+          src={section.embedSrc}
           title={section.title}
           className="h-full w-full"
           loading="lazy"
+          allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
           allowFullScreen
         />
       </div>
@@ -210,26 +214,44 @@ export function TutorialVideosDialog({
     {
       title: t("tutorial_video.section1_title"),
       desc: t("tutorial_video.section1_desc"),
+      embedSrc:
+        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-43-16_bycvab&profile=cld-looping",
     },
     {
       title: t("tutorial_video.section2_title"),
       desc: t("tutorial_video.section2_desc"),
+      embedSrc:
+        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-44-43_eqfww5&profile=cld-looping",
     },
     {
       title: t("tutorial_video.section3_title"),
       desc: t("tutorial_video.section3_desc"),
+      embedSrc:
+        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-46-34_zqik9s&profile=cld-looping",
     },
     {
       title: t("tutorial_video.section4_title"),
       desc: t("tutorial_video.section4_desc"),
+      embedSrc:
+        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-47-48_hfp43f&profile=cld-looping",
     },
     {
       title: t("tutorial_video.section5_title"),
       desc: t("tutorial_video.section5_desc"),
+      embedSrc:
+        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-49-57_vci8us&profile=cld-looping",
     },
     {
       title: t("tutorial_video.section6_title"),
       desc: t("tutorial_video.section6_desc"),
+      embedSrc:
+        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-53-17_y8aqil&profile=cld-looping",
+    },
+    {
+      title: t("tutorial_video.section7_title"),
+      desc: t("tutorial_video.section7_desc"),
+      embedSrc:
+        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-55-37_dtpvyq&profile=cld-looping",
     },
   ];
 
