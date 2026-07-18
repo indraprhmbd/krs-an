@@ -1,5 +1,7 @@
 ![KRSan](public/og-image.png)
 
+Bahasa Indonesia: [README-id.md](README-id.md)
+
 # KRSan v3
 
 KRSan is a course schedule (KRS) planning application built for Indonesian university students. It replaces manual, error-prone semester planning with an automated workflow: pick courses, and the app generates conflict-free schedule permutations, either through a local backtracking search or through an AI-assisted generator.
