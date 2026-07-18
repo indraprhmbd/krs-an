@@ -72,6 +72,8 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
   const fixProdi = useMutation(api.admin.fixProdiFormatting);
   const moveToProdi = useMutation(api.admin.moveMasterCoursesToProdi);
   const copyToProdi = useMutation(api.admin.copyMasterCoursesToProdi);
+  const splitFeb = useMutation(api.admin.splitFakultasEkonomiBisnis);
+  const [isSplittingFeb, setIsSplittingFeb] = useState(false);
 
   // CRUD Handlers
   const handleEditMaster = (course: any) => {
@@ -196,6 +198,29 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
       toast.error("Perbaikan gagal: " + err.message);
     } finally {
       setIsFixing(false);
+    }
+  };
+
+  const handleSplitFeb = async () => {
+    if (
+      !confirm(
+        "Pindahkan semua data FAKULTAS EKONOMI DAN BISNIS: kelas EP-* ke EKONOMI PEMBANGUNAN, EA-* ke AKUNTANSI?",
+      )
+    )
+      return;
+    setIsSplittingFeb(true);
+    try {
+      const result = await splitFeb();
+      toast.success(
+        `${result.movedToEkonomiPembangunan} ke Ekonomi Pembangunan, ${result.movedToAkuntansi} ke Akuntansi` +
+          (result.unmatched > 0
+            ? `. ${result.unmatched} tidak cocok prefix EP-/EA- dan tidak dipindah.`
+            : "."),
+      );
+    } catch (err: any) {
+      toast.error("Split gagal: " + err.message);
+    } finally {
+      setIsSplittingFeb(false);
     }
   };
 
@@ -361,6 +386,21 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                     <Icon name="pencil" size={12} className="mr-2" />
                   )}
                   Fix Format
+                </Button>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSplitFeb}
+                  disabled={isSplittingFeb}
+                  className="rounded-control font-mono text-caps uppercase border-border text-primary hover:bg-muted h-9 md:h-8"
+                >
+                  {isSplittingFeb ? (
+                    <Icon name="spinner" size={12} className="animate-spin mr-2" />
+                  ) : (
+                    <Icon name="external-link" size={12} className="mr-2" />
+                  )}
+                  Split FEB
                 </Button>
 
                 <Button

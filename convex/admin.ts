@@ -294,6 +294,51 @@ export const copyMasterCoursesToProdi = mutation({
   },
 });
 
+/**
+ * One-off cleanup: "FAKULTAS EKONOMI DAN BISNIS" is a faculty name, not an
+ * actual study program -- it was seeded as a prodi_options entry before that
+ * was caught. Splits every master_courses row still tagged with it into the
+ * real prodi its class prefix belongs to (EP-* -> Ekonomi Pembangunan,
+ * EA-* -> Akuntansi). Rows whose class matches neither prefix are left
+ * untouched and reported so they can be moved by hand via the Master Data
+ * move-to-prodi action. Run once from the app while logged in as admin
+ * (Prodi/Master Data tab), not from the CLI or dashboard -- requireAdmin
+ * needs a real Clerk session, which neither of those carries.
+ */
+export const splitFakultasEkonomiBisnis = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const SOURCE_PRODI = "FAKULTAS EKONOMI DAN BISNIS";
+    const rows = await ctx.db
+      .query("master_courses")
+      .withIndex("by_prodi", (q) => q.eq("prodi", SOURCE_PRODI))
+      .collect();
+
+    const patches = rows.flatMap((row) => {
+      const prefix = row.class.trim().toUpperCase();
+      if (prefix.startsWith("EP")) {
+        return [{ id: row._id, prodi: "EKONOMI PEMBANGUNAN" }];
+      }
+      if (prefix.startsWith("EA")) {
+        return [{ id: row._id, prodi: "AKUNTANSI" }];
+      }
+      return [];
+    });
+
+    await Promise.all(patches.map((p) => ctx.db.patch(p.id, { prodi: p.prodi })));
+
+    return {
+      scanned: rows.length,
+      movedToEkonomiPembangunan: patches.filter(
+        (p) => p.prodi === "EKONOMI PEMBANGUNAN",
+      ).length,
+      movedToAkuntansi: patches.filter((p) => p.prodi === "AKUNTANSI").length,
+      unmatched: rows.length - patches.length,
+    };
+  },
+});
+
 // Curriculum Operations
 export const listCurriculum = query({
   args: { prodi: v.string(), semester: v.optional(v.number()) },
