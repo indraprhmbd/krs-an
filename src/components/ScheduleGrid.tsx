@@ -1,7 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import type { Course, DayOfWeek, TimeSlot } from "../types";
 import { checkConflicts } from "../lib/rules";
-import { normalizeDayOfWeek } from "../lib/schedule-format";
+import {
+  normalizeDayOfWeek,
+  DAY_LABEL_ID,
+  DAY_LABEL_ID_SHORT,
+} from "../lib/schedule-format";
 
 const DAYS: DayOfWeek[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const START_HOUR = 7;
@@ -71,7 +75,7 @@ export function ScheduleGrid({
               className="sticky top-0 z-20 border-b border-r border-border bg-muted p-1.5 text-center text-caps uppercase text-muted-foreground"
               style={{ gridColumn: i + 2, gridRow: 1 }}
             >
-              {d}
+              {DAY_LABEL_ID_SHORT[d]}
             </div>
           ))}
 
@@ -219,7 +223,7 @@ function Agenda({
       {byDay.map(({ day, entries }) => (
         <section key={day}>
           <h3 className="sticky top-0 z-10 mb-1.5 bg-background py-1 text-caps uppercase text-muted-foreground">
-            {day}
+            {DAY_LABEL_ID[day]}
           </h3>
           <ul className="space-y-1.5">
             {entries.map(({ course, slot }, idx) => {

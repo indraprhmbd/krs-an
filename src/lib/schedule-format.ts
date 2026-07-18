@@ -62,6 +62,18 @@ export const DAY_LABEL_ID: Record<DayOfWeek, string> = {
   Sun: "Minggu",
 };
 
+/** Three-letter uppercase Indonesian abbreviation, for tight spaces like the
+ * schedule grid's day-column header. */
+export const DAY_LABEL_ID_SHORT: Record<DayOfWeek, string> = {
+  Mon: "SEN",
+  Tue: "SEL",
+  Wed: "RAB",
+  Thu: "KAM",
+  Fri: "JUM",
+  Sat: "SAB",
+  Sun: "MIN",
+};
+
 function dayLabel(day: string): string {
   return DAY_LABEL_ID[normalizeDayOfWeek(day)];
 }
