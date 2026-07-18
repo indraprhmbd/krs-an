@@ -119,6 +119,8 @@ const translations: Record<string, string> = {
   "toast.plan_limit": "Batas maksimum 36 jadwal tercapai.",
   "toast.no_combinations":
     "Tidak ada kombinasi jadwal baru dengan konfigurasi ini.",
+  "toast.no_courses":
+    "Belum ada mata kuliah. Tambah mata kuliah dulu.",
   "toast.no_valid_schedules":
     "Tidak ada jadwal yang valid. Coba lepas beberapa kelas yang dikunci.",
   "toast.selections_cleared": "Pilihan dibersihkan.",
@@ -135,6 +137,17 @@ const translations: Record<string, string> = {
   "toast.course_removed": "Mata kuliah dihapus.",
   "toast.course_removed_code": "{code} dihapus dari jadwal.",
   "toast.courses_added": "{count} mata kuliah ditambahkan ke sesi.",
+  "toast.curriculum_loaded":
+    "{count} mata kuliah dimuat dari kurikulum.",
+
+  "auth.sign_in_title": "Butuh login",
+  "auth.sign_in_action": "Masuk",
+  "auth.expand_plan":
+    "Memperluas batas jadwal menghabiskan 1 dari 5 kredit harian, perlu akun.",
+  "auth.share_plan":
+    "Berbagi jadwal perlu akun supaya tautannya tersimpan. Arsip lokal akan diimpor saat masuk.",
+  "auth.smart_generate":
+    "Smart Generate pakai AI dan butuh 1 dari 5 kredit harian, jadi perlu akun. Generator biasa gratis tanpa login.",
 
   "footer.howtouse": "Cara Pakai",
   "howtouse.title": "Panduan Penggunaan KRSan",

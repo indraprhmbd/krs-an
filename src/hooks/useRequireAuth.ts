@@ -2,6 +2,7 @@ import { useCallback } from "react";
 import { useClerk } from "@clerk/clerk-react";
 import { useConvexAuth } from "convex/react";
 import { toast } from "sonner";
+import { useLanguage } from "@/context/LanguageContext";
 
 /**
  * Guard for the few actions that genuinely need an account.
@@ -18,25 +19,26 @@ import { toast } from "sonner";
  * Returns a predicate: true when the caller may proceed, false when a sign-in
  * prompt has been shown instead. Use it as an early return.
  *
- *   if (!requireAuth("Sign in to share this plan.")) return;
+ *   if (!requireAuth("reason to show")) return;
  */
 export function useRequireAuth() {
   const { isAuthenticated } = useConvexAuth();
   const { openSignIn } = useClerk();
+  const { t } = useLanguage();
 
   return useCallback(
     (reason: string) => {
       if (isAuthenticated) return true;
 
-      toast("Sign in required", {
+      toast(t("auth.sign_in_title"), {
         description: reason,
         action: {
-          label: "Sign in",
+          label: t("auth.sign_in_action"),
           onClick: () => openSignIn(),
         },
       });
       return false;
     },
-    [isAuthenticated, openSignIn],
+    [isAuthenticated, openSignIn, t],
   );
 }

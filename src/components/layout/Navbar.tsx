@@ -257,10 +257,10 @@ export function Navbar({ userData }: NavbarProps) {
                         {t("nav.tokens_reset")}
                       </p>
                     </div>
+                    <div className="h-px bg-border" />
                   </>
                 )}
 
-                <div className="h-px bg-border" />
                 {utilities}
               </div>
 

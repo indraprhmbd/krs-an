@@ -85,7 +85,7 @@ export function useScheduleSession({
     setStep("select");
     setPlanLimit(12);
     toast.success(
-      `${mandatoryCodes.size} academic components loaded from curriculum.`,
+      t("toast.curriculum_loaded", { count: mandatoryCodes.size }),
     );
   };
 
@@ -124,7 +124,7 @@ export function useScheduleSession({
     if (tokenized) {
       if (
         !deps.requireAuth(
-          "Expanding the plan limit costs 1 of your 5 daily credits, so it needs an account.",
+          t("auth.expand_plan"),
         )
       ) {
         return;
@@ -156,6 +156,11 @@ export function useScheduleSession({
         if (!lockedIds || lockedIds.length === 0) return true;
         return lockedIds.includes(c.id);
       });
+
+      if (activeCourses.length === 0) {
+        toast.error(t("toast.no_courses"));
+        return;
+      }
 
       const generated = generatePlans(
         activeCourses,

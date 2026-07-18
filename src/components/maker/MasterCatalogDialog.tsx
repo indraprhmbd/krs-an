@@ -116,7 +116,7 @@ export function MasterCatalogDialog({
             <Icon name="search" size={18} className="text-primary" />
             Katalog Master
           </DialogTitle>
-          <DialogDescription className="pt-1 font-mono text-caps uppercase text-muted-foreground">
+          <DialogDescription className="pt-1 text-caps uppercase text-muted-foreground">
             Cari dan tambah mata kuliah dari database
           </DialogDescription>
         </DialogHeader>
@@ -132,6 +132,7 @@ export function MasterCatalogDialog({
             aria-label="Search master catalog"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            disabled={!allMasterCourses || allMasterCourses.length === 0}
             className="h-10 pl-9 text-caption"
           />
         </div>
@@ -233,7 +234,9 @@ export function MasterCatalogDialog({
                 className="mx-auto text-muted-foreground"
               />
               <p className="font-mono text-caps uppercase text-muted-foreground">
-                Tidak ada komponen yang cocok dengan "{searchQuery}"
+                {searchQuery
+                  ? `Tidak ada komponen yang cocok dengan "${searchQuery}"`
+                  : "Belum ada mata kuliah"}
               </p>
             </div>
           )}

@@ -149,6 +149,7 @@ export function ScheduleMaker({ userData }: ScheduleMakerProps) {
     archived,
     requireAuth,
     openShareDialog,
+    t,
   });
 
   const { handleDeleteArchived, handleRenameArchived, handleImportArchived } =

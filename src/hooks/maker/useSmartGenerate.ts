@@ -63,7 +63,7 @@ export function useSmartGenerate({
   const onInitSmartGenerate = () => {
     if (
       !requireAuth(
-        "Smart Generate uses AI and costs 1 of your 5 daily credits, so it needs an account. The regular generator is free and needs no sign-in.",
+        t("auth.smart_generate"),
       )
     ) {
       return;

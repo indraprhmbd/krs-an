@@ -28,6 +28,8 @@ npm run preview          # serve dist/
 
 `npm run build` and `npx convex dev` typecheck through **different tsconfigs** and do not catch the same errors. `tsconfig.app.json` covers `src` + `convex` for the bundle; `convex/tsconfig.json` is what Convex itself enforces. A `convex/` type error can pass `npm run build` and still fail `npx convex dev`. Run both.
 
+`npm run build:cf` skips `tsc -b` and runs `vite build` only. Use as CF Pages build command to avoid deploy failures from type mismatches (especially convex generated types). Set `NODE_VERSION=22` in CF Pages dashboard env vars or use `.node-version`.
+
 No test framework is configured. There is no test runner, so "run the tests" is not currently possible.
 
 `convex/_generated/` is produced by `npx convex dev` — never edit it by hand. If `api.*` types look stale or missing, the Convex dev process isn't running.

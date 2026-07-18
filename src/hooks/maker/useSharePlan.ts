@@ -6,6 +6,7 @@ interface UseSharePlanArgs {
   archived: any[] | undefined;
   requireAuth: (reason: string) => boolean;
   openShareDialog: (shareId: string, planName: string) => void;
+  t: (key: string, vars?: Record<string, string | number>) => string;
 }
 
 /** Share-link creation: needs a server-side plan row, so it is gated behind
@@ -14,6 +15,7 @@ export function useSharePlan({
   archived,
   requireAuth,
   openShareDialog,
+  t,
 }: UseSharePlanArgs) {
   const createShareLinkMutation = useMutation(api.plans.createShareLink);
 
@@ -23,7 +25,7 @@ export function useSharePlan({
 
     if (
       !requireAuth(
-        "Sharing needs an account so the link has somewhere to live. Your plans will be imported when you sign in.",
+        t("auth.share_plan"),
       )
     ) {
       return;
