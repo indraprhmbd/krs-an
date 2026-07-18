@@ -13,7 +13,6 @@ import { Badge } from "@/components/ui/badge";
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@/lib/utils";
 import { useState, useMemo } from "react";
-import { Checkbox } from "@/components/ui/checkbox";
 
 interface MasterCatalogDialogProps {
   isOpen: boolean;
@@ -157,12 +156,19 @@ export function MasterCatalogDialog({
                     : "border-border bg-card hover:bg-accent",
                 )}
               >
-                <Checkbox
-                  className="mt-1"
+                {/* Decorative only -- the outer button is the real control,
+                    so this is a plain span, not the Checkbox primitive
+                    (which renders its own <button> and cannot nest inside
+                    one without breaking HTML validity). */}
+                <span
                   aria-hidden
-                  tabIndex={-1}
-                  checked={isSelected}
-                />
+                  className={cn(
+                    "mt-1 grid h-4 w-4 shrink-0 place-content-center rounded-sm border border-primary",
+                    isSelected && "bg-primary text-primary-foreground",
+                  )}
+                >
+                  {isSelected && <Icon name="check" size={14} />}
+                </span>
 
                 <div className="min-w-0 flex-1 space-y-1">
                   <div className="flex flex-wrap items-center gap-1.5">
