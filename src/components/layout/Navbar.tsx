@@ -75,14 +75,14 @@ export function Navbar({ userData }: NavbarProps) {
       <AboutDialog
         trigger={
           <button type="button" className="w-full">
-            <MenuItem icon="info" label={t("footer.about")} />
+            <MenuItem icon="circle-info" label={t("footer.about")} />
           </button>
         }
       />
       <HowToUseDialog
         trigger={
           <button type="button" className="w-full">
-            <MenuItem icon="help" label={t("footer.howtouse")} />
+            <MenuItem icon="circle-help" label={t("footer.howtouse")} />
           </button>
         }
       />

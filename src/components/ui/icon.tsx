@@ -58,6 +58,10 @@ const ICONS = {
   "instagram": [["rect",{"width":"20","height":"20","x":"2","y":"2","rx":"5","ry":"5"}],["path",{"d":"M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"}],["line",{"x1":"17.5","x2":"17.51","y1":"6.5","y2":"6.5"}]],
   "mail": [["path",{"d":"m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"}],["rect",{"x":"2","y":"4","width":"20","height":"16","rx":"2"}]],
   "linkedin": [["path",{"d":"M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"}],["rect",{"width":"4","height":"12","x":"2","y":"9"}],["circle",{"cx":"4","cy":"4","r":"2"}]],
+
+  // Custom SVGs from assets/custom-icons/ - added manually, not from lucide
+  "circle-help": [["circle",{cx:12,cy:12,r:10}],["line",{x1:11.99,x2:12.01,y1:17,y2:17}],["path",{d:"M9,10a3,3,0,1,1,3,3v1"}]],
+  "circle-info": [["circle",{cx:12,cy:12,r:10}],["line",{x1:11.99,y1:7,x2:12.01,y2:7}],["line",{x1:12,y1:11,x2:12,y2:17}]],
 } as const satisfies Record<string, IconNode>;
 
 export type IconName = keyof typeof ICONS;
