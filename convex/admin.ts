@@ -392,6 +392,48 @@ export const addCurriculumItem = mutation({
 });
 
 /**
+ * Add multiple curriculum rows at once, skipping any code already present
+ * for this exact prodi+semester. addCurriculumItem never checked for
+ * duplicates -- fine for pasted text where a repeated line is rare, but a
+ * pick-from-repo picker makes "select the same course twice" an easy,
+ * ordinary case that needs handling at the mutation level, not left to the
+ * UI to avoid perfectly.
+ */
+export const addCurriculumItems = mutation({
+  args: {
+    prodi: v.string(),
+    semester: v.number(),
+    items: v.array(
+      v.object({ code: v.string(), name: v.string(), sks: v.number() }),
+    ),
+  },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    const existing = await ctx.db
+      .query("curriculum")
+      .withIndex("by_prodi_semester", (q) =>
+        q.eq("prodi", args.prodi).eq("semester", args.semester),
+      )
+      .collect();
+    const existingCodes = new Set(existing.map((c) => c.code));
+    const toInsert = args.items.filter((i) => !existingCodes.has(i.code));
+    await Promise.all(
+      toInsert.map((item) =>
+        ctx.db.insert("curriculum", {
+          ...item,
+          prodi: args.prodi,
+          semester: args.semester,
+        }),
+      ),
+    );
+    return {
+      inserted: toInsert.length,
+      skipped: args.items.length - toInsert.length,
+    };
+  },
+});
+
+/**
  * One-off cleanup: strip the deprecated `term` field from curriculum rows.
  *
  * Run once from the dashboard, then `term` can leave convex/schema.ts. Until

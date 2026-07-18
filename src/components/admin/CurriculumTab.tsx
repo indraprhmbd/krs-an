@@ -3,6 +3,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useCurriculumData } from "./hooks/useCurriculumData";
 import { useProdiOptions } from "./hooks/useProdiOptions";
+import { CurriculumMasterPickerDialog } from "./dialogs/CurriculumMasterPickerDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,7 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
   const batchDeleteCurriculum = useMutation(api.admin.batchDeleteCurriculum);
 
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
 
   const handleRemove = async (id: any) => {
     try {
@@ -182,6 +184,15 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
             )}
 
             <Button
+              variant="outline"
+              onClick={() => setIsPickerOpen(true)}
+              className="w-full xl:w-auto rounded-control border-border px-6 h-10 md:h-9 text-caption"
+            >
+              <Icon name="database" className="mr-2" />
+              Pilih dari Repositori
+            </Button>
+
+            <Button
               onClick={onOpenImport}
               className="w-full xl:w-auto bg-primary text-primary-foreground rounded-control px-6 h-10 md:h-9 text-caption"
             >
@@ -253,6 +264,13 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
           )}
         </div>
       </CardContent>
+
+      <CurriculumMasterPickerDialog
+        isOpen={isPickerOpen}
+        onOpenChange={setIsPickerOpen}
+        prodi={prodi}
+        semester={semester}
+      />
     </Card>
   );
 }
