@@ -325,6 +325,14 @@ export const smartGenerate = action({
           const completion = await groq.chat.completions.create({
             model: modelName,
             temperature: 0.6,
+            // No explicit limit here used to mean a large selection (more
+            // courses -> longer courseIds output across 3 plans) could hit
+            // the model's default completion cap mid-JSON, producing
+            // truncated/invalid output that fails schema validation with a
+            // 400 json_validate_failed -- on both primary and fallback,
+            // since neither had headroom. Generous enough that a normal
+            // reply finishes well under it.
+            max_tokens: 8192,
             messages: [
               { role: "system", content: systemPrompt },
               { role: "user", content: userInput },
@@ -364,6 +372,7 @@ export const smartGenerate = action({
           const completion = await sumopod.chat.completions.create({
             model: SUMOPOD_MODEL!,
             temperature: 0.6,
+            max_tokens: 8192,
             messages: [
               { role: "system", content: systemPrompt },
               { role: "user", content: userInput },
