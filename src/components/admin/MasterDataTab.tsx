@@ -65,8 +65,13 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
   const [isImporting, setIsImporting] = useState(false);
   const [isFixing, setIsFixing] = useState(false);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [targetProdi, setTargetProdi] = useState("");
+  const [isMoving, setIsMoving] = useState(false);
+  const [isCopying, setIsCopying] = useState(false);
 
   const fixProdi = useMutation(api.admin.fixProdiFormatting);
+  const moveToProdi = useMutation(api.admin.moveMasterCoursesToProdi);
+  const copyToProdi = useMutation(api.admin.copyMasterCoursesToProdi);
 
   // CRUD Handlers
   const handleEditMaster = (course: any) => {
@@ -211,6 +216,42 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
     }
   };
 
+  const handleMoveToProdi = async () => {
+    if (selectedIds.length === 0 || !targetProdi) return;
+    setIsMoving(true);
+    try {
+      const result = await moveToProdi({
+        ids: selectedIds as any,
+        prodi: targetProdi,
+      });
+      toast.success(`${result.count} mata kuliah dipindah ke ${targetProdi}.`);
+      setSelectedIds([]);
+      setTargetProdi("");
+    } catch (err: any) {
+      toast.error("Pindah gagal: " + err.message);
+    } finally {
+      setIsMoving(false);
+    }
+  };
+
+  const handleCopyToProdi = async () => {
+    if (selectedIds.length === 0 || !targetProdi) return;
+    setIsCopying(true);
+    try {
+      const result = await copyToProdi({
+        ids: selectedIds as any,
+        prodi: targetProdi,
+      });
+      toast.success(`${result.count} mata kuliah disalin ke ${targetProdi}.`);
+      setSelectedIds([]);
+      setTargetProdi("");
+    } catch (err: any) {
+      toast.error("Salin gagal: " + err.message);
+    } finally {
+      setIsCopying(false);
+    }
+  };
+
   const handlePurgeProdi = async () => {
     if (prodiFilter === "all") return;
     if (
@@ -255,15 +296,55 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
             </div>
             <div className="flex flex-col sm:flex-row gap-2 w-full xl:w-auto justify-start xl:justify-end">
               {selectedIds.length > 0 && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={handleBatchDelete}
-                  className="w-full sm:w-auto rounded-control px-4 font-mono text-caps uppercase h-9 md:h-8"
-                >
-                  <Icon name="trash" size={14} className="mr-2" />
-                  Delete ({selectedIds.length})
-                </Button>
+                <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+                  <Select value={targetProdi} onValueChange={setTargetProdi}>
+                    <SelectTrigger className="h-9 w-full rounded-control border-border bg-card sm:h-8 sm:w-44">
+                      <SelectValue placeholder="Pindah/salin ke prodi..." />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px] rounded-control border-border shadow-card">
+                      {[...prodiOptions]
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((p) => (
+                          <SelectItem
+                            key={p._id}
+                            value={p.name}
+                            className="text-caption"
+                          >
+                            {p.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleMoveToProdi}
+                    disabled={!targetProdi || isMoving}
+                    className="rounded-control px-3 font-mono text-caps uppercase border-border h-9 md:h-8"
+                  >
+                    <Icon name="external-link" size={14} className="mr-2" />
+                    {isMoving ? "Memindah..." : `Pindah (${selectedIds.length})`}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleCopyToProdi}
+                    disabled={!targetProdi || isCopying}
+                    className="rounded-control px-3 font-mono text-caps uppercase border-border h-9 md:h-8"
+                  >
+                    <Icon name="copy" size={14} className="mr-2" />
+                    {isCopying ? "Menyalin..." : `Salin (${selectedIds.length})`}
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleBatchDelete}
+                    className="w-full sm:w-auto rounded-control px-4 font-mono text-caps uppercase h-9 md:h-8"
+                  >
+                    <Icon name="trash" size={14} className="mr-2" />
+                    Delete ({selectedIds.length})
+                  </Button>
+                </div>
               )}
 
               <div className="grid grid-cols-2 sm:flex gap-2 w-full">

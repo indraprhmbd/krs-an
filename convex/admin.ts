@@ -251,6 +251,49 @@ export const batchDeleteMaster = mutation({
   },
 });
 
+/**
+ * Reassign selected master_courses rows to a different prodi in place --
+ * for fixing data imported under the wrong prodi (e.g. a faculty name
+ * instead of the actual study program), without deleting and re-importing.
+ */
+export const moveMasterCoursesToProdi = mutation({
+  args: { ids: v.array(v.id("master_courses")), prodi: v.string() },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    const normalized = args.prodi.toUpperCase().trim().replace(/\.$/, "");
+    await Promise.all(
+      args.ids.map((id) => ctx.db.patch(id, { prodi: normalized })),
+    );
+    return { success: true, count: args.ids.length };
+  },
+});
+
+/**
+ * Duplicate selected master_courses rows into a different prodi, leaving the
+ * originals untouched -- for a course genuinely shared across prodi (e.g. a
+ * general elective), where the same section needs to show up under more than
+ * one prodi's catalog.
+ */
+export const copyMasterCoursesToProdi = mutation({
+  args: { ids: v.array(v.id("master_courses")), prodi: v.string() },
+  handler: async (ctx, args) => {
+    await requireAdmin(ctx);
+    const normalized = args.prodi.toUpperCase().trim().replace(/\.$/, "");
+    const rows = await Promise.all(args.ids.map((id) => ctx.db.get(id)));
+    const toCopy = rows.filter((r): r is NonNullable<typeof r> => r !== null);
+    await Promise.all(
+      toCopy.map((row) => {
+        const { _id, _creationTime, ...rest } = row;
+        return ctx.db.insert("master_courses", {
+          ...rest,
+          prodi: normalized,
+        });
+      }),
+    );
+    return { success: true, count: toCopy.length };
+  },
+});
+
 // Curriculum Operations
 export const listCurriculum = query({
   args: { prodi: v.string(), semester: v.optional(v.number()) },
