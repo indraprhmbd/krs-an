@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -176,9 +176,30 @@ interface TutorialSection {
 
 function TutorialVideoFrame({ section }: { section: TutorialSection }) {
   const { t } = useLanguage();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // The iframe is cross-origin (Cloudinary/YouTube), so there's no way to
+  // hook a click handler into the video itself -- the browser blocks
+  // reaching into another origin's document. Fullscreening our own wrapper
+  // div instead is a same-origin DOM operation we can actually do: the
+  // iframe (clean, no controls) just fills whatever size that wrapper is,
+  // fullscreen included. The overlay button sits on top only to catch the
+  // click, since a click landing directly on the iframe goes to its content,
+  // never to a handler on an ancestor element.
+  const handleClick = () => {
+    containerRef.current?.requestFullscreen().catch(() => {
+      // Fullscreen can be denied (no user gesture context in some embeds,
+      // browser policy, etc.) -- silently no-op rather than throwing, since
+      // the video keeps playing normally either way.
+    });
+  };
+
   if (section.embedSrc) {
     return (
-      <div className="aspect-video w-full overflow-hidden rounded-card border border-border bg-muted">
+      <div
+        ref={containerRef}
+        className="relative aspect-video w-full overflow-hidden rounded-card border border-border bg-muted"
+      >
         <iframe
           src={section.embedSrc}
           title={section.title}
@@ -186,6 +207,12 @@ function TutorialVideoFrame({ section }: { section: TutorialSection }) {
           loading="lazy"
           allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
           allowFullScreen
+        />
+        <button
+          type="button"
+          aria-label="Perbesar video"
+          onClick={handleClick}
+          className="absolute inset-0 cursor-pointer bg-transparent"
         />
       </div>
     );
