@@ -263,9 +263,12 @@ export const listCurriculum = query({
         )
         .collect();
     }
+    // Prodi-only prefix match on the same by_prodi_semester index -- a
+    // range index supports querying just its leading field, so this never
+    // needed the full-table filter() scan it used to do.
     return await ctx.db
       .query("curriculum")
-      .filter((q) => q.eq(q.field("prodi"), args.prodi))
+      .withIndex("by_prodi_semester", (q) => q.eq("prodi", args.prodi))
       .collect();
   },
 });
@@ -296,14 +299,11 @@ export const dropCurriculumTerm = mutation({
   handler: async (ctx) => {
     await requireAdmin(ctx);
     const rows = await ctx.db.query("curriculum").collect();
-    let cleaned = 0;
-    for (const row of rows) {
-      if (row.term !== undefined) {
-        await ctx.db.patch(row._id, { term: undefined });
-        cleaned++;
-      }
-    }
-    return { scanned: rows.length, cleaned };
+    const drifted = rows.filter((row) => row.term !== undefined);
+    await Promise.all(
+      drifted.map((row) => ctx.db.patch(row._id, { term: undefined })),
+    );
+    return { scanned: rows.length, cleaned: drifted.length };
   },
 });
 
@@ -319,19 +319,18 @@ export const normalizeMasterCourseDays = mutation({
   handler: async (ctx) => {
     await requireAdmin(ctx);
     const rows = await ctx.db.query("master_courses").collect();
-    let changed = 0;
-    for (const row of rows) {
+    const patches = rows.flatMap((row) => {
       const normalized = row.schedule.map((s) => ({
         ...s,
         day: normalizeDayOfWeek(s.day),
       }));
       const drifted = normalized.some((s, i) => s.day !== row.schedule[i].day);
-      if (drifted) {
-        await ctx.db.patch(row._id, { schedule: normalized });
-        changed++;
-      }
-    }
-    return { scanned: rows.length, changed };
+      return drifted ? [{ id: row._id, schedule: normalized }] : [];
+    });
+    await Promise.all(
+      patches.map((p) => ctx.db.patch(p.id, { schedule: p.schedule })),
+    );
+    return { scanned: rows.length, changed: patches.length };
   },
 });
 
@@ -347,9 +346,7 @@ export const batchDeleteCurriculum = mutation({
   args: { ids: v.array(v.id("curriculum")) },
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
-    for (const id of args.ids) {
-      await ctx.db.delete(id);
-    }
+    await Promise.all(args.ids.map((id) => ctx.db.delete(id)));
     return { success: true, deletedCount: args.ids.length };
   },
 });
@@ -361,24 +358,28 @@ export const fixProdiFormatting = mutation({
     const masterItems = await ctx.db.query("master_courses").collect();
     const curriculumItems = await ctx.db.query("curriculum").collect();
 
-    let count = 0;
-    for (const item of masterItems) {
-      const normalized = item.prodi.toUpperCase().trim().replace(/\.$/, "");
-      if (item.prodi !== normalized) {
-        await ctx.db.patch(item._id, { prodi: normalized });
-        count++;
-      }
-    }
+    const normalize = (prodi: string) =>
+      prodi.toUpperCase().trim().replace(/\.$/, "");
 
-    for (const item of curriculumItems) {
-      const normalized = item.prodi.toUpperCase().trim().replace(/\.$/, "");
-      if (item.prodi !== normalized) {
-        await ctx.db.patch(item._id, { prodi: normalized });
-        count++;
-      }
-    }
+    const masterPatches = masterItems.flatMap((item) => {
+      const normalized = normalize(item.prodi);
+      return item.prodi !== normalized
+        ? [ctx.db.patch(item._id, { prodi: normalized })]
+        : [];
+    });
+    const curriculumPatches = curriculumItems.flatMap((item) => {
+      const normalized = normalize(item.prodi);
+      return item.prodi !== normalized
+        ? [ctx.db.patch(item._id, { prodi: normalized })]
+        : [];
+    });
 
-    return { success: true, fixedCount: count };
+    await Promise.all([...masterPatches, ...curriculumPatches]);
+
+    return {
+      success: true,
+      fixedCount: masterPatches.length + curriculumPatches.length,
+    };
   },
 });
 

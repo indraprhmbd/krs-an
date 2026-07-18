@@ -25,7 +25,6 @@ export default defineSchema({
     shareId: v.optional(v.string()),
   })
     .index("by_user", ["userId"])
-    .index("by_user_type", ["userId", "generatedBy"])
     .index("by_shareId", ["shareId"]),
 
   // Every single available class from the university
@@ -76,19 +75,22 @@ export default defineSchema({
     response: v.any(), // JSON result from Gemini
   }).index("by_hash", ["hash"]),
 
-  // Audit Logging for security
+  // Audit Logging for security. Write-only today (logAudit inserts, nothing
+  // reads it back) -- no index until an admin log viewer actually queries it.
   audit_logs: defineTable({
     user: v.string(), // User Token or Email
     action: v.string(),
     details: v.optional(v.string()),
     timestamp: v.number(),
-  }).index("by_timestamp", ["timestamp"]),
+  }),
 
+  // Write-only today (ai.ts/users.ts insert, nothing reads it back) -- no
+  // index until a usage-analytics screen actually queries it.
   usage_logs: defineTable({
     userId: v.id("users"),
     type: v.string(), // "generate_plan" | "analyze"
     timestamp: v.number(),
-  }).index("by_user", ["userId"]),
+  }),
 
   // Admin-managed source of truth for the prodi dropdowns. Replaces two
   // hardcoded arrays (ScheduleConfig.tsx, CurriculumTab.tsx) that had already
