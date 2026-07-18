@@ -150,19 +150,13 @@ const translations: Record<string, string> = {
   "howtouse.premium_title": "Fitur Premium",
   "howtouse.premium_desc":
     "Gunakan Smart Generate untuk mengatur preferensi spesifik seperti 'Tanpa Kelas Pagi'.",
-  "about.legal_title": "Aspek Legal & Privasi",
-  "about.legal_desc":
-    "KRSan menyajikan data jadwal kuliah dan nama pengajar berdasarkan informasi publik yang disediakan oleh institusi terkait. Kami hanya memproses data ini untuk tujuan edukasi dan kemudahan administratif mahasiswa, sesuai dengan semangat UU Pelindungan Data Pribadi No. 27 Tahun 2022 (Kapasitas Profesional).",
-  "about.illustration_credit": "Ilustrasi oleh",
-  "about.title": "Filosofi KRSan",
-  "about.background_title": "Latar Belakang",
-  "about.background_desc":
-    "Masa pengisian KRS (Kartu Rencana Studi) seringkali menjadi momen paling menegangkan bagi mahasiswa. Antara mengejar kuota kelas, menghindari jadwal yang bentrok, hingga mencari dosen idaman, mahasiswa dipaksa menjadi 'optimizer' manual dalam waktu yang singkat.",
-  "about.mission_title": "Misi Kami",
-  "about.mission_desc":
-    "KRSan dibuat untuk mendemokrasikan optimasi jadwal. Kami percaya bahwa teknologi AI seharusnya membantu hal-hal administratif yang membosankan sehingga mahasiswa bisa lebih fokus pada pencapaian akademik yang sebenarnya.",
-  "about.quote":
-    "'KRSan bukan hanya alat pembuat jadwal, tapi manifestasi dari rasa empati terhadap perjuangan ratusan ribu mahasiswa setiap semesternya.'",
+  "about.title": "Tentang KRSan",
+  "about.personal":
+    "KRSan saya buat karena saya sendiri dulu pusing nyusun jadwal KRS. Antara milih kelas, ngatur biar nggak bentrok, milih dosen - semuanya manual, waktunya mepet, bikin stres. Ini proyek kecil yang saya harap bisa bikin pengalaman KRSan teman-teman jadi lebih gampang.",
+  "about.how":
+    "Cara kerjanya: pilih mata kuliah yang mau diambil, atur preferensi kayak 'gak mau kelas pagi', sistem bakal nyariin kombinasi jadwal yang cocok tinggal pilih. Hasilnya bisa disimpan atau dibagikan.",
+  "about.legal":
+    "KRSan proyek sampingan pribadi, bukan produk komersial. Data jadwal kuliah dan nama pengajar bersumber dari informasi publik yang tersedia. Tidak terafiliasi dengan institusi pendidikan mana pun.",
   "help.shuffle_title": "Macro Adjustment (Shuffle)",
   "help.shuffle_desc":
     "Gunakan Shuffle untuk merombak total kombinasi jadwal secara acak. Ini adalah penyesuaian skala besar untuk menemukan struktur jadwal yang benar-benar berbeda.",

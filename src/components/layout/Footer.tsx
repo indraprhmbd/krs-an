@@ -211,46 +211,11 @@ export function AboutDialog({ trigger }: { trigger?: React.ReactNode }) {
           </div>
         </DialogHeader>
         <div className="space-y-4 p-4 text-body text-muted-foreground">
-          <div className="space-y-2">
-            <h3 className="flex items-center gap-2 font-bold text-foreground">
-              <Icon name="sparkles" className="shrink-0 text-primary" size={16} />
-              {t("about.background_title")}
-            </h3>
-            <p>{t("about.background_desc")}</p>
-          </div>
-
-          <div className="space-y-2">
-            <h3 className="flex items-center gap-2 font-bold text-foreground">
-              <Icon name="info" className="shrink-0 text-primary" size={16} />
-              {t("about.mission_title")}
-            </h3>
-            <p>{t("about.mission_desc")}</p>
-          </div>
-
-          <p className="rounded-card border-l-2 border-l-primary border-border bg-muted p-4 text-caption italic">
-            {t("about.quote")}
+          <p>{t("about.personal")}</p>
+          <p>{t("about.how")}</p>
+          <p className="rounded-card border border-border bg-muted p-4 text-caption">
+            {t("about.legal")}
           </p>
-
-          <div className="space-y-2 border-t border-border pt-4">
-            <h3 className="flex items-center gap-2 font-bold text-foreground">
-              <Icon name="shield" className="shrink-0 text-primary" size={16} />
-              {t("about.legal_title")}
-            </h3>
-            <p className="rounded-card border border-border bg-muted p-4 text-caption">
-              {t("about.legal_desc")}
-            </p>
-            <p className="text-caption text-muted-foreground">
-              {t("about.illustration_credit")}{" "}
-              <a
-                href="https://storyset.com/idea"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-primary"
-              >
-                Storyset
-              </a>
-            </p>
-          </div>
         </div>
       </DialogContent>
     </Dialog>
