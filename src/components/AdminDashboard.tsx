@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ export function AdminDashboard() {
   const clearMaster = useMutation(api.admin.clearMasterData);
   const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
   const [isCurriculumDialogOpen, setIsCurriculumDialogOpen] = useState(false);
+  const [activeTab, setActiveTab] = useLocalStorage("admin-active-tab", "master");
 
   // Auth Check
   if (user === undefined) {
@@ -121,7 +123,7 @@ export function AdminDashboard() {
           </div>
         </div>
 
-        <Tabs defaultValue="master" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="mb-4 flex h-auto w-full overflow-hidden rounded-control bg-muted p-1 md:w-auto">
             <TabsTrigger
               value="master"

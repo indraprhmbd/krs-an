@@ -1,11 +1,15 @@
 import { useState, useEffect } from "react";
 import { usePaginatedQuery, useQuery } from "convex/react";
 import { api } from "../../../../convex/_generated/api";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 const ITEMS_PER_PAGE = 20;
 
 export function useMasterData() {
-  const [prodiFilter, setProdiFilter] = useState("all");
+  const [prodiFilter, setProdiFilter] = useLocalStorage(
+    "admin-master-prodi-filter",
+    "all",
+  );
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);

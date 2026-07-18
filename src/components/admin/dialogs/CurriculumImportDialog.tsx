@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { useProdiOptions } from "../hooks/useProdiOptions";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 interface CurriculumImportDialogProps {
   isOpen: boolean;
@@ -34,8 +35,14 @@ export function CurriculumImportDialog({
 }: CurriculumImportDialogProps) {
   const addCurriculum = useMutation(api.admin.addCurriculumItem);
 
-  const [importProdi, setImportProdi] = useState("INFORMATIKA");
-  const [importSemester, setImportSemester] = useState(2);
+  const [importProdi, setImportProdi] = useLocalStorage(
+    "admin-curriculum-import-prodi",
+    "INFORMATIKA",
+  );
+  const [importSemester, setImportSemester] = useLocalStorage(
+    "admin-curriculum-import-semester",
+    2,
+  );
   const [curriculumRawText, setCurriculumRawText] = useState("");
   const [isImporting, setIsImporting] = useState(false);
 

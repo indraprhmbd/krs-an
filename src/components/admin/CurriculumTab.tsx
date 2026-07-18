@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCurriculumData } from "./hooks/useCurriculumData";
 import { useProdiOptions } from "./hooks/useProdiOptions";
 import { CurriculumMasterPickerDialog } from "./dialogs/CurriculumMasterPickerDialog";
@@ -30,8 +31,11 @@ interface CurriculumTabProps {
 }
 
 export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
-  const [prodi, setProdi] = useState("INFORMATIKA");
-  const [semester, setSemester] = useState(2);
+  const [prodi, setProdi] = useLocalStorage(
+    "admin-curriculum-prodi",
+    "INFORMATIKA",
+  );
+  const [semester, setSemester] = useLocalStorage("admin-curriculum-semester", 2);
 
   const { prodiOptions } = useProdiOptions();
 
