@@ -502,9 +502,13 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                 {(courses || []).map((c: any) => (
                   <tr
                     key={c._id}
-                    className={`hover:bg-muted/50 transition-colors group ${selectedIds.includes(c._id) ? "bg-muted/30" : ""}`}
+                    onClick={() => toggleSelect(c._id)}
+                    className={`cursor-pointer hover:bg-muted/50 transition-colors group ${selectedIds.includes(c._id) ? "bg-muted/30" : ""}`}
                   >
-                    <td className="px-2 md:px-4 py-2.5">
+                    <td
+                      className="px-2 md:px-4 py-2.5"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Checkbox
                         checked={selectedIds.includes(c._id)}
                         onCheckedChange={() => toggleSelect(c._id)}
@@ -526,7 +530,10 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                     <td className="px-2 md:px-4 py-2.5 text-muted-foreground text-caption overflow-hidden max-w-[150px] truncate">
                       {c.lecturer}
                     </td>
-                    <td className="px-2 md:px-4 py-2.5 text-right opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                    <td
+                      className="px-2 md:px-4 py-2.5 text-right opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <div className="flex justify-end gap-1">
                         <Button
                           variant="ghost"
