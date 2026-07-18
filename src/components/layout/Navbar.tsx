@@ -165,8 +165,8 @@ export function Navbar({ userData }: NavbarProps) {
             onClick={() => setStep("archive")}
           >
             <Icon name="history" size={14} />
-            <span className="max-sm:hidden">{t("nav.archive")}</span>
-            <span className="max-sm:hidden ml-1 font-mono text-caps text-muted-foreground">
+            <span className="hidden xs:inline">{t("nav.archive")}</span>
+            <span className="hidden xs:inline ml-1 font-mono text-caps text-muted-foreground">
               {archiveCount}/{ARCHIVE_LIMIT}
             </span>
           </Button>
