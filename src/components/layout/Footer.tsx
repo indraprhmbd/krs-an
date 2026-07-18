@@ -133,7 +133,7 @@ export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
     <Dialog>
       <DialogTrigger asChild>
         {trigger || (
-          <FooterLinkTrigger icon="circle-help" label={t("footer.howtouse")} />
+          <FooterLinkTrigger icon="help" label={t("footer.howtouse")} />
         )}
       </DialogTrigger>
       <DialogContent hideClose size="2xl" padded={false}>
@@ -189,7 +189,7 @@ export function AboutDialog({ trigger }: { trigger?: React.ReactNode }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        {trigger || <FooterLinkTrigger icon="circle-info" label={t("footer.about")} />}
+        {trigger || <FooterLinkTrigger icon="info" label={t("footer.about")} />}
       </DialogTrigger>
       <DialogContent hideClose size="2xl" padded={false}>
         <DialogHeader className="p-4 pb-0">

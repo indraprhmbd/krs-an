@@ -13,6 +13,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { AboutDialog, HowToUseDialog, DonateDialog } from "./Footer";
+import { usePlanArchive, ARCHIVE_LIMIT } from "../../hooks/usePlanArchive";
 
 interface NavbarProps {
   userData?: {
@@ -55,6 +56,9 @@ export function Navbar({ userData }: NavbarProps) {
   const isArchitect = step === "config" || step === "select" || step === "view";
   const isArchive = step === "archive";
 
+  const { plans } = usePlanArchive();
+  const archiveCount = plans?.length ?? 0;
+
   const credits = userData?.credits ?? 0;
 
   /**
@@ -75,14 +79,14 @@ export function Navbar({ userData }: NavbarProps) {
       <AboutDialog
         trigger={
           <button type="button" className="w-full">
-            <MenuItem icon="circle-info" label={t("footer.about")} />
+            <MenuItem icon="info" label={t("footer.about")} />
           </button>
         }
       />
       <HowToUseDialog
         trigger={
           <button type="button" className="w-full">
-            <MenuItem icon="circle-help" label={t("footer.howtouse")} />
+            <MenuItem icon="help" label={t("footer.howtouse")} />
           </button>
         }
       />
@@ -161,7 +165,10 @@ export function Navbar({ userData }: NavbarProps) {
             onClick={() => setStep("archive")}
           >
             <Icon name="history" size={14} />
-            <span className="hidden xs:inline">{t("nav.archive")}</span>
+            <span className="max-sm:hidden">{t("nav.archive")}</span>
+            <span className="max-sm:hidden ml-1 font-mono text-caps text-muted-foreground">
+              {archiveCount}/{ARCHIVE_LIMIT}
+            </span>
           </Button>
         </div>
 
