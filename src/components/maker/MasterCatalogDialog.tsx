@@ -208,13 +208,13 @@ export function MasterCatalogDialog({
             {selectedCodes.size > 0 && (
               <>
                 <Badge className="px-2 py-1 font-mono text-caption">
-                  {selectedCodes.size} MATA KULIAH DIPILIH
+                  {selectedSks} SKS DIPILIH
                 </Badge>
                 <Badge
                   variant="outline"
                   className="px-2 py-1 font-mono text-caption"
                 >
-                  {selectedSks} SKS DIPILIH
+                  {selectedCodes.size} MATA KULIAH DIPILIH
                 </Badge>
               </>
             )}
