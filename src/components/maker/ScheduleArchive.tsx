@@ -283,7 +283,7 @@ export function ScheduleArchive({
               value="ai"
               className="rounded-control font-medium data-[state=active]:bg-card data-[state=active]:text-highlight"
             >
-              <Icon name="sparkles" className="mr-2" />
+              <Icon name="database" className="mr-2" />
               AI
               {aiPlans.length > 0 && (
                 <span className="ml-2 bg-highlight/10 text-highlight px-1.5 py-0.5 rounded-full text-caption font-bold">

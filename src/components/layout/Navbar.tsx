@@ -69,7 +69,7 @@ export function Navbar({ userData }: NavbarProps) {
   const utilities: ReactNode = (
     <div className="grid grid-cols-2 gap-0.5">
       <MenuButton
-        icon="sparkles"
+        icon="bookmark"
         label={t("nav.tutorial")}
         onClick={() => {
           restoreArchitectStep();
@@ -154,7 +154,7 @@ export function Navbar({ userData }: NavbarProps) {
             size="sm"
             onClick={() => restoreArchitectStep()}
           >
-            <Icon name="sparkles" size={14} />
+            <Icon name="clock" size={14} />
             <span className="hidden xs:inline">{t("nav.architect")}</span>
           </Button>
           <Button

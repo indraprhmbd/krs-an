@@ -274,7 +274,7 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                   {isFixing ? (
                     <Icon name="spinner" size={12} className="animate-spin mr-2" />
                   ) : (
-                    <Icon name="sparkles" size={12} className="mr-2" />
+                    <Icon name="pencil" size={12} className="mr-2" />
                   )}
                   Fix Format
                 </Button>
