@@ -295,46 +295,62 @@ export const copyMasterCoursesToProdi = mutation({
 });
 
 /**
- * One-off cleanup: "FAKULTAS EKONOMI DAN BISNIS" is a faculty name, not an
- * actual study program -- it was seeded as a prodi_options entry before that
- * was caught. Splits every master_courses row still tagged with it into the
- * real prodi its class prefix belongs to (EP-* -> Ekonomi Pembangunan,
- * EA-* -> Akuntansi). Rows whose class matches neither prefix are left
- * untouched and reported so they can be moved by hand via the Master Data
- * move-to-prodi action. Run once from the app while logged in as admin
- * (Prodi/Master Data tab), not from the CLI or dashboard -- requireAdmin
- * needs a real Clerk session, which neither of those carries.
+ * General-purpose cleanup: reassign every master_courses row under one
+ * source prodi to a different prodi based on which class-code prefix it
+ * matches. Not specific to any one faculty/prodi split -- this replaced a
+ * one-off mutation hardcoded to a single faculty and its two class prefixes,
+ * once it became clear the same shape (a faculty-level prodi that actually
+ * needs splitting by class prefix into its real study programs) would
+ * recur. Mappings are
+ * checked in order, first match wins; a class matching none of them is left
+ * untouched and counted in `unmatched` so it can be moved by hand via the
+ * Master Data move-to-prodi action instead. Run from the app while logged in
+ * as admin -- requireAdmin needs a real Clerk session, which neither the CLI
+ * nor the dashboard function runner carries.
  */
-export const splitFakultasEkonomiBisnis = mutation({
-  args: {},
-  handler: async (ctx) => {
+export const splitMasterCoursesByPrefix = mutation({
+  args: {
+    sourceProdi: v.string(),
+    mappings: v.array(v.object({ prefix: v.string(), prodi: v.string() })),
+  },
+  handler: async (ctx, args) => {
     await requireAdmin(ctx);
-    const SOURCE_PRODI = "FAKULTAS EKONOMI DAN BISNIS";
+    const sourceNormalized = args.sourceProdi
+      .toUpperCase()
+      .trim()
+      .replace(/\.$/, "");
+    const mappings = args.mappings
+      .map((m) => ({
+        prefix: m.prefix.trim().toUpperCase(),
+        prodi: m.prodi.toUpperCase().trim().replace(/\.$/, ""),
+      }))
+      .filter((m) => m.prefix.length > 0 && m.prodi.length > 0);
+
     const rows = await ctx.db
       .query("master_courses")
-      .withIndex("by_prodi", (q) => q.eq("prodi", SOURCE_PRODI))
+      .withIndex("by_prodi", (q) => q.eq("prodi", sourceNormalized))
       .collect();
 
     const patches = rows.flatMap((row) => {
-      const prefix = row.class.trim().toUpperCase();
-      if (prefix.startsWith("EP")) {
-        return [{ id: row._id, prodi: "EKONOMI PEMBANGUNAN" }];
-      }
-      if (prefix.startsWith("EA")) {
-        return [{ id: row._id, prodi: "AKUNTANSI" }];
-      }
-      return [];
+      const classUpper = row.class.trim().toUpperCase();
+      const match = mappings.find((m) => classUpper.startsWith(m.prefix));
+      return match ? [{ id: row._id, prodi: match.prodi }] : [];
     });
 
-    await Promise.all(patches.map((p) => ctx.db.patch(p.id, { prodi: p.prodi })));
+    await Promise.all(
+      patches.map((p) => ctx.db.patch(p.id, { prodi: p.prodi })),
+    );
+
+    const perTarget: Record<string, number> = {};
+    for (const p of patches) {
+      perTarget[p.prodi] = (perTarget[p.prodi] || 0) + 1;
+    }
 
     return {
       scanned: rows.length,
-      movedToEkonomiPembangunan: patches.filter(
-        (p) => p.prodi === "EKONOMI PEMBANGUNAN",
-      ).length,
-      movedToAkuntansi: patches.filter((p) => p.prodi === "AKUNTANSI").length,
+      moved: patches.length,
       unmatched: rows.length - patches.length,
+      perTarget,
     };
   },
 });
