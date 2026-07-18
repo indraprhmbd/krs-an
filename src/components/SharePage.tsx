@@ -34,6 +34,10 @@ export function SharePage() {
 
   const handleImport = async () => {
     if (!sharedPlan) return;
+    if (!sharedPlan.data.courses || sharedPlan.data.courses.length === 0) {
+      toast.warning(t("toast.share_empty"));
+      return;
+    }
 
     setIsImporting(true);
     try {

@@ -36,12 +36,22 @@ export interface SavePlanArgs {
  * agree on their output shape, including when they fail. Without this, a single
  * unparseable row took down the whole archive screen with a TypeError on
  * `plan.data.courses`.
+ *
+ * Also requires at least one course. Older saves (predating guards added to
+ * commitSmartPlans/handleSaveManualPlan) or a shared plan that was emptied out
+ * via the manual editor before being shared could persist `courses: []` --
+ * structurally valid, functionally useless. "Muat ke Penampil" on one of these
+ * faithfully loads nothing, which reads as a bug even though the archive did
+ * exactly what was asked. Treating it the same as a corrupt row (filtered,
+ * counted in corruptCount) surfaces it instead of silently showing an empty
+ * viewer.
  */
 function isUsable(plan: RawArchivedPlan): plan is ArchivedPlan {
   return (
     plan?.data != null &&
     typeof plan.data === "object" &&
-    Array.isArray(plan.data.courses)
+    Array.isArray(plan.data.courses) &&
+    plan.data.courses.length > 0
   );
 }
 

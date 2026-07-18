@@ -116,6 +116,8 @@ const translations: Record<string, string> = {
   "toast.imported_to_viewer": "{count} jadwal dimuat ke penampil.",
   "toast.plans_imported": "{count} jadwal diimpor.",
   "toast.import_failed": "Impor gagal: {error}",
+  "toast.share_empty":
+    "Jadwal yang dibagikan ini kosong (tidak ada mata kuliah), tidak diimpor.",
   "toast.import_partial":
     "{imported} dari {total} jadwal diimpor. Sisanya melebihi batas arsip.",
   "toast.ai_success": "AI membuat {count} jadwal optimal. Cek Arsip.",
@@ -139,7 +141,7 @@ const translations: Record<string, string> = {
   "toast.link_copied": "Tautan disalin ke papan klip.",
   "toast.account_copied": "Nomor rekening berhasil disalin.",
   "toast.plan_corrupt":
-    "{count} jadwal tersimpan tidak bisa dibaca dan dilewati.",
+    "{count} jadwal tersimpan tidak valid (rusak atau kosong) dan dilewati.",
   "toast.migrate_title": "Impor jadwal tersimpan Anda?",
   "toast.migrate_desc":
     "{count} jadwal yang dibuat sebelum Anda masuk bisa dipindahkan ke akun ini.",
