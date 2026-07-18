@@ -58,7 +58,7 @@ interface MakerShellProps {
   /** Small caps label above the title, e.g. the period or a step counter.
    * Desktop only -- there is no room for it once title moves into the bar. */
   eyebrow?: ReactNode;
-  title: ReactNode;
+  title?: ReactNode;
   description?: ReactNode;
   /** Icon+label "Back" button, rendered as the bar's leading element next to
    * the title (desktop) or in the top strip (mobile) -- never floated apart
@@ -145,7 +145,7 @@ export function MakerShell({
   return (
     <div className="flex h-full flex-col overflow-hidden">
       {rail && rail.length > 0 && (
-        <ol className="mb-2 flex shrink-0 items-center gap-1 overflow-x-auto no-scrollbar">
+        <ol className="mb-2 flex shrink-0 items-center justify-center gap-1 overflow-x-auto no-scrollbar">
           {rail.map((s, i) => {
             const isActive = step === s.id;
             const isPast = rail.findIndex((r) => r.id === step) > i;

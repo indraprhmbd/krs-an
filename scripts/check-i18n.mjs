@@ -6,10 +6,13 @@
  * user. That shipped. Nothing else catches it: it compiles, lints and builds
  * cleanly, because a string is a string.
  *
+ * The UI is Indonesian-only (one flat translation map, no EN counterpart --
+ * see CLAUDE.md). This guard used to also assert the ID/EN maps had identical
+ * key sets; that check is gone along with the EN map.
+ *
  * Asserts:
- *   1. every key used in src/ exists in BOTH language maps
- *   2. the two maps have identical key sets (no half-translated key)
- *   3. every {placeholder} in a translation is filled by its call sites
+ *   1. every key used in src/ exists in the translation map
+ *   2. every {placeholder} in a translation is filled by its call sites
  *
  * Unused keys are reported but do not fail: a key can legitimately land before
  * its UI does.
@@ -29,10 +32,10 @@ function* walk(dir) {
 }
 
 const ctx = fs.readFileSync(CTX, "utf8");
-const idStart = ctx.indexOf("ID: {");
-const enStart = ctx.indexOf("EN: {");
-if (idStart === -1 || enStart === -1) {
-  console.error(`FAIL  ${CTX}: could not locate the ID/EN translation maps.`);
+const mapStart = ctx.indexOf("const translations");
+const mapEnd = ctx.indexOf("\n};", mapStart);
+if (mapStart === -1 || mapEnd === -1) {
+  console.error(`FAIL  ${CTX}: could not locate the translations map.`);
   process.exit(1);
 }
 
@@ -50,8 +53,7 @@ const entriesOf = (block) => {
   return map;
 };
 
-const ID = entriesOf(ctx.slice(idStart, enStart));
-const EN = entriesOf(ctx.slice(enStart));
+const TRANSLATIONS = entriesOf(ctx.slice(mapStart, mapEnd));
 
 const used = new Map();
 const varsAt = new Map();
@@ -92,30 +94,16 @@ for (const file of walk(ROOT)) {
 let failures = 0;
 
 for (const [key, sites] of used) {
-  const inID = ID.has(key);
-  const inEN = EN.has(key);
-  if (!inID || !inEN) {
-    const where = !inID && !inEN ? "BOTH maps" : !inID ? "the ID map" : "the EN map";
-    console.error(`FAIL  missing from ${where}: ${key}`);
+  if (!TRANSLATIONS.has(key)) {
+    console.error(`FAIL  missing translation: ${key}`);
     console.error(`      used at: ${sites.join(", ")}`);
     console.error(`      t() would render the raw key to the user.`);
     failures++;
   }
 }
 
-for (const key of ID.keys())
-  if (!EN.has(key)) {
-    console.error(`FAIL  in ID but not EN: ${key}`);
-    failures++;
-  }
-for (const key of EN.keys())
-  if (!ID.has(key)) {
-    console.error(`FAIL  in EN but not ID: ${key}`);
-    failures++;
-  }
-
 // Placeholders must be supplied, or the user sees a literal "{count}".
-for (const [key, value] of [...ID, ...EN]) {
+for (const [key, value] of TRANSLATIONS) {
   if (!used.has(key)) continue;
   const needed = new Set(
     [...value.matchAll(/\{([A-Za-z_$][\w$]*)\}/g)].map((m) => m[1]),
@@ -130,7 +118,7 @@ for (const [key, value] of [...ID, ...EN]) {
     }
 }
 
-const unused = [...ID.keys()].filter((k) => !used.has(k));
+const unused = [...TRANSLATIONS.keys()].filter((k) => !used.has(k));
 if (unused.length) {
   console.log(`note: ${unused.length} key(s) defined but unused: ${unused.join(", ")}`);
 }
@@ -139,4 +127,6 @@ if (failures) {
   console.error(`\n${failures} i18n problem(s).`);
   process.exit(1);
 }
-console.log(`All i18n checks passed (${ID.size} keys, ${used.size} used).`);
+console.log(
+  `All i18n checks passed (${TRANSLATIONS.size} keys, ${used.size} used).`,
+);

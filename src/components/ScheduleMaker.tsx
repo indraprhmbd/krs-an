@@ -242,7 +242,7 @@ export function ScheduleMaker({ userData }: ScheduleMakerProps) {
       <div className="flex-1 flex flex-row overflow-hidden">
         <div className="flex flex-1 flex-col lg:flex-row min-h-0 overflow-hidden">
           {/* Main Content Area */}
-          <div className="flex-1 min-w-0 h-full overflow-y-auto lg:overflow-hidden p-3 lg:p-6">
+          <div className="flex-1 min-w-0 h-full overflow-y-auto lg:overflow-hidden p-3 lg:px-6 lg:py-3">
             {step === "config" && (
               <div id="schedule-config" className="h-full">
                 <ScheduleConfig

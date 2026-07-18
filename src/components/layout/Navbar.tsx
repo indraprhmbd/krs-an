@@ -49,7 +49,7 @@ function MenuButton({
 
 export function Navbar({ userData }: NavbarProps) {
   const { isSignedIn, user } = useUser();
-  const { lang, setLang, t } = useLanguage();
+  const { t } = useLanguage();
   const { step, setStep, restoreArchitectStep, requestTutorial } =
     useSession();
   const isArchitect = step === "config" || step === "select" || step === "view";
@@ -103,36 +103,6 @@ export function Navbar({ userData }: NavbarProps) {
           </button>
         }
       />
-    </div>
-  );
-
-  const languageToggle = (
-    <div className="flex items-center justify-between gap-3">
-      <span className="flex items-center gap-2 text-caption font-medium text-foreground">
-        <Icon name="languages" size={14} className="text-muted-foreground" />
-        {t("nav.language")}
-      </span>
-      <div
-        role="group"
-        aria-label={t("nav.language")}
-        className="flex rounded-control border border-border p-0.5"
-      >
-        {(["ID", "EN"] as const).map((code) => (
-          <button
-            key={code}
-            type="button"
-            onClick={() => setLang(code)}
-            aria-pressed={lang === code}
-            className={`rounded-[4px] px-2 py-0.5 text-caption font-semibold transition-colors ${
- lang === code
- ? "bg-primary text-primary-foreground"
- : "text-muted-foreground hover:text-foreground"
- }`}
-          >
-            {code}
-          </button>
-        ))}
-      </div>
     </div>
   );
 
@@ -240,11 +210,8 @@ export function Navbar({ userData }: NavbarProps) {
               )}
 
               <div className="space-y-3 p-3">
-                {languageToggle}
-
                 {isSignedIn && (
                   <>
-                    <div className="h-px bg-border" />
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-caption">
                         <span className="flex items-center gap-1.5 font-medium text-foreground">

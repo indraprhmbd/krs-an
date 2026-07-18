@@ -64,7 +64,7 @@ function App() {
 
   return (
     <div className="h-[100dvh] flex flex-col bg-background font-sans overflow-hidden">
-      <Toaster position="top-center" />
+      <Toaster />
 
       <Routes>
         <Route path="/share/:shareId" element={<SharePage />} />

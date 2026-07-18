@@ -187,12 +187,12 @@ export function IntelligenceScraperDialog({
 
       await bulkImport({ courses: data });
       toast.success(
-        `Successfully parsed and deployed ${data.length} components.`,
+        `Berhasil parse dan sebarkan ${data.length} komponen.`,
       );
       setRawText("");
       onClose();
     } catch (err: any) {
-      toast.error("Parsing failed: " + err.message);
+      toast.error("Parse gagal: " + err.message);
     } finally {
       setIsAiCleaning(false);
     }
@@ -212,7 +212,7 @@ export function IntelligenceScraperDialog({
 
       if (cachedResponse) {
         data = cachedResponse;
-        toast.info("Using cached AI result.");
+        toast.info("Memakai hasil AI dari cache.");
       } else {
         // 2. Fetch if not cached
         const clerkToken = await getToken();
@@ -235,12 +235,12 @@ export function IntelligenceScraperDialog({
 
       await bulkImport({ courses: data });
       toast.success(
-        `AI successfully cleaned and deployed ${data.length} components.`,
+        `AI berhasil membersihkan ${data.length} komponen.`,
       );
       setRawText("");
       onClose();
     } catch (err: any) {
-      toast.error("Cleanup failed: " + err.message);
+      toast.error("Pembersihan gagal: " + err.message);
     } finally {
       setIsAiCleaning(false);
     }
@@ -304,7 +304,7 @@ export function IntelligenceScraperDialog({
                     const template =
                       "PRODI\tKODE\tNAMA\tKELAS\tSKS\tJUMLAH\tSENIN 07:00-09:00\tRUANG\nNAMA DOSEN";
                     navigator.clipboard.writeText(template);
-                    toast.success("Structure template copied to clipboard");
+                    toast.success("Template struktur disalin");
                   }}
                   className="h-7 px-3 text-caps font-mono uppercase text-muted-foreground hover:text-primary hover:bg-muted"
                 >

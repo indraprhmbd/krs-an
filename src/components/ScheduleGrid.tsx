@@ -1,6 +1,7 @@
 import { Badge } from "@/components/ui/badge";
 import type { Course, DayOfWeek, TimeSlot } from "../types";
 import { checkConflicts } from "../lib/rules";
+import { normalizeDayOfWeek } from "../lib/schedule-format";
 
 const DAYS: DayOfWeek[] = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const START_HOUR = 7;
@@ -18,38 +19,8 @@ const ROWS_PER_HOUR = 2; // 30 min slots
  */
 const ROW_REM = 1.75;
 
-/**
- * Source data mixes English and Indonesian day names, in full and abbreviated
- * form. This was inlined three times; it is one function now.
- */
-const DAY_ALIASES: Record<string, string> = {
-  mon: "mon",
-  senin: "mon",
-  tue: "tue",
-  selasa: "tue",
-  wed: "wed",
-  rabu: "wed",
-  thu: "thu",
-  kamis: "thu",
-  fri: "fri",
-  jumat: "fri",
-  "jum'at": "fri",
-  jum: "fri",
-  sat: "sat",
-  sabtu: "sat",
-};
-
-function normalizeDay(raw: string): string {
-  const lower = (raw || "").toLowerCase().trim();
-  return (
-    DAY_ALIASES[lower] ||
-    DAY_ALIASES[lower.slice(0, 3)] ||
-    (lower.includes("jum") ? "fri" : lower.slice(0, 3))
-  );
-}
-
 const slotIsOnDay = (slot: TimeSlot, day: DayOfWeek) =>
-  normalizeDay(slot.day) === day.toLowerCase();
+  normalizeDayOfWeek(slot.day) === day;
 
 const toMinutes = (t: string) => {
   const [h, m] = t.split(":").map(Number);

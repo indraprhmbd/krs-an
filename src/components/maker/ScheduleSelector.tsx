@@ -11,6 +11,7 @@ import {
 import type { Course } from "@/types";
 import { getProdiConfig } from "../../lib/prodi";
 import { ACADEMIC_YEAR, coerceSemester } from "@/lib/period";
+import { formatSchedule } from "@/lib/schedule-format";
 import {
   MakerShell,
   type MakerFooterAction,
@@ -270,7 +271,9 @@ export function ScheduleSelector({
                                         const v = variations.find(
                                           (v) => v.id === lockedIds[0],
                                         );
-                                        return `${v?.schedule[0]?.day} ${v?.schedule[0]?.start} @ ${v?.room || "TBA"}`;
+                                        return v
+                                          ? `${formatSchedule(v.schedule)} @ ${v.room || "TBA"}`
+                                          : "";
                                       })()
                                     : `Class ${variations.find((v) => v.id === lockedIds[0])?.class}`
                                   : `${lockedIds.length} Options`
@@ -322,13 +325,12 @@ export function ScheduleSelector({
                                         className={`font-bold text-caption ${prodiConfig.isCourseCentric ? "text-foreground" : "text-muted-foreground"}`}
                                       >
                                         {prodiConfig.isCourseCentric
-                                          ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
+                                          ? `${formatSchedule(v.schedule)} @ ${v.room || "TBA"}`
                                           : `Class ${v.class}`}
                                       </span>
                                       {!prodiConfig.isCourseCentric && (
                                         <span className="text-caption text-muted-foreground font-mono">
-                                          {v.schedule[0]?.day}{" "}
-                                          {v.schedule[0]?.start}
+                                          {formatSchedule(v.schedule)}
                                         </span>
                                       )}
                                       {prodiConfig.isCourseCentric && (
@@ -341,8 +343,8 @@ export function ScheduleSelector({
                                       )}
                                     </div>
                                     {!prodiConfig.isCourseCentric && (
-                                      <span className="text-muted-foreground text-caption truncate w-full block">
-                                        {v.lecturer.split(",")[0]}
+                                      <span className="text-muted-foreground text-caption w-full block">
+                                        {v.lecturer}
                                       </span>
                                     )}
                                   </div>

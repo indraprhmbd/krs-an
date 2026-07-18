@@ -75,9 +75,9 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
     if (!confirm("Are you sure you want to delete this course?")) return;
     try {
       await deleteMaster({ id });
-      toast.success("Course deleted successfully.");
+      toast.success("Mata kuliah berhasil dihapus.");
     } catch (err: any) {
-      toast.error("Delete failed.");
+      toast.error("Hapus gagal.");
     }
   };
 
@@ -90,13 +90,13 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
           id: (editingCourse as any)._id,
           updates: updates as any,
         });
-        toast.success("Course updated.");
+        toast.success("Mata kuliah diperbarui.");
       } else {
-        toast.info("Individual creation for master not implemented yet.");
+        toast.info("Pembuatan individu untuk master belum tersedia.");
       }
       setIsEditorOpen(false);
     } catch (err: any) {
-      toast.error("Save failed.");
+      toast.error("Simpan gagal.");
     }
   };
 
@@ -115,10 +115,10 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
 
       await bulkImport({ courses: data });
       toast.success(
-        `Successfully deployed ${data.length} strategy components.`,
+        `Berhasil menyebarkan ${data.length} komponen.`,
       );
     } catch (err: any) {
-      toast.error("Deployment failed: " + err.message);
+      toast.error("Penyebaran gagal: " + err.message);
     } finally {
       setIsImporting(false);
     }
@@ -164,16 +164,16 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
 
           await bulkImport({ courses: formattedData as any });
           toast.success(
-            `Successfully imported ${formattedData.length} records from CSV.`,
+            `Berhasil mengimpor ${formattedData.length} data dari CSV.`,
           );
         } catch (err: any) {
-          toast.error("CSV Import failed: " + err.message);
+          toast.error("Impor CSV gagal: " + err.message);
         } finally {
           setIsImporting(false);
         }
       },
       error: (err) => {
-        toast.error("CSV Parse failed: " + err.message);
+        toast.error("Parse CSV gagal: " + err.message);
         setIsImporting(false);
       },
     });
@@ -183,9 +183,9 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
     setIsFixing(true);
     try {
       const result = await fixProdi();
-      toast.success(`Fixed ${result.fixedCount} formatting issues.`);
+      toast.success(`Memperbaiki ${result.fixedCount} masalah format.`);
     } catch (err: any) {
-      toast.error("Fix failed: " + err.message);
+      toast.error("Perbaikan gagal: " + err.message);
     } finally {
       setIsFixing(false);
     }
@@ -201,10 +201,10 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
 
     try {
       await batchDelete({ ids: selectedIds as any });
-      toast.success(`Successfully deleted ${selectedIds.length} items.`);
+      toast.success(`Berhasil menghapus ${selectedIds.length} item.`);
       setSelectedIds([]);
     } catch (err: any) {
-      toast.error("Batch delete failed: " + err.message);
+      toast.error("Hapus massal gagal: " + err.message);
     }
   };
 
@@ -217,9 +217,9 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
 
     try {
       await clearMaster({ prodi: prodiFilter });
-      toast.success(`Data for ${prodiFilter} purged.`);
+      toast.success(`Data ${prodiFilter} dibersihkan.`);
     } catch (err: any) {
-      toast.error("Purge failed.");
+      toast.error("Pembersihan gagal.");
     }
   };
 

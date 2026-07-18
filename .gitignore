@@ -30,5 +30,5 @@ venv/
 ai-service
 _temp/
 
-# .claude/
-# CLAUDE.md
+.claude/
+CLAUDE.md

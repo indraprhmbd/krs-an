@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useState } from "react";
 import { SignInButton } from "@clerk/clerk-react";
 import { getProdiConfig } from "../lib/prodi";
+import { formatSchedule } from "../lib/schedule-format";
 import { useLanguage } from "../context/LanguageContext";
 
 export function SharePage() {
@@ -240,7 +241,7 @@ export function SharePage() {
                         </div>
                         <p className="mb-1 text-caption font-bold text-foreground">
                           {isCourseCentric
-                            ? `${c.schedule[0]?.day} ${c.schedule[0]?.start} @ ${c.room || "TBA"}`
+                            ? `${formatSchedule(c.schedule)} @ ${c.room || "TBA"}`
                             : c.name}
                         </p>
                         {isCourseCentric ? (

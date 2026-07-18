@@ -44,9 +44,9 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
   const handleRemove = async (id: any) => {
     try {
       await removeCurriculum({ id });
-      toast.success("Item removed from curriculum");
+      toast.success("Item dihapus dari kurikulum");
     } catch (err) {
-      toast.error("Failed to remove item");
+      toast.error("Gagal menghapus item");
     }
   };
 
@@ -60,10 +60,10 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
 
     try {
       await batchDeleteCurriculum({ ids: selectedIds as any });
-      toast.success(`Successfully deleted ${selectedIds.length} items.`);
+      toast.success(`Berhasil menghapus ${selectedIds.length} item.`);
       setSelectedIds([]);
     } catch (err: any) {
-      toast.error("Batch delete failed: " + err.message);
+      toast.error("Hapus massal gagal: " + err.message);
     }
   };
 

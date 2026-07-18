@@ -74,12 +74,12 @@ export function CurriculumImportDialog({
         count++;
       }
       toast.success(
-        `Successfully added ${count} items to ${importProdi} Sem ${importSemester}`,
+        `Berhasil menambah ${count} item ke ${importProdi} Sem ${importSemester}`,
       );
       setCurriculumRawText("");
       onClose();
     } catch (err: any) {
-      toast.error("Import failed: " + err.message);
+      toast.error("Impor gagal: " + err.message);
     } finally {
       setIsImporting(false);
     }
@@ -165,7 +165,7 @@ export function CurriculumImportDialog({
                   onClick={() => {
                     const template = "KODE\tNAMA MATKUL\tSKS";
                     navigator.clipboard.writeText(template);
-                    toast.success("Curriculum template copied");
+                    toast.success("Template kurikulum disalin");
                   }}
                   className="h-7 px-3 text-caps font-mono uppercase text-muted-foreground hover:text-primary hover:bg-muted"
                 >

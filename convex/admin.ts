@@ -2,7 +2,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { paginationOptsValidator } from "convex/server";
 import { logAudit } from "./audit";
-import { requireAdmin } from "./lib";
+import { requireAdmin, normalizeDayOfWeek } from "./lib";
 
 // checkAdmin used to be defined here (and duplicated in users.ts). It is now
 // requireAdmin in ./lib. Re-exported under the old name so existing importers
@@ -134,6 +134,10 @@ export const bulkImportMaster = mutation({
     const inputs = args.courses.map((c) => ({
       ...c,
       prodi: c.prodi.toUpperCase().trim().replace(/\.$/, ""),
+      schedule: c.schedule.map((s) => ({
+        ...s,
+        day: normalizeDayOfWeek(s.day),
+      })),
     }));
     const results = await Promise.all(
       inputs.map(async (course) => {
@@ -217,7 +221,16 @@ export const updateMasterCourse = mutation({
   },
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
-    await ctx.db.patch(args.id, args.updates);
+    const updates = args.updates.schedule
+      ? {
+          ...args.updates,
+          schedule: args.updates.schedule.map((s) => ({
+            ...s,
+            day: normalizeDayOfWeek(s.day),
+          })),
+        }
+      : args.updates;
+    await ctx.db.patch(args.id, updates);
   },
 });
 
@@ -291,6 +304,34 @@ export const dropCurriculumTerm = mutation({
       }
     }
     return { scanned: rows.length, cleaned };
+  },
+});
+
+/**
+ * One-off cleanup: re-normalize `master_courses.schedule[].day` on existing
+ * rows through normalizeDayOfWeek. Import paths write canonical day values
+ * now (bulkImportMaster, updateMasterCourse), but rows written before that
+ * fix may still hold raw Indonesian/abbreviated strings. Run once from the
+ * dashboard after deploying the write-path fix.
+ */
+export const normalizeMasterCourseDays = mutation({
+  args: {},
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
+    const rows = await ctx.db.query("master_courses").collect();
+    let changed = 0;
+    for (const row of rows) {
+      const normalized = row.schedule.map((s) => ({
+        ...s,
+        day: normalizeDayOfWeek(s.day),
+      }));
+      const drifted = normalized.some((s, i) => s.day !== row.schedule[i].day);
+      if (drifted) {
+        await ctx.db.patch(row._id, { schedule: normalized });
+        changed++;
+      }
+    }
+    return { scanned: rows.length, changed };
   },
 });
 

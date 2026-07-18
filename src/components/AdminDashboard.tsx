@@ -68,7 +68,7 @@ export function AdminDashboard() {
                     aria-label="Copy token"
                     onClick={() => {
                       navigator.clipboard.writeText(user.tokenIdentifier);
-                      toast.success("Token copied to clipboard");
+                      toast.success("Token disalin ke papan klip");
                     }}
                   >
                     <Icon name="copy" size={14} />
@@ -90,9 +90,9 @@ export function AdminDashboard() {
     if (!confirm("This will purge ALL core master data. Proceed?")) return;
     try {
       await clearMaster({});
-      toast.success("Core data purged.");
+      toast.success("Data utama dibersihkan.");
     } catch (err: any) {
-      toast.error("Cleanup failed.");
+      toast.error("Pembersihan gagal.");
     }
   };
 

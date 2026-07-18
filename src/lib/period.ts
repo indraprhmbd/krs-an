@@ -17,16 +17,10 @@ export type Term = "odd" | "even";
 export const ACADEMIC_YEAR = "2026/2027";
 export const CURRENT_TERM: Term = "odd";
 
-/**
- * Human label, e.g. "2026/2027 Ganjil".
- *
- * Takes the language code LanguageContext actually uses ("ID"/"EN"), not a
- * lowercase variant, so call sites can pass `lang` straight through.
- */
-export function periodLabel(lang: "ID" | "EN" = "ID"): string {
+/** Human label, e.g. "2026/2027 Ganjil". UI is Indonesian-only. */
+export function periodLabel(): string {
   const isOdd = CURRENT_TERM === "odd";
-  if (lang === "ID") return `${ACADEMIC_YEAR} ${isOdd ? "Ganjil" : "Genap"}`;
-  return `${ACADEMIC_YEAR} ${isOdd ? "Odd" : "Even"}`;
+  return `${ACADEMIC_YEAR} ${isOdd ? "Ganjil" : "Genap"}`;
 }
 
 /**

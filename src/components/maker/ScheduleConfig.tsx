@@ -12,7 +12,7 @@ import { Icon } from "@/components/ui/icon";
 import { useLanguage } from "../../context/LanguageContext";
 import { HelpTooltip } from "../ui/HelpTooltip";
 import { clearKRSSession } from "../../hooks/useLocalStorage";
-import { coerceSemester, validSemesters, periodLabel } from "@/lib/period";
+import { coerceSemester, validSemesters } from "@/lib/period";
 import { MakerShell, type MakerRailStep } from "./MakerShell";
 
 interface ScheduleConfigProps {
@@ -34,23 +34,18 @@ export function ScheduleConfig({
   onStart,
   rail,
 }: ScheduleConfigProps) {
-  const { t, lang } = useLanguage();
+  const { t } = useLanguage();
 
   return (
-    <MakerShell
-      rail={rail}
-      eyebrow={periodLabel(lang)}
-      title={
-        <>
-          {t("config.title")}{" "}
-          <span className="text-primary">{t("config.title_span")}</span>
-        </>
-      }
-    >
+    <MakerShell rail={rail}>
       <div className="mx-auto max-w-4xl pb-6">
         <div className="grid items-start gap-8 lg:grid-cols-[1fr_1.15fr]">
-          {/* Hero column: the brand mark, not a repeat of the shell title. */}
+          {/* Hero column */}
           <div className="flex flex-col items-center gap-4 text-center lg:sticky lg:top-0 lg:items-start lg:text-left">
+            <h1 className="text-headline font-bold text-foreground">
+              {t("config.title")}{" "}
+              <span className="text-primary">{t("config.title_span")}</span>
+            </h1>
             <img
               src="/assets/hero-config.svg"
               alt=""

@@ -21,6 +21,7 @@ import {
 import { toast } from "sonner";
 import { useMemo, useState } from "react";
 import { getProdiConfig } from "../../lib/prodi";
+import { formatSchedule } from "@/lib/schedule-format";
 import { useLanguage } from "../../context/LanguageContext";
 import { HelpTooltip } from "@/components/ui/HelpTooltip";
 import {
@@ -176,19 +177,19 @@ export function ScheduleViewer({
                       value={v.id}
                       textValue={
                         prodiConfig.isCourseCentric
-                          ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
-                          : `Class ${v.class} | ${v.lecturer.split(",")[0]} | ${v.schedule[0]?.day} ${v.schedule[0]?.start}`
+                          ? `${formatSchedule(v.schedule)} @ ${v.room || "TBA"}`
+                          : `Class ${v.class} | ${v.lecturer} | ${formatSchedule(v.schedule)}`
                       }
                       className="rounded-control px-3 py-2 cursor-pointer focus:bg-muted"
                     >
                       <div className="flex flex-col min-w-0">
                         <span className="font-bold text-caption text-foreground">
                           {prodiConfig.isCourseCentric
-                            ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
+                            ? `${formatSchedule(v.schedule)} @ ${v.room || "TBA"}`
                             : `Class ${v.class}`}
                         </span>
                         {!prodiConfig.isCourseCentric && (
-                          <span className="text-muted-foreground text-caption font-medium truncate italic">
+                          <span className="text-muted-foreground text-caption font-medium italic">
                             {v.lecturer}
                           </span>
                         )}
@@ -197,9 +198,7 @@ export function ScheduleViewer({
                         >
                           {prodiConfig.isCourseCentric
                             ? `Class ${v.class}`
-                            : v.schedule
-                                .map((s: any) => `${s.day} ${s.start}`)
-                                .join(", ")}
+                            : formatSchedule(v.schedule)}
                         </span>
                       </div>
                     </SelectItem>
@@ -271,8 +270,8 @@ export function ScheduleViewer({
                   <SelectTrigger className="h-7 px-3 border-border bg-card hover:bg-accent rounded-control w-full min-w-[100px]">
                     <span className="truncate w-full text-left block">
                       {prodiConfig.isCourseCentric
-                        ? `${c.schedule[0]?.day} ${c.schedule[0]?.start} @ ${c.room || "TBA"}`
-                        : `Class ${c.class} | ${c.lecturer.split(",")[0]} | ${c.schedule[0]?.day} ${c.schedule[0]?.start}`}
+                        ? `${formatSchedule(c.schedule)} @ ${c.room || "TBA"}`
+                        : `Class ${c.class} | ${c.lecturer} | ${formatSchedule(c.schedule)}`}
                     </span>
                   </SelectTrigger>
                   <SelectContent>
@@ -290,8 +289,8 @@ export function ScheduleViewer({
                         value={v.id}
                         textValue={
                           prodiConfig.isCourseCentric
-                            ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
-                            : `Class ${v.class} | ${v.lecturer.split(",")[0]} | ${v.schedule[0]?.day} ${v.schedule[0]?.start}`
+                            ? `${formatSchedule(v.schedule)} @ ${v.room || "TBA"}`
+                            : `Class ${v.class} | ${v.lecturer} | ${formatSchedule(v.schedule)}`
                         }
                         className="rounded-control px-3 py-2 cursor-pointer focus:bg-muted"
                       >
@@ -299,11 +298,11 @@ export function ScheduleViewer({
                           <div className="flex flex-col min-w-0 flex-1">
                             <span className="font-bold text-caption text-foreground">
                               {prodiConfig.isCourseCentric
-                                ? `${v.schedule[0]?.day} ${v.schedule[0]?.start} @ ${v.room || "TBA"}`
+                                ? `${formatSchedule(v.schedule)} @ ${v.room || "TBA"}`
                                 : `Class ${v.class}`}
                             </span>
                             {!prodiConfig.isCourseCentric && (
-                              <span className="text-muted-foreground text-caption font-medium truncate">
+                              <span className="text-muted-foreground text-caption font-medium">
                                 {v.lecturer}
                               </span>
                             )}
@@ -312,9 +311,7 @@ export function ScheduleViewer({
                             >
                               {prodiConfig.isCourseCentric
                                 ? `Class ${v.class}`
-                                : v.schedule
-                                    .map((s: any) => `${s.day} ${s.start}`)
-                                    .join(", ")}
+                                : formatSchedule(v.schedule)}
                             </span>
                           </div>
                         </div>
