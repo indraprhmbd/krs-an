@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,6 +9,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Icon, type IconName } from "@/components/ui/icon";
+import { cn } from "@/lib/utils";
 import { useLanguage } from "../../context/LanguageContext";
 import { toast } from "sonner";
 
@@ -157,6 +159,178 @@ export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
               </p>
             </div>
           ))}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+interface TutorialSection {
+  title: string;
+  desc: string;
+  youtubeId?: string; // filled in once a video is uploaded; omitted = placeholder
+}
+
+function TutorialVideoFrame({ section }: { section: TutorialSection }) {
+  const { t } = useLanguage();
+  if (section.youtubeId) {
+    return (
+      <div className="aspect-video w-full overflow-hidden rounded-card border border-border bg-muted">
+        <iframe
+          src={`https://www.youtube.com/embed/${section.youtubeId}`}
+          title={section.title}
+          className="h-full w-full"
+          loading="lazy"
+          allowFullScreen
+        />
+      </div>
+    );
+  }
+  return (
+    <div className="flex aspect-video w-full flex-col items-center justify-center gap-2 rounded-card border border-dashed border-border bg-muted">
+      <span className="flex h-10 w-10 items-center justify-center rounded-full border border-border bg-card text-muted-foreground">
+        <Icon name="sparkles" size={18} />
+      </span>
+      <p className="text-caption text-muted-foreground">
+        {t("tutorial_video.placeholder")}
+      </p>
+    </div>
+  );
+}
+
+export function TutorialVideosDialog({
+  trigger,
+}: {
+  trigger?: React.ReactNode;
+}) {
+  const { t } = useLanguage();
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const sections: TutorialSection[] = [
+    {
+      title: t("tutorial_video.section1_title"),
+      desc: t("tutorial_video.section1_desc"),
+    },
+    {
+      title: t("tutorial_video.section2_title"),
+      desc: t("tutorial_video.section2_desc"),
+    },
+    {
+      title: t("tutorial_video.section3_title"),
+      desc: t("tutorial_video.section3_desc"),
+    },
+    {
+      title: t("tutorial_video.section4_title"),
+      desc: t("tutorial_video.section4_desc"),
+    },
+    {
+      title: t("tutorial_video.section5_title"),
+      desc: t("tutorial_video.section5_desc"),
+    },
+    {
+      title: t("tutorial_video.section6_title"),
+      desc: t("tutorial_video.section6_desc"),
+    },
+  ];
+
+  const active = sections[activeIndex];
+
+  return (
+    <Dialog onOpenChange={(open) => open && setActiveIndex(0)}>
+      <DialogTrigger asChild>
+        {trigger || (
+          <FooterLinkTrigger icon="bookmark" label={t("nav.tutorial")} />
+        )}
+      </DialogTrigger>
+      <DialogContent
+        hideClose
+        size="3xl"
+        padded={false}
+        className="flex max-h-[85vh] flex-col overflow-hidden"
+      >
+        <DialogHeader className="shrink-0 p-4 pb-0">
+          <div className="flex items-start justify-between">
+            <DialogTitle className="text-headline">
+              {t("tutorial_video.title")}
+            </DialogTitle>
+            <DialogClose className="shrink-0 rounded-full p-1.5 text-muted-foreground transition-colors hover:bg-accent">
+              <Icon name="close" size={16} />
+            </DialogClose>
+          </div>
+        </DialogHeader>
+
+        {/* Desktop: sidebar list + content pane */}
+        <div className="hidden flex-1 gap-4 overflow-hidden p-4 md:flex">
+          <div className="w-56 shrink-0 space-y-1 overflow-y-auto custom-scrollbar">
+            {sections.map((s, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => setActiveIndex(i)}
+                className={cn(
+                  "w-full rounded-control px-3 py-2 text-left text-caption font-medium transition-colors",
+                  i === activeIndex
+                    ? "bg-primary text-primary-foreground"
+                    : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                )}
+              >
+                {i + 1}. {s.title}
+              </button>
+            ))}
+          </div>
+          <div className="flex-1 space-y-3 overflow-y-auto custom-scrollbar">
+            <TutorialVideoFrame section={active} />
+            <div className="space-y-1">
+              <h3 className="text-body font-bold text-foreground">
+                {active.title}
+              </h3>
+              <p className="text-caption text-muted-foreground">
+                {active.desc}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Mobile: carousel, same prev/next pill pattern as the plan pager */}
+        <div className="flex flex-1 flex-col gap-3 overflow-y-auto p-4 md:hidden">
+          <TutorialVideoFrame section={active} />
+          <div className="space-y-1">
+            <h3 className="text-body font-bold text-foreground">
+              {active.title}
+            </h3>
+            <p className="text-caption text-muted-foreground">
+              {active.desc}
+            </p>
+          </div>
+          <div className="flex items-center justify-center gap-1 rounded-control bg-muted p-0.5 self-center">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() =>
+                setActiveIndex((prev) =>
+                  prev > 0 ? prev - 1 : sections.length - 1,
+                )
+              }
+            >
+              <Icon name="chevron-left" size={12} />
+            </Button>
+            <span className="px-1 font-mono text-caption font-bold">
+              {activeIndex + 1}/{sections.length}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-7 w-7"
+              onClick={() =>
+                setActiveIndex((prev) =>
+                  prev < sections.length - 1 ? prev + 1 : 0,
+                )
+              }
+            >
+              <Icon name="chevron-right" size={12} />
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

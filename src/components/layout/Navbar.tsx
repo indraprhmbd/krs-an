@@ -12,7 +12,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { AboutDialog, HowToUseDialog, DonateDialog } from "./Footer";
+import {
+  AboutDialog,
+  HowToUseDialog,
+  DonateDialog,
+  TutorialVideosDialog,
+} from "./Footer";
 import { usePlanArchive, ARCHIVE_LIMIT } from "../../hooks/usePlanArchive";
 
 interface NavbarProps {
@@ -32,34 +37,10 @@ function MenuItem({ icon, label }: { icon: IconName; label: string }) {
   );
 }
 
-function MenuButton({
-  icon,
-  label,
-  onClick,
-  disabled,
-}: {
-  icon: IconName;
-  label: string;
-  onClick: () => void;
-  disabled?: boolean;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      className="w-full disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      <MenuItem icon={icon} label={label} />
-    </button>
-  );
-}
-
 export function Navbar({ userData }: NavbarProps) {
   const { isSignedIn, user } = useUser();
   const { t } = useLanguage();
-  const { step, setStep, restoreArchitectStep, requestTutorial } =
-    useSession();
+  const { step, setStep, restoreArchitectStep } = useSession();
   const isArchitect = step === "config" || step === "select" || step === "view";
   const isArchive = step === "archive";
 
@@ -75,14 +56,12 @@ export function Navbar({ userData }: NavbarProps) {
    */
   const utilities: ReactNode = (
     <div className="grid grid-cols-2 gap-0.5">
-      <MenuButton
-        icon="bookmark"
-        label={t("nav.tutorial")}
-        disabled
-        onClick={() => {
-          restoreArchitectStep();
-          requestTutorial();
-        }}
+      <TutorialVideosDialog
+        trigger={
+          <button type="button" className="w-full">
+            <MenuItem icon="bookmark" label={t("nav.tutorial")} />
+          </button>
+        }
       />
       <AboutDialog
         trigger={

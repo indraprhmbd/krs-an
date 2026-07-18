@@ -202,6 +202,26 @@ const translations: Record<string, string> = {
   "howtouse.step4_title": "Review, Simpan & Bagikan",
   "howtouse.step4_desc":
     "Lihat hasil jadwal di grid visual. Geser antar opsi, kunci atau perbaiki kelas di mode manual. Simpan ke arsip (maks 30). Nanti bisa diubah nama, dihapus, atau dibagikan lewat link atau WhatsApp.",
+  "tutorial_video.title": "Tutorial Video",
+  "tutorial_video.placeholder": "Video segera hadir",
+  "tutorial_video.section1_title": "Konfigurasi & Mulai",
+  "tutorial_video.section1_desc":
+    "Pilih universitas, prodi, dan semester, atur max SKS, lalu klik Mulai Rancang sampai masuk ke layar pemilihan mata kuliah.",
+  "tutorial_video.section2_title": "Susun Daftar Mata Kuliah",
+  "tutorial_video.section2_desc":
+    "Muat dari kurikulum, tambah manual lewat katalog, kunci kelas tertentu, dan hapus mata kuliah - satu alur lengkap menyusun daftar.",
+  "tutorial_video.section3_title": "Tiga Cara Membuat Jadwal",
+  "tutorial_video.section3_desc":
+    "Susun Cepat, Smart Generate (isi preferensi lalu generate), dan Plotter manual, ditunjukkan berurutan dari titik yang sama.",
+  "tutorial_video.section4_title": "Baca & Sempurnakan Hasil",
+  "tutorial_video.section4_desc":
+    "Geser antar variasi jadwal, Shuffle/Expand, lalu di mode manual: ubah kelas dan Fix Conflicts, sampai klik Simpan.",
+  "tutorial_video.section5_title": "Kelola & Bagikan Arsip",
+  "tutorial_video.section5_desc":
+    "Ganti nama, hapus, bagikan lewat link/WhatsApp, dan buka link tersebut untuk impor ke akun lain.",
+  "tutorial_video.section6_title": "Reset & Mulai Ulang",
+  "tutorial_video.section6_desc":
+    "Hapus Sesi dari kondisi terisi sampai balik ke keadaan awal, menutup siklus penuh.",
   "about.title": "Tentang KRSan",
   "about.personal":
     "KRSan saya buat karena saya sendiri dulu pusing nyusun jadwal KRS. Antara milih kelas, ngatur biar nggak bentrok, milih dosen - semuanya manual, waktunya mepet, bikin stres. Ini proyek kecil yang saya harap bisa bikin pengalaman KRSan teman-teman jadi lebih gampang.",
