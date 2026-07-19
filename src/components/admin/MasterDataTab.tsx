@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useMasterData } from "./hooks/useMasterData";
-import { useProdiOptions } from "./hooks/useProdiOptions";
+import { useProdiOptions, prodiLabel } from "./hooks/useProdiOptions";
 import { SplitByPrefixDialog } from "./dialogs/SplitByPrefixDialog";
 import { CourseEditor } from "./CourseEditor";
 import { Course } from "@/types";
@@ -58,6 +58,9 @@ export function MasterDataTab({
   } = useMasterData();
 
   const { prodiOptions } = useProdiOptions();
+  const universityByProdi = new Map(
+    prodiOptions.map((p) => [p.name, p.university]),
+  );
 
   const updateMaster = useMutation(api.admin.updateMasterCourse);
   const deleteMaster = useMutation(api.admin.deleteMasterCourse);
@@ -316,7 +319,7 @@ export function MasterDataTab({
                             value={p.name}
                             className="text-caption"
                           >
-                            {p.name}
+                            {prodiLabel(p)}
                           </SelectItem>
                         ))}
                     </SelectContent>
@@ -491,7 +494,7 @@ export function MasterDataTab({
                         value={p.name}
                         className="text-caption"
                       >
-                        {p.name}
+                        {prodiLabel(p)}
                       </SelectItem>
                     ))}
                 </SelectContent>
@@ -550,6 +553,11 @@ export function MasterDataTab({
                     </td>
                     <td className="px-2 md:px-4 py-2.5 text-muted-foreground text-caption">
                       {c.prodi}
+                      {universityByProdi.get(c.prodi) && (
+                        <span className="ml-1.5 rounded-control border border-border bg-muted px-1 py-0.5 font-mono text-grid uppercase text-muted-foreground">
+                          {universityByProdi.get(c.prodi)}
+                        </span>
+                      )}
                     </td>
                     <td className="px-2 md:px-4 py-2.5 font-mono">{c.sks}</td>
                     <td className="px-2 md:px-4 py-2.5 text-muted-foreground text-caption overflow-hidden max-w-[150px] truncate">

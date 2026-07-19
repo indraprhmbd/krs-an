@@ -3,7 +3,7 @@ import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 import { useCurriculumData } from "./hooks/useCurriculumData";
-import { useProdiOptions } from "./hooks/useProdiOptions";
+import { useProdiOptions, prodiLabel } from "./hooks/useProdiOptions";
 import { CurriculumMasterPickerDialog } from "./dialogs/CurriculumMasterPickerDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -122,7 +122,7 @@ export function CurriculumTab({ onOpenImport }: CurriculumTabProps) {
                           value={p.name}
                           className="text-caption"
                         >
-                          {p.name}
+                          {prodiLabel(p)}
                         </SelectItem>
                       ))}
                   </SelectContent>

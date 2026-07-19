@@ -21,7 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { useProdiOptions } from "../hooks/useProdiOptions";
+import { useProdiOptions, prodiLabel } from "../hooks/useProdiOptions";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 interface CurriculumImportDialogProps {
@@ -47,9 +47,9 @@ export function CurriculumImportDialog({
   const [isImporting, setIsImporting] = useState(false);
 
   const { prodiOptions } = useProdiOptions();
-  const prodis = [...prodiOptions]
-    .map((p) => p.name)
-    .sort((a, b) => a.localeCompare(b));
+  const prodis = [...prodiOptions].sort((a, b) =>
+    a.name.localeCompare(b.name),
+  );
 
   const handleCurriculumBatchImport = async () => {
     if (!curriculumRawText.trim()) return;
@@ -109,8 +109,12 @@ export function CurriculumImportDialog({
                 </SelectTrigger>
                 <SelectContent className="rounded-control border-border shadow-card">
                   {prodis.map((p) => (
-                    <SelectItem key={p} value={p} className="text-caption font-mono">
-                      {p}
+                    <SelectItem
+                      key={p._id}
+                      value={p.name}
+                      className="text-caption font-mono"
+                    >
+                      {prodiLabel(p)}
                     </SelectItem>
                   ))}
                 </SelectContent>

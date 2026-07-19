@@ -110,10 +110,19 @@ export function ScheduleConfig({
                           <span>UPN "Veteran" Yogyakarta</span>
                         </div>
                       </SelectItem>
+                      <SelectItem value="UGM">
+                        <div className="flex items-center gap-2">
+                          <img
+                            src="/assets/univ/ugm.webp"
+                            alt="Logo"
+                            className="h-4 w-4 rounded-sm object-contain"
+                          />
+                          <span>Univ. Gadjah Mada</span>
+                        </div>
+                      </SelectItem>
                       <SelectItem value="UNY" disabled>
                         Univ. Negeri Yogyakarta (Soon)
                       </SelectItem>
-                      <SelectItem value="UGM">Univ. Gadjah Mada</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

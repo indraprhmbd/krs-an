@@ -21,11 +21,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
+import { prodiLabel } from "../hooks/useProdiOptions";
 
 interface SplitByPrefixDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  prodiOptions: { _id: string; name: string }[];
+  prodiOptions: { _id: string; name: string; university?: string }[];
 }
 
 interface MappingRow {
@@ -125,7 +126,7 @@ export function SplitByPrefixDialog({
               <SelectContent className="max-h-[300px] rounded-control border-border">
                 {sorted.map((p) => (
                   <SelectItem key={p._id} value={p.name} className="text-caption">
-                    {p.name}
+                    {prodiLabel(p)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -165,7 +166,7 @@ export function SplitByPrefixDialog({
                         value={p.name}
                         className="text-caption"
                       >
-                        {p.name}
+                        {prodiLabel(p)}
                       </SelectItem>
                     ))}
                   </SelectContent>
