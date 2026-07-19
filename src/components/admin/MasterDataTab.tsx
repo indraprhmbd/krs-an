@@ -31,9 +31,13 @@ import Papa from "papaparse";
 
 interface MasterDataTabProps {
   onOpenScraper: () => void;
+  onOpenUgmImport: () => void;
 }
 
-export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
+export function MasterDataTab({
+  onOpenScraper,
+  onOpenUgmImport,
+}: MasterDataTabProps) {
   const {
     courses,
     search,
@@ -382,6 +386,15 @@ export function MasterDataTab({ onOpenScraper }: MasterDataTabProps) {
                 >
                   <Icon name="sparkles" size={12} className="mr-2" />
                   AI Scraper
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={onOpenUgmImport}
+                  className="rounded-control font-mono text-caps uppercase border-border text-primary hover:bg-muted h-9 md:h-8"
+                >
+                  <Icon name="database" size={12} className="mr-2" />
+                  UGM Format
                 </Button>
 
                 {prodiFilter !== "all" && (

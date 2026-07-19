@@ -77,9 +77,24 @@ export function ScheduleConfig({
                   </Label>
                   <Select
                     value={sessionProfile.university}
-                    onValueChange={(val) =>
-                      setSessionProfile({ ...sessionProfile, university: val })
-                    }
+                    onValueChange={(val) => {
+                      // A prodi picked under the previous university is
+                      // meaningless under the new one (the dropdown below is
+                      // filtered by university) -- clear it rather than
+                      // silently keep a selection that no longer applies.
+                      const stillValid = prodiOptions.some(
+                        (p) =>
+                          p.name === sessionProfile.prodi &&
+                          (val === "UPN_VETERAN_YOGYAKARTA"
+                            ? !p.university
+                            : p.university === val),
+                      );
+                      setSessionProfile({
+                        ...sessionProfile,
+                        university: val,
+                        prodi: stillValid ? sessionProfile.prodi : "",
+                      });
+                    }}
                   >
                     <SelectTrigger className="h-12 rounded-control border-border bg-muted/50 focus:ring-ring">
                       <SelectValue placeholder={t("config.univ_placeholder")} />
@@ -98,9 +113,7 @@ export function ScheduleConfig({
                       <SelectItem value="UNY" disabled>
                         Univ. Negeri Yogyakarta (Soon)
                       </SelectItem>
-                      <SelectItem value="UGM" disabled>
-                        Univ. Gadjah Mada (Soon)
-                      </SelectItem>
+                      <SelectItem value="UGM">Univ. Gadjah Mada</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -124,6 +137,11 @@ export function ScheduleConfig({
                     </SelectTrigger>
                     <SelectContent className="rounded-control border-border">
                       {[...prodiOptions]
+                        .filter((p) =>
+                          sessionProfile.university === "UPN_VETERAN_YOGYAKARTA"
+                            ? !p.university
+                            : p.university === sessionProfile.university,
+                        )
                         .sort((a, b) => a.name.localeCompare(b.name))
                         .map((p) => (
                           <SelectItem

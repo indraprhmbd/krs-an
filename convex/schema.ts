@@ -98,5 +98,11 @@ export default defineSchema({
   prodi_options: defineTable({
     name: v.string(), // normalized: .toUpperCase().trim().replace(/\.$/, "")
     comingSoon: v.optional(v.boolean()),
+    // Which university this prodi belongs to. Undefined = the home institution
+    // (UPN "Veteran" Yogyakarta), matching sessionProfile.university's
+    // "UPN_VETERAN_YOGYAKARTA" value in ScheduleConfig.tsx. Set to a university
+    // code (e.g. "UGM") for anything else, so the config screen's Prodi
+    // dropdown can be filtered by the chosen University.
+    university: v.optional(v.string()),
   }).index("by_name", ["name"]),
 });

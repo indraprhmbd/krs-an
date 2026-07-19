@@ -543,7 +543,11 @@ export const listProdiOptions = query({
 });
 
 export const addProdiOption = mutation({
-  args: { name: v.string(), comingSoon: v.optional(v.boolean()) },
+  args: {
+    name: v.string(),
+    comingSoon: v.optional(v.boolean()),
+    university: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
     await requireAdmin(ctx);
     const normalized = args.name.toUpperCase().trim().replace(/\.$/, "");
@@ -555,6 +559,7 @@ export const addProdiOption = mutation({
     return await ctx.db.insert("prodi_options", {
       name: normalized,
       comingSoon: args.comingSoon,
+      university: args.university?.toUpperCase().trim() || undefined,
     });
   },
 });

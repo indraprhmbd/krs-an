@@ -12,12 +12,14 @@ import { CurriculumTab } from "./admin/CurriculumTab";
 import { ProdiTab } from "./admin/ProdiTab";
 import { IntelligenceScraperDialog } from "./admin/dialogs/IntelligenceScraperDialog";
 import { CurriculumImportDialog } from "./admin/dialogs/CurriculumImportDialog";
+import { UgmFormatImportDialog } from "./admin/dialogs/UgmFormatImportDialog";
 
 export function AdminDashboard() {
   const user = useQuery(api.users.getCurrentUser);
   const clearMaster = useMutation(api.admin.clearMasterData);
   const [isAiDialogOpen, setIsAiDialogOpen] = useState(false);
   const [isCurriculumDialogOpen, setIsCurriculumDialogOpen] = useState(false);
+  const [isUgmDialogOpen, setIsUgmDialogOpen] = useState(false);
   const [activeTab, setActiveTab] = useLocalStorage("admin-active-tab", "master");
 
   // Auth Check
@@ -146,7 +148,10 @@ export function AdminDashboard() {
           </TabsList>
 
           <TabsContent value="master">
-            <MasterDataTab onOpenScraper={() => setIsAiDialogOpen(true)} />
+            <MasterDataTab
+              onOpenScraper={() => setIsAiDialogOpen(true)}
+              onOpenUgmImport={() => setIsUgmDialogOpen(true)}
+            />
           </TabsContent>
 
           <TabsContent value="curriculum">
@@ -168,6 +173,11 @@ export function AdminDashboard() {
         <CurriculumImportDialog
           isOpen={isCurriculumDialogOpen}
           onClose={() => setIsCurriculumDialogOpen(false)}
+        />
+
+        <UgmFormatImportDialog
+          isOpen={isUgmDialogOpen}
+          onClose={() => setIsUgmDialogOpen(false)}
         />
       </div>
     </div>
