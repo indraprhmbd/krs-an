@@ -9,7 +9,7 @@ import type { QueryCtx, MutationCtx } from "./_generated/server";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { checkAdmin } from "./admin";
-import { requireUser } from "./lib";
+import { requireUser, hasScheduleConflict } from "./lib";
 import { v, ConvexError } from "convex/values";
 import Groq from "groq-sdk";
 import OpenAI from "openai";
@@ -474,6 +474,10 @@ export const smartGenerate = action({
           .filter(Boolean);
 
         if (fullCourses.length === 0) continue;
+        // Every ID resolved to a real course, but the model can still
+        // propose courses that overlap in time -- that must not count as a
+        // "valid" plan just because reconstruction succeeded.
+        if (hasScheduleConflict(fullCourses)) continue;
 
         const name = aiPlan.name || `AI Plan ${i + 1}`;
         planPayloads.push({

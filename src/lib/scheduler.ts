@@ -83,6 +83,19 @@ function checkDailySksLimit(courses: Course[], limit: number = 8): boolean {
   return Object.values(daySks).every((sks) => sks <= limit);
 }
 
+/**
+ * Whether any conflict-free combination exists at all for the selected
+ * courses. generatePlans's backtracking is exhaustive with pruning at every
+ * branch, so an empty result here is a genuine proof of infeasibility, not a
+ * heuristic miss -- capped at 1 result since we only need to know one exists.
+ */
+export function hasFeasibleSchedule(
+  allCourses: Course[],
+  selectedCodes: string[],
+): boolean {
+  return generatePlans(allCourses, selectedCodes, 1).length > 0;
+}
+
 export function generatePlans(
   allCourses: Course[],
   selectedCodes: string[],

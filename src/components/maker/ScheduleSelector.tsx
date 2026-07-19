@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { toast } from "sonner";
 import { useLanguage } from "../../context/LanguageContext";
+import { hasFeasibleSchedule } from "@/lib/scheduler";
 import {
   Select,
   SelectContent,
@@ -168,7 +170,19 @@ export function ScheduleSelector({
             // Manual assembly, not "add another course" -- pencil reads as
             // hand-editing rather than duplicating the add-subject "plus".
             icon: "pencil",
-            onClick: () => onSaveManual?.([]),
+            onClick: () => {
+              // Susun Cepat's search is exhaustive with pruning at every
+              // branch, so if it can't find one conflict-free combination,
+              // none exists among the selected courses' class options --
+              // Plotter draws from the same pool. Warn, but still let the
+              // student in: manual override / accepting a partial conflict
+              // is a legitimate use, unlike Smart Generate which costs a
+              // credit and is hard-blocked instead.
+              if (!hasFeasibleSchedule(courses, selectedCodes)) {
+                toast.warning(t("toast.plotter_infeasible_warning"));
+              }
+              onSaveManual?.([]);
+            },
             disabled: !hasSelection || isGenerating,
             disabledReason: !hasSelection
               ? t("selector.needs_courses")

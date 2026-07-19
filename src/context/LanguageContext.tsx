@@ -158,6 +158,10 @@ const translations: Record<string, string> = {
     "Belum ada mata kuliah. Tambah mata kuliah dulu.",
   "toast.no_valid_schedules":
     "Tidak ada jadwal yang valid. Coba lepas beberapa kelas yang dikunci.",
+  "toast.smart_generate_infeasible":
+    "Tidak ada kombinasi bebas konflik untuk mata kuliah yang dipilih. Smart Generate memakai data yang sama, jadi tidak akan berhasil juga -- ubah pilihan mata kuliah/kelas dulu.",
+  "toast.plotter_infeasible_warning":
+    "Susun Cepat tidak menemukan kombinasi bebas konflik untuk pilihan ini -- Plotter kemungkinan juga tidak bisa menghindarinya sepenuhnya.",
   "toast.selections_cleared": "Pilihan dibersihkan.",
   "toast.quick_fix": "Perbaikan cepat diterapkan.",
   "toast.quick_fix_partial":

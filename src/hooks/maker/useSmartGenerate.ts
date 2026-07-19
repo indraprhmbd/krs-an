@@ -2,6 +2,8 @@ import { useAction, useMutation } from "convex/react";
 import { useEffect, useState } from "react";
 import { api } from "../../../convex/_generated/api";
 import { toast } from "sonner";
+import { hasFeasibleSchedule } from "@/lib/scheduler";
+import type { Course } from "@/types";
 
 /**
  * AI generation: cooldown display, the pre-flight checks (selection, credits,
@@ -14,7 +16,7 @@ interface UseSmartGenerateArgs {
   t: (key: string, vars?: Record<string, string | number>) => string;
   userData?: { credits: number; lastSmartGenerateTime?: number };
   selectedCodes: string[];
-  courses: unknown[];
+  courses: Course[];
   maxSks: number;
   requireAuth: (reason: string) => boolean;
   setIsSmartDialogOpen: (open: boolean) => void;
@@ -77,6 +79,16 @@ export function useSmartGenerate({
       return;
     }
 
+    // Susun Cepat's search is exhaustive with pruning at every branch, so if
+    // it can't find one conflict-free combination, none exists among the
+    // selected courses' class options -- Smart Generate draws from the same
+    // pool and can't do better. Block before the credit/cooldown checks so a
+    // structurally impossible selection never reaches the network.
+    if (!hasFeasibleSchedule(courses, selectedCodes)) {
+      toast.error(t("toast.smart_generate_infeasible"));
+      return;
+    }
+
     if (!userData || userData.credits <= 0) {
       toast.error(t("toast.no_credits"));
       return;
@@ -98,6 +110,14 @@ export function useSmartGenerate({
     model: string;
     maxDailySks: number;
   }) => {
+    // Defensive re-check: the selection could have changed while the
+    // preferences dialog was open.
+    if (!hasFeasibleSchedule(courses, selectedCodes)) {
+      toast.error(t("toast.smart_generate_infeasible"));
+      setIsSmartDialogOpen(false);
+      return;
+    }
+
     setIsSmartDialogOpen(false);
     setIsSmartGenerating(true);
     setMaxDailySks(preferences.maxDailySks);

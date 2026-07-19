@@ -111,3 +111,39 @@ export function normalizeDayOfWeek(raw: string): string {
   const fallback = lower.slice(0, 3);
   return fallback.charAt(0).toUpperCase() + fallback.slice(1);
 }
+
+/**
+ * Mirrors src/lib/rules.ts's isOverlapping/checkConflicts. Duplicated rather
+ * than imported for the same reason as normalizeDayOfWeek above: convex/
+ * never imports from src/, and this is small enough that one copy per side
+ * is cheaper than crossing that boundary.
+ *
+ * Used to validate an AI-proposed plan in convex/ai.ts's reconstruction step
+ * before counting it as a surviving plan -- the model can return course IDs
+ * that are individually real but collectively still overlap in time, and
+ * that must not count as a "valid" schedule just because every ID resolved.
+ */
+function parseTimeToMinutes(t: string): number {
+  const [h, m] = t.split(":").map(Number);
+  return h * 60 + m;
+}
+
+export function hasScheduleConflict(
+  courses: { schedule: { day: string; start: string; end: string }[] }[],
+): boolean {
+  for (let i = 0; i < courses.length; i++) {
+    for (let j = i + 1; j < courses.length; j++) {
+      for (const s1 of courses[i].schedule) {
+        for (const s2 of courses[j].schedule) {
+          if (s1.day !== s2.day) continue;
+          const start1 = parseTimeToMinutes(s1.start);
+          const end1 = parseTimeToMinutes(s1.end);
+          const start2 = parseTimeToMinutes(s2.start);
+          const end2 = parseTimeToMinutes(s2.end);
+          if (Math.max(start1, start2) < Math.min(end1, end2)) return true;
+        }
+      }
+    }
+  }
+  return false;
+}
