@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -165,6 +165,22 @@ export function HowToUseDialog({ trigger }: { trigger?: React.ReactNode }) {
   );
 }
 
+// autoplay requires mute=1 (browser policy); loop requires playlist=videoId
+// pointed at itself, since YouTube's loop param alone is ignored on single
+// videos; controls/modestbranding/rel trimmed for the clean silent-loop look.
+function ytEmbed(videoId: string): string {
+  const params = new URLSearchParams({
+    autoplay: "1",
+    mute: "1",
+    loop: "1",
+    playlist: videoId,
+    controls: "0",
+    modestbranding: "1",
+    rel: "0",
+  });
+  return `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+}
+
 interface TutorialSection {
   title: string;
   desc: string;
@@ -176,30 +192,10 @@ interface TutorialSection {
 
 function TutorialVideoFrame({ section }: { section: TutorialSection }) {
   const { t } = useLanguage();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  // The iframe is cross-origin (Cloudinary/YouTube), so there's no way to
-  // hook a click handler into the video itself -- the browser blocks
-  // reaching into another origin's document. Fullscreening our own wrapper
-  // div instead is a same-origin DOM operation we can actually do: the
-  // iframe (clean, no controls) just fills whatever size that wrapper is,
-  // fullscreen included. The overlay button sits on top only to catch the
-  // click, since a click landing directly on the iframe goes to its content,
-  // never to a handler on an ancestor element.
-  const handleClick = () => {
-    containerRef.current?.requestFullscreen().catch(() => {
-      // Fullscreen can be denied (no user gesture context in some embeds,
-      // browser policy, etc.) -- silently no-op rather than throwing, since
-      // the video keeps playing normally either way.
-    });
-  };
 
   if (section.embedSrc) {
     return (
-      <div
-        ref={containerRef}
-        className="relative aspect-video w-full overflow-hidden rounded-card border border-border bg-muted"
-      >
+      <div className="relative aspect-video w-full overflow-hidden rounded-card border border-border bg-muted">
         <iframe
           src={section.embedSrc}
           title={section.title}
@@ -207,12 +203,6 @@ function TutorialVideoFrame({ section }: { section: TutorialSection }) {
           loading="lazy"
           allow="autoplay; fullscreen; encrypted-media; picture-in-picture"
           allowFullScreen
-        />
-        <button
-          type="button"
-          aria-label="Perbesar video"
-          onClick={handleClick}
-          className="absolute inset-0 cursor-pointer bg-transparent"
         />
       </div>
     );
@@ -247,44 +237,37 @@ export function TutorialVideosDialog({
     {
       title: t("tutorial_video.section1_title"),
       desc: t("tutorial_video.section1_desc"),
-      embedSrc:
-        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-43-16_bycvab&profile=cld-looping",
+      embedSrc: ytEmbed("k1Q39P04ONs"),
     },
     {
       title: t("tutorial_video.section2_title"),
       desc: t("tutorial_video.section2_desc"),
-      embedSrc:
-        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-44-43_eqfww5&profile=cld-looping",
+      embedSrc: ytEmbed("q5XqZbwsdfw"),
     },
     {
       title: t("tutorial_video.section3_title"),
       desc: t("tutorial_video.section3_desc"),
-      embedSrc:
-        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-46-34_zqik9s&profile=cld-looping",
+      embedSrc: ytEmbed("FL-9tIP5KCE"),
     },
     {
       title: t("tutorial_video.section4_title"),
       desc: t("tutorial_video.section4_desc"),
-      embedSrc:
-        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-47-48_hfp43f&profile=cld-looping",
+      embedSrc: ytEmbed("DrNOvnQEfgE"),
     },
     {
       title: t("tutorial_video.section5_title"),
       desc: t("tutorial_video.section5_desc"),
-      embedSrc:
-        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-49-57_vci8us&profile=cld-looping",
+      embedSrc: ytEmbed("W7i4nbiDtDo"),
     },
     {
       title: t("tutorial_video.section6_title"),
       desc: t("tutorial_video.section6_desc"),
-      embedSrc:
-        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-53-17_y8aqil&profile=cld-looping",
+      embedSrc: ytEmbed("ymut66-y5qA"),
     },
     {
       title: t("tutorial_video.section7_title"),
       desc: t("tutorial_video.section7_desc"),
-      embedSrc:
-        "https://player.cloudinary.com/embed/?cloud_name=dhwvc0xsc&public_id=2026-07-18_22-55-37_dtpvyq&profile=cld-looping",
+      embedSrc: ytEmbed("u2p2ofPOecM"),
     },
   ];
 
