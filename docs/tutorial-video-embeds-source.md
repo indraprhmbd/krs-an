@@ -15,6 +15,8 @@ Cloudinary's cld-looping profile.)
   frameborder="0"
 ></iframe>
 
+YT: https://youtu.be/k1Q39P04ONs
+
 2. muat dari kurikulum -> tambah manual dari katalog -> hapus salah satu course -> memilih/constraint beberapa courses
 
 <iframe
@@ -26,6 +28,8 @@ Cloudinary's cld-looping profile.)
   allowfullscreen
   frameborder="0"
 ></iframe>
+
+YT: https://youtu.be/q5XqZbwsdfw
 
 3. Susun cepat. (menunjukkan shuffle, pager) -> save (melihatkan hasil save tab AI)
 
@@ -39,6 +43,8 @@ Cloudinary's cld-looping profile.)
   frameborder="0"
 ></iframe>
 
+YT: https://youtu.be/FL-9tIP5KCE
+
 4. manual plotter (menunjukkan pilih kelas, menunjukkan conflicts, menunjukkan auto-resolve conflicts) -> save (melihatkan hasil save tab manual)
 
 <iframe
@@ -50,6 +56,8 @@ Cloudinary's cld-looping profile.)
   allowfullscreen
   frameborder="0"
 ></iframe>
+
+YT: https://youtu.be/DrNOvnQEfgE
 
 5. import plan -> login agar bisa share
 
@@ -63,6 +71,8 @@ Cloudinary's cld-looping profile.)
   frameborder="0"
 ></iframe>
 
+YT: https://youtu.be/W7i4nbiDtDo
+
 6. rename plan -> share link -> menunjukkan link bekerja di akun yang lain -> save (melihatkan hasil share)
 
 <iframe
@@ -75,6 +85,7 @@ Cloudinary's cld-looping profile.)
   frameborder="0"
 ></iframe>
 
+YT: https://youtu.be/ymut66-y5qA
 
 7. hapus/clear session
 
@@ -87,3 +98,5 @@ Cloudinary's cld-looping profile.)
   allowfullscreen
   frameborder="0"
 ></iframe>
+
+YT: https://youtu.be/u2p2ofPOecM
