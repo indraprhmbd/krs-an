@@ -15,7 +15,7 @@ Cloudinary's cld-looping profile.)
   frameborder="0"
 ></iframe>
 
-YT: https://youtu.be/k1Q39P04ONs
+YT: https://youtu.be/u2p2ofPOecM
 
 2. muat dari kurikulum -> tambah manual dari katalog -> hapus salah satu course -> memilih/constraint beberapa courses
 
@@ -99,4 +99,4 @@ YT: https://youtu.be/ymut66-y5qA
   frameborder="0"
 ></iframe>
 
-YT: https://youtu.be/u2p2ofPOecM
+YT: https://youtu.be/k1Q39P04ONs
