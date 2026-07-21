@@ -237,7 +237,7 @@ export function TutorialVideosDialog({
     {
       title: t("tutorial_video.section1_title"),
       desc: t("tutorial_video.section1_desc"),
-      embedSrc: ytEmbed("k1Q39P04ONs"),
+      embedSrc: ytEmbed("u2p2ofPOecM"),
     },
     {
       title: t("tutorial_video.section2_title"),
@@ -267,7 +267,7 @@ export function TutorialVideosDialog({
     {
       title: t("tutorial_video.section7_title"),
       desc: t("tutorial_video.section7_desc"),
-      embedSrc: ytEmbed("u2p2ofPOecM"),
+      embedSrc: ytEmbed("k1Q39P04ONs"),
     },
   ];
 
